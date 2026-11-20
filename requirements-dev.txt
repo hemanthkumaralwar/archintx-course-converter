@@ -1,0 +1,6 @@
+# Development tools only (not needed to run the converter).
+-r requirements.txt
+pytest==9.2.0
+pytest-cov==7.1.0
+ruff==0.17.6
+pip-audit==2.10.1

@@ -1,0 +1,20 @@
+# Environment and secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Conversion results
+output/*
+!output/.gitkeep
+
+# Tool caches and reports
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml

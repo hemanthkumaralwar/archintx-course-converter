@@ -1,0 +1,31 @@
+[project]
+name = "archintx-course-converter"
+version = "0.1.0"
+description = "Converts .txt, .docx and .pdf course material into course JSON with Gemini or OpenAI."
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["venv"]
+
+[tool.ruff.lint]
+# E/W: pycodestyle (PEP 8), F: pyflakes (unused code), I: import order,
+# B: bugbear (likely bugs), C90: complexity.
+select = ["E", "W", "F", "I", "B", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["converter"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
