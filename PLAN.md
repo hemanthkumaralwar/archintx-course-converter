@@ -445,6 +445,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `README.md`, `docs/TECHNICAL.md`, `docs/TEST_RESULTS.md`, `docs/DEMO.md`.
 - **Depends on:** Step 15Q.
 - **Done when:** someone who has not worked on the project follows the README on a clean machine and runs the CLI and the test suite in under 15 minutes, and every item in section 8 (Submission checklist) is ticked.
+- **Done 2026-11-20, except the items that need the user.** Written: `docs/TECHNICAL.md`, `docs/DEMO.md`, a README quick start and documentation map, a summary at the top of `docs/TEST_RESULTS.md`, and a note on `docs/LEGACY_GENERATOR.md`. Clean-machine check (fresh clone, Python 3.12, README steps only): installs, 452 tests pass, conversion VALID; about 15 minutes on this slow machine without a Gemini "503 high demand" stop, 17 minutes with the stop and the documented resume (`docs/TEST_RESULTS.md`). Not done by me: the recorded backup walkthrough, reviewer access to the private repository, and the final quality numbers that wait for Step 15Q.
 
 ### 6.5 Summary
 
@@ -504,11 +505,12 @@ its **Done when** in section 6.4.
 
 ## 8. Submission checklist
 
-- [ ] Source code in GitHub (public or shared with the team)
-- [ ] GitHub repository link
-- [ ] `README.md` + `docs/TECHNICAL.md`
-- [ ] `docs/TEST_RESULTS.md` + pytest report (run locally; no CI, see Step 14)
-- [ ] Live demonstration run locally (CLI or `localhost` web page) + sample input files + recorded walkthrough as a backup in case the API quota runs out
+- [x] Source code in GitHub — private repository `hemanthkumaralwar/archintx-course-converter`
+- [ ] GitHub repository link shared — **you:** add reviewers as collaborators (or make the repository public) and send the link
+- [x] `README.md` + `docs/TECHNICAL.md`
+- [x] `docs/TEST_RESULTS.md` + pytest report (run locally; no CI, see Step 14) — final quality numbers will be updated after Step 15Q
+- [x] Live demonstration script for a local run: `docs/DEMO.md`, with sample inputs in `samples/inputs/` and finished examples in `docs/examples/`
+- [ ] Recorded walkthrough as a backup — **you:** record sections 2 and 4 of `docs/DEMO.md`
 
 ---
 

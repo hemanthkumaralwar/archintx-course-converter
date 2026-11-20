@@ -12,7 +12,7 @@ optionally, OpenAI.
 > and real conversions of all three file types in [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
 > Open work is listed in [PLAN.md](PLAN.md) (Step 15Q and follow-ups F1–F3).
 
-## Quick start (about 10 minutes)
+## Quick start (10–20 minutes, mostly installing packages)
 
 **You need:** Python 3.12 or newer, internet access for the LLM API, and a free Gemini API key
 from <https://aistudio.google.com/apikey>.
@@ -45,7 +45,8 @@ python tools/validate_json.py course.json schema/course_schema.json
 ```
 
 The tests need no network. The conversion takes about 2 minutes (about 10 Gemini calls)
-and ends with `VALID`.
+and ends with `VALID`. If it stops with "503 high demand" (Gemini is busy), run the same
+command again: the finished parts are kept and it continues.
 
 ## Documentation
 

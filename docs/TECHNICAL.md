@@ -206,6 +206,7 @@ syntax lines, retries and back-off), `converter/extractors.py` (file limits),
 | Item | Status |
 |---|---|
 | Free-tier quota | Per Google AI Studio project; a full 8 × 8 course is about 74 calls. Runs resume after a quota stop. |
+| Gemini busy periods | "503 high demand" happened in two of the real test sessions, sometimes outlasting the 15 s + 30 s waits. The run then stops with a one-line error; running the same command again continues (confirmed twice). |
 | Scanned PDFs, images, `.doc` / `.rtf` / `.odt` | Not supported (no OCR) |
 | Tables | Become `cell \| cell` lines; layout is not kept |
 | Web jobs | In memory: one server process, forgotten on restart; one job at a time |

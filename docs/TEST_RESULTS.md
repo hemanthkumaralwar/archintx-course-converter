@@ -9,7 +9,8 @@
 | Real conversions (Gemini, 2 × 3) | `.txt`, `.docx` and `.pdf` all **VALID** against `schema/course_schema.json` (Step 11) |
 | Web page (Step 13) | Sample converted in the browser with Gemini; downloaded course **VALID**; no console errors; works at 375 px |
 | Resume after a stop | Confirmed against the real API (Step 11, PDF run) |
-| Gemini free-tier calls used in testing | about 75 (spike, outlines, lessons, full runs, web page) |
+| Gemini free-tier calls used in testing | about 75 (spike, outlines, lessons, full runs, web page, clean-machine check) |
+| Clean-machine check (Step 16) | README quick start in a fresh clone with Python 3.12: installs, 452 tests pass, conversion VALID (after one resume) |
 | Open | Output-quality step 15Q paused for a decision; follow-ups F1–F3 in PLAN.md §6.6 |
 
 The sections below are the real runs against the LLM, step by step, in the order they were done.
@@ -207,3 +208,26 @@ Run after the retry fix: `pytest --cov=converter` → **396 passed**, **96% cove
 
 `json_utils.py` and `schema_utils.py` are older modules from the title-based generator;
 their uncovered lines are error branches (unreadable files, malformed schemas).
+
+## Step 16 — Clean-machine check: the README quick start in a fresh clone
+
+**Date:** 2026-11-20 · **Python:** 3.12.10 (the system Python, not the project's 3.14 venv) ·
+**Steps:** exactly the README quick start: clone, create a venv, `pip install -r requirements-dev.txt`,
+copy `.env.example` to `.env` and add the key, `pytest -q`, convert, validate.
+
+| Part | Time on this machine | Result |
+|---|---|---|
+| Clone + venv | 9 s | OK |
+| `pip install -r requirements-dev.txt` | 7 min 33 s | OK (all pinned versions install on Python 3.12) |
+| `pytest -q` | 4 min 7 s | **452 passed** |
+| Convert `python-basics.pdf`, 1 × 2 (run 1) | 1 min 54 s | Stopped: Gemini "503 high demand" on lesson 1.1 three times; outline, details and overview saved |
+| Same command again (resume) | 1 min 33 s | Reused 3 saved pieces, wrote 2 lessons, **VALID** |
+
+Total about 17 minutes including the failed run and resume, or about 15 minutes without it.
+This machine was slow throughout the project (the test suite takes 40–90 s on it normally),
+so most of the time is package installation. The documented recovery for a 503 (run the same
+command again) worked as written.
+
+**Note:** Gemini returned "503 high demand" during both Step 11 and this check. If it repeats,
+wait a few minutes and run the same command again, or set `GEMINI_MODEL` to another current
+free-tier model in `.env`.
