@@ -1,0 +1,109 @@
+# Python Basics for Complete Beginners
+
+This short guide introduces the first ideas every new Python programmer needs: storing values in variables, working with numbers and text, making decisions with if statements, and repeating work with loops. Each part ends with a small example you can type and run yourself.
+
+## Variables and Assignment
+
+A variable is a name that refers to a value. You create one by writing the name, an equals sign, and the value. Python works out the type of the value for you, so you never declare it.
+
+age = 16
+name = "Priya"
+height_in_metres = 1.62
+
+The equals sign does not mean "is equal to" here. It means "store the value on the right under the name on the left". You can change what a name refers to at any time:
+
+score = 10
+score = score + 5
+print(score)
+
+This prints 15, because the second line reads the old value of score, adds 5, and stores the result under the same name.
+
+Good variable names describe what they hold. Use lowercase letters and underscores, such as total_price or number_of_students. Names cannot start with a digit and cannot contain spaces. Python treats Score and score as two different names, so be consistent.
+
+## Numbers and Arithmetic
+
+Python has two main kinds of numbers. Integers are whole numbers such as 3 or -40. Floats are numbers with a decimal point, such as 2.5 or 0.1. The usual operators work as you would expect: + adds, - subtracts, * multiplies and / divides.
+
+Division with / always gives a float, even when the answer is whole: 10 / 2 gives 5.0. When you want only the whole-number part of a division, use //, and when you want the remainder, use %:
+
+minutes = 135
+hours = minutes // 60
+left_over = minutes % 60
+print(hours, "hours and", left_over, "minutes")
+
+This prints 2 hours and 15 minutes. The ** operator raises a number to a power, so 2 ** 3 gives 8.
+
+Floats are stored in binary, so some decimal values cannot be represented exactly. For example, 0.1 + 0.2 gives 0.30000000000000004. When you show a result to a person, round it with round(value, 2).
+
+## Working with Text
+
+Text values are called strings. You can write them with single or double quotes; both mean the same thing. Joining two strings with + is called concatenation:
+
+first = "Ada"
+last = "Lovelace"
+full_name = first + " " + last
+
+You cannot add a number directly to a string. Writing "Age: " + 16 raises a TypeError. Convert the number first with str(16), or use an f-string, which lets you place values inside text by putting them in curly braces:
+
+age = 16
+message = f"{full_name} is {age} years old"
+print(message)
+
+Strings have many useful methods. name.upper() gives the text in capital letters, name.strip() removes spaces from both ends, and len(name) gives the number of characters. Strings are also sequences, so name[0] is the first character and name[-1] is the last one.
+
+## Making Decisions with if
+
+An if statement runs a block of code only when a condition is true. The condition is followed by a colon, and the block underneath must be indented, usually by four spaces. Python uses the indentation, not brackets, to know which lines belong to the block.
+
+temperature = 31
+if temperature > 30:
+    print("It is hot today.")
+elif temperature > 20:
+    print("It is warm today.")
+else:
+    print("Take a jacket.")
+
+Python checks the conditions from top to bottom and runs only the first block whose condition is true. elif means "else if" and you can have as many as you need. The else block runs when none of the conditions are true.
+
+Conditions use comparison operators: == for equal, != for not equal, and <, >, <= and >= for ordering. A common beginner mistake is writing = instead of == inside a condition; = stores a value, while == compares two values. You can combine conditions with and, or and not, for example age >= 13 and age <= 19.
+
+## Repeating Work with Loops
+
+Loops let you repeat code without writing it again. A for loop goes through the items of a sequence one at a time:
+
+for fruit in ["apple", "mango", "banana"]:
+    print("I like", fruit)
+
+To repeat something a set number of times, use range. range(5) produces the numbers 0, 1, 2, 3 and 4; it stops before 5. range(1, 6) starts at 1 instead.
+
+total = 0
+for number in range(1, 6):
+    total = total + number
+print("The sum is", total)
+
+A while loop repeats as long as its condition stays true. It is useful when you do not know in advance how many times to repeat, such as asking a question until the answer is valid:
+
+answer = ""
+while answer != "yes":
+    answer = input("Are you ready? ")
+
+Make sure something inside a while loop eventually makes the condition false, or the loop will never end. Inside any loop, break stops the loop immediately and continue skips to the next repetition.
+
+## Putting It Together
+
+Here is a small program that uses everything in this guide. It asks for five test scores, adds them up, and reports the average with a grade:
+
+total = 0
+for test in range(1, 6):
+    score = float(input(f"Score for test {test}: "))
+    total = total + score
+average = total / 5
+if average >= 80:
+    grade = "A"
+elif average >= 60:
+    grade = "B"
+else:
+    grade = "C"
+print(f"Average: {round(average, 1)}, grade {grade}")
+
+Try changing the number of tests, or add a check that refuses scores below 0 or above 100 by using a while loop. Small changes like these are the fastest way to become comfortable with Python.

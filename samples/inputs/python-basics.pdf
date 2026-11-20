@@ -1,0 +1,116 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 3
+/Kids [ 4 0 R 6 0 R 8 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents 5 0 R
+>>
+endobj
+5 0 obj
+<<
+/Length 2750
+>>
+stream
+BT /F1 10 Tf 72 720 Td (Python Basics for Complete Beginners) Tj 0 -13 Td () Tj 0 -13 Td (This short guide introduces the first ideas every new Python programmer needs: storing values) Tj 0 -13 Td (in variables, working with numbers and text, making decisions with if statements, and repeating) Tj 0 -13 Td (work with loops. Each part ends with a small example you can type and run yourself.) Tj 0 -13 Td () Tj 0 -13 Td (Variables and Assignment) Tj 0 -13 Td () Tj 0 -13 Td (A variable is a name that refers to a value. You create one by writing the name, an equals) Tj 0 -13 Td (sign, and the value. Python works out the type of the value for you, so you never declare it.) Tj 0 -13 Td () Tj 0 -13 Td (age = 16) Tj 0 -13 Td (name = "Priya") Tj 0 -13 Td (height_in_metres = 1.62) Tj 0 -13 Td () Tj 0 -13 Td (The equals sign does not mean "is equal to" here. It means "store the value on the right under) Tj 0 -13 Td (the name on the left". You can change what a name refers to at any time:) Tj 0 -13 Td () Tj 0 -13 Td (score = 10) Tj 0 -13 Td (score = score + 5) Tj 0 -13 Td (print\(score\)) Tj 0 -13 Td () Tj 0 -13 Td (This prints 15, because the second line reads the old value of score, adds 5, and stores the) Tj 0 -13 Td (result under the same name.) Tj 0 -13 Td () Tj 0 -13 Td (Good variable names describe what they hold. Use lowercase letters and underscores, such as) Tj 0 -13 Td (total_price or number_of_students. Names cannot start with a digit and cannot contain spaces.) Tj 0 -13 Td (Python treats Score and score as two different names, so be consistent.) Tj 0 -13 Td () Tj 0 -13 Td (Numbers and Arithmetic) Tj 0 -13 Td () Tj 0 -13 Td (Python has two main kinds of numbers. Integers are whole numbers such as 3 or -40. Floats are) Tj 0 -13 Td (numbers with a decimal point, such as 2.5 or 0.1. The usual operators work as you would expect:) Tj 0 -13 Td (+ adds, - subtracts, * multiplies and / divides.) Tj 0 -13 Td () Tj 0 -13 Td (Division with / always gives a float, even when the answer is whole: 10 / 2 gives 5.0. When you) Tj 0 -13 Td (want only the whole-number part of a division, use //, and when you want the remainder, use %:) Tj 0 -13 Td () Tj 0 -13 Td (minutes = 135) Tj 0 -13 Td (hours = minutes // 60) Tj 0 -13 Td (left_over = minutes % 60) Tj 0 -13 Td (print\(hours, "hours and", left_over, "minutes"\)) Tj 0 -13 Td () Tj 0 -13 Td (This prints 2 hours and 15 minutes. The ** operator raises a number to a power, so 2 ** 3 gives) Tj 0 -13 Td (8.) Tj 0 -13 Td () Tj 0 -13 Td (Floats are stored in binary, so some decimal values cannot be represented exactly. For example,) Tj 0 -13 Td (0.1 + 0.2 gives 0.30000000000000004. When you show a result to a person, round it with) Tj 0 -13 Td (round\(value, 2\).) Tj 0 -13 Td ET
+endstream
+endobj
+6 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents 7 0 R
+>>
+endobj
+7 0 obj
+<<
+/Length 2640
+>>
+stream
+BT /F1 10 Tf 72 720 Td () Tj 0 -13 Td (Working with Text) Tj 0 -13 Td () Tj 0 -13 Td (Text values are called strings. You can write them with single or double quotes; both mean the) Tj 0 -13 Td (same thing. Joining two strings with + is called concatenation:) Tj 0 -13 Td () Tj 0 -13 Td (first = "Ada") Tj 0 -13 Td (last = "Lovelace") Tj 0 -13 Td (full_name = first + " " + last) Tj 0 -13 Td () Tj 0 -13 Td (You cannot add a number directly to a string. Writing "Age: " + 16 raises a TypeError. Convert) Tj 0 -13 Td (the number first with str\(16\), or use an f-string, which lets you place values inside text by) Tj 0 -13 Td (putting them in curly braces:) Tj 0 -13 Td () Tj 0 -13 Td (age = 16) Tj 0 -13 Td (message = f"{full_name} is {age} years old") Tj 0 -13 Td (print\(message\)) Tj 0 -13 Td () Tj 0 -13 Td (Strings have many useful methods. name.upper\(\) gives the text in capital letters, name.strip\(\)) Tj 0 -13 Td (removes spaces from both ends, and len\(name\) gives the number of characters. Strings are also) Tj 0 -13 Td (sequences, so name[0] is the first character and name[-1] is the last one.) Tj 0 -13 Td () Tj 0 -13 Td (Making Decisions with if) Tj 0 -13 Td () Tj 0 -13 Td (An if statement runs a block of code only when a condition is true. The condition is followed) Tj 0 -13 Td (by a colon, and the block underneath must be indented, usually by four spaces. Python uses the) Tj 0 -13 Td (indentation, not brackets, to know which lines belong to the block.) Tj 0 -13 Td () Tj 0 -13 Td (temperature = 31) Tj 0 -13 Td (if temperature > 30:) Tj 0 -13 Td (    print\("It is hot today."\)) Tj 0 -13 Td (elif temperature > 20:) Tj 0 -13 Td (    print\("It is warm today."\)) Tj 0 -13 Td (else:) Tj 0 -13 Td (    print\("Take a jacket."\)) Tj 0 -13 Td () Tj 0 -13 Td (Python checks the conditions from top to bottom and runs only the first block whose condition) Tj 0 -13 Td (is true. elif means "else if" and you can have as many as you need. The else block runs when) Tj 0 -13 Td (none of the conditions are true.) Tj 0 -13 Td () Tj 0 -13 Td (Conditions use comparison operators: == for equal, != for not equal, and <, >, <= and >= for) Tj 0 -13 Td (ordering. A common beginner mistake is writing = instead of == inside a condition; = stores a) Tj 0 -13 Td (value, while == compares two values. You can combine conditions with and, or and not, for) Tj 0 -13 Td (example age >= 13 and age <= 19.) Tj 0 -13 Td () Tj 0 -13 Td (Repeating Work with Loops) Tj 0 -13 Td () Tj 0 -13 Td (Loops let you repeat code without writing it again. A for loop goes through the items of a) Tj 0 -13 Td (sequence one at a time:) Tj 0 -13 Td ET
+endstream
+endobj
+8 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents 9 0 R
+>>
+endobj
+9 0 obj
+<<
+/Length 2077
+>>
+stream
+BT /F1 10 Tf 72 720 Td () Tj 0 -13 Td (for fruit in ["apple", "mango", "banana"]:) Tj 0 -13 Td (    print\("I like", fruit\)) Tj 0 -13 Td () Tj 0 -13 Td (To repeat something a set number of times, use range. range\(5\) produces the numbers 0, 1, 2, 3) Tj 0 -13 Td (and 4; it stops before 5. range\(1, 6\) starts at 1 instead.) Tj 0 -13 Td () Tj 0 -13 Td (total = 0) Tj 0 -13 Td (for number in range\(1, 6\):) Tj 0 -13 Td (    total = total + number) Tj 0 -13 Td (print\("The sum is", total\)) Tj 0 -13 Td () Tj 0 -13 Td (A while loop repeats as long as its condition stays true. It is useful when you do not know in) Tj 0 -13 Td (advance how many times to repeat, such as asking a question until the answer is valid:) Tj 0 -13 Td () Tj 0 -13 Td (answer = "") Tj 0 -13 Td (while answer != "yes":) Tj 0 -13 Td (    answer = input\("Are you ready? "\)) Tj 0 -13 Td () Tj 0 -13 Td (Make sure something inside a while loop eventually makes the condition false, or the loop will) Tj 0 -13 Td (never end. Inside any loop, break stops the loop immediately and continue skips to the next) Tj 0 -13 Td (repetition.) Tj 0 -13 Td () Tj 0 -13 Td (Putting It Together) Tj 0 -13 Td () Tj 0 -13 Td (Here is a small program that uses everything in this guide. It asks for five test scores, adds) Tj 0 -13 Td (them up, and reports the average with a grade:) Tj 0 -13 Td () Tj 0 -13 Td (total = 0) Tj 0 -13 Td (for test in range\(1, 6\):) Tj 0 -13 Td (    score = float\(input\(f"Score for test {test}: "\)\)) Tj 0 -13 Td (    total = total + score) Tj 0 -13 Td (average = total / 5) Tj 0 -13 Td (if average >= 80:) Tj 0 -13 Td (    grade = "A") Tj 0 -13 Td (elif average >= 60:) Tj 0 -13 Td (    grade = "B") Tj 0 -13 Td (else:) Tj 0 -13 Td (    grade = "C") Tj 0 -13 Td (print\(f"Average: {round\(average, 1\)}, grade {grade}"\)) Tj 0 -13 Td () Tj 0 -13 Td (Try changing the number of tests, or add a check that refuses scores below 0 or above 100 by) Tj 0 -13 Td (using a while loop. Small changes like these are the fastest way to become comfortable with) Tj 0 -13 Td (Python.) Tj 0 -13 Td ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000125 00000 n 
+0000000174 00000 n 
+0000000355 00000 n 
+0000003157 00000 n 
+0000003338 00000 n 
+0000006030 00000 n 
+0000006211 00000 n 
+trailer
+<<
+/Size 10
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+8340
+%%EOF
