@@ -13,8 +13,10 @@ WHY:  Keeping this file small makes the program start in one obvious place.
 
 import sys
 
+from .config import load_settings
 from .exceptions import CourseGenerationError
 from .pipeline import run_pipeline
+from .providers import get_provider
 from .user_input import read_course_request
 
 
@@ -32,7 +34,9 @@ def main(argv=None):
     """
     try:
         request = read_course_request(argv)
-        run_pipeline(request)
+        # Settings are read once, here; a missing API key stops the run before any work.
+        provider = get_provider(load_settings())
+        run_pipeline(request, provider)
         return 0
 
     except CourseGenerationError as exc:

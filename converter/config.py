@@ -1,24 +1,26 @@
 """
 config.py
 
-WHAT: Project-wide settings that stay the same from one course to the next:
-      schema file, output folder, course structure (lessons per module,
-      lesson length), retry limits, model, and API key.
+WHAT: Project-wide settings:
+      - constants that stay the same from one course to the next (schema
+        file, output folder, course structure, retry limits),
+      - Settings: values that come from the environment or .env (LLM
+        provider, API key, model), read once by load_settings().
 
 WHY:  Course title, difficulty, and duration are NOT stored here. The user
-      supplies them on each run (see user_input.py), so this file contains
-      only values that do not change per course.
+      supplies them on each run (see user_input.py). Environment values are
+      read only when load_settings() is called, never at import, so nothing
+      else in the code depends on the environment.
 """
 
 import os
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 from .exceptions import ConfigurationError
 
-# Load variables from a .env file (if present) into the environment.
-# WHY: keeps the API key out of the source code.
 # ------------------------------------------------------------
 # Files and folders
 # ------------------------------------------------------------
@@ -27,7 +29,8 @@ from .exceptions import ConfigurationError
 # WHY: paths work no matter which folder the program is started from.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-load_dotenv(PROJECT_ROOT / ".env")
+# Holds the API key. Git ignores it (see .gitignore).
+DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 
 # Every output must follow this schema.
 SCHEMA_FILE = PROJECT_ROOT / "schema" / "course_schema.json"
@@ -111,69 +114,116 @@ TEMPERATURE = 0.3
 
 
 # ------------------------------------------------------------
-# Gemini credentials and model
+# Settings from the environment (LLM provider, API key, model)
 # ------------------------------------------------------------
 
-API_KEY = os.getenv("GEMINI_API_KEY")
-MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+DEFAULT_PROVIDER = "gemini"
+
+# The model tested in docs/SPIKE_GEMINI.md.
+DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite"
 
 
-def validate_config():  # noqa: C901 — TODO(team): split; see PLAN.md §6.4 Step 6a
+@dataclass(frozen=True)
+class Settings:
     """
-    WHAT: Checks that every setting is usable before any API call is made.
+    WHAT: Values read from the environment and .env for one run.
 
-    WHY:  A missing key or schema should stop the run in seconds, not after
-          several paid requests.
+    WHY:  API keys are excluded from repr, so printing or logging a Settings
+          object (or a traceback that shows it) never reveals a key.
+    """
+
+    llm_provider: str = DEFAULT_PROVIDER
+    gemini_api_key: str = field(default="", repr=False)
+    gemini_model: str = DEFAULT_GEMINI_MODEL
+    temperature: float = TEMPERATURE
+
+
+def load_settings(environ=None, env_file=DEFAULT_ENV_FILE):
+    """
+    WHAT: Read Settings from the environment and the .env file.
+
+    HOW:  Variables already set in the environment win over the .env file
+          (the usual rule for .env files). Blank values count as missing.
+
+    WHY:  The .env file is read with dotenv_values, which does not change
+          os.environ, so loading settings has no side effects. Tests pass
+          their own `environ` and `env_file`.
+
+    RETURNS:
+        A Settings object. It is not checked for a usable API key here;
+        providers.get_provider does that, because it knows which key it needs.
+    """
+    file_values = dotenv_values(env_file) if env_file and Path(env_file).is_file() else {}
+    values = {**file_values, **(os.environ if environ is None else environ)}
+
+    def read(name):
+        return (values.get(name) or "").strip()
+
+    return Settings(
+        llm_provider=read("LLM_PROVIDER").lower() or DEFAULT_PROVIDER,
+        gemini_api_key=read("GEMINI_API_KEY"),
+        gemini_model=read("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL,
+    )
+
+
+def validate_config():
+    """
+    WHAT: Checks that the constants above are usable before any API call is made.
+
+    WHY:  A broken setting or missing schema should stop the run in seconds,
+          not after several requests.
 
     RAISES:
-        ConfigurationError: if a setting or the schema file is invalid.
+        ConfigurationError: for the first setting that is invalid.
     """
-    if not API_KEY:
-        raise ConfigurationError("GEMINI_API_KEY is missing. Add it to your .env file.")
-
     if not SCHEMA_FILE.is_file():
         raise ConfigurationError(f"Schema file not found: {SCHEMA_FILE}")
 
-    for name, value in (("ARRAY_PATH", ARRAY_PATH), ("LESSON_ARRAY_PATH", LESSON_ARRAY_PATH)):
-        if value is not None and not str(value).strip():
-            raise ConfigurationError(f"{name} is set but empty. Use None or a path.")
+    for is_valid, message in _constant_rules():
+        if not is_valid:
+            raise ConfigurationError(message)
 
-    if not 1 <= SYNTAX_LINES_MIN <= SYNTAX_LINES_MAX:
-        raise ConfigurationError(
-            f"SYNTAX_LINES_MIN/MAX are invalid: {SYNTAX_LINES_MIN}-{SYNTAX_LINES_MAX}."
+
+def _constant_rules():
+    """Return (is_valid, message) for every rule the constants above must follow."""
+    paths = (("ARRAY_PATH", ARRAY_PATH), ("LESSON_ARRAY_PATH", LESSON_ARRAY_PATH))
+    rules = [
+        (value is None or bool(str(value).strip()), f"{name} is set but empty. Use None or a path.")
+        for name, value in paths
+    ]
+    rules += [
+        (
+            isinstance(count, int) and count >= 1,
+            f"LESSON_ITEM_COUNTS['{item_path}'] must be a whole number of at least 1.",
         )
-
-    if LESSONS_PER_MODULE < 1:
-        raise ConfigurationError(
-            f"LESSONS_PER_MODULE must be at least 1 (got {LESSONS_PER_MODULE})."
-        )
-
-    for item_path, count in LESSON_ITEM_COUNTS.items():
-        if not isinstance(count, int) or count < 1:
-            raise ConfigurationError(
-                f"LESSON_ITEM_COUNTS['{item_path}'] must be a whole number of at least 1."
-            )
-
-    if not 1 <= LESSON_MINUTES_MIN <= LESSON_MINUTES_MAX:
-        raise ConfigurationError(
-            f"Lesson length range is invalid: {LESSON_MINUTES_MIN}-{LESSON_MINUTES_MAX} minutes."
-        )
-
-    if not LESSON_MINUTES_MIN <= PLANNING_LESSON_MINUTES <= LESSON_MINUTES_MAX:
-        raise ConfigurationError("PLANNING_LESSON_MINUTES must be within the lesson length range.")
-
-    if not 1 <= MIN_MODULES <= MAX_MODULES:
-        raise ConfigurationError(
-            f"Module limits are invalid: MIN_MODULES={MIN_MODULES}, MAX_MODULES={MAX_MODULES}."
-        )
-
-    if MAX_RETRIES < 1:
-        raise ConfigurationError(f"MAX_RETRIES must be at least 1 (got {MAX_RETRIES}).")
-
-    if RETRY_DELAY_SECONDS < 0:
-        raise ConfigurationError(
-            f"RETRY_DELAY_SECONDS cannot be negative (got {RETRY_DELAY_SECONDS})."
-        )
-
-    if not 0 <= TEMPERATURE <= 2:
-        raise ConfigurationError(f"TEMPERATURE must be between 0 and 2 (got {TEMPERATURE}).")
+        for item_path, count in LESSON_ITEM_COUNTS.items()
+    ]
+    rules += [
+        (
+            1 <= SYNTAX_LINES_MIN <= SYNTAX_LINES_MAX,
+            f"SYNTAX_LINES_MIN/MAX are invalid: {SYNTAX_LINES_MIN}-{SYNTAX_LINES_MAX}.",
+        ),
+        (
+            LESSONS_PER_MODULE >= 1,
+            f"LESSONS_PER_MODULE must be at least 1 (got {LESSONS_PER_MODULE}).",
+        ),
+        (
+            1 <= LESSON_MINUTES_MIN <= LESSON_MINUTES_MAX,
+            f"Lesson length range is invalid: {LESSON_MINUTES_MIN}-{LESSON_MINUTES_MAX} minutes.",
+        ),
+        (
+            LESSON_MINUTES_MIN <= PLANNING_LESSON_MINUTES <= LESSON_MINUTES_MAX,
+            "PLANNING_LESSON_MINUTES must be within the lesson length range.",
+        ),
+        (
+            1 <= MIN_MODULES <= MAX_MODULES,
+            f"Module limits are invalid: MIN_MODULES={MIN_MODULES}, MAX_MODULES={MAX_MODULES}.",
+        ),
+        (MAX_RETRIES >= 1, f"MAX_RETRIES must be at least 1 (got {MAX_RETRIES})."),
+        (
+            RETRY_DELAY_SECONDS >= 0,
+            f"RETRY_DELAY_SECONDS cannot be negative (got {RETRY_DELAY_SECONDS}).",
+        ),
+        (0 <= TEMPERATURE <= 2, f"TEMPERATURE must be between 0 and 2 (got {TEMPERATURE})."),
+    ]
+    return rules

@@ -18,7 +18,6 @@ from .exceptions import ValidationFailedError
 from .json_utils import save_json
 from .lesson_checks import lesson_structure_errors, repair_lesson, section_for_error
 from .prompts import build_lesson_prompt, build_overview_prompt
-from .providers.gemini import request_json
 from .retry import run_with_retries
 from .validation import ensure_valid
 
@@ -57,7 +56,7 @@ def repair_and_check(lesson):
     return lesson_structure_errors(lesson)
 
 
-def repair_section(client, request, lesson, key, errors, schemas):
+def repair_section(provider, request, lesson, key, errors, schemas):
     """
     WHAT: Ask Gemini to fix only one field of a lesson, given the errors for it.
 
@@ -92,10 +91,12 @@ Rules:
 - Return only the JSON for "{key}", with no Markdown fences or extra text.
 """
 
-    return request_json(client, section_schema, prompt, f"repairing the {key} field")
+    return provider.generate_json(
+        prompt=prompt, schema=section_schema, label=f"repairing the {key} field"
+    )
 
 
-def write_overview(client, request, index, plan_modules, details, schemas):
+def write_overview(provider, request, index, plan_modules, details, schemas):
     """
     WHAT: Generate and validate the overview of module index (zero-based).
 
@@ -108,11 +109,10 @@ def write_overview(client, request, index, plan_modules, details, schemas):
     label = f"Module {index + 1} overview"
 
     def attempt(previous_errors, attempt_number):
-        data = request_json(
-            client,
-            schemas.overview_request,
-            build_overview_prompt(request, index, plan_modules, details, previous_errors),
-            f"writing the overview for module {index + 1}",
+        data = provider.generate_json(
+            prompt=build_overview_prompt(request, index, plan_modules, details, previous_errors),
+            schema=schemas.overview_request,
+            label=f"writing the overview for module {index + 1}",
         )
 
         if not isinstance(data, dict):
@@ -140,7 +140,7 @@ def write_overview(client, request, index, plan_modules, details, schemas):
 
 
 def write_lesson(
-    client, request, module_index, lesson_index, plan_modules, module_overview, details, schemas
+    provider, request, module_index, lesson_index, plan_modules, module_overview, details, schemas
 ):
     """
     WHAT: Generate and validate one lesson, identified by module and lesson position.
@@ -161,10 +161,8 @@ def write_lesson(
     label = f"Module {module_index + 1}, lesson {lesson_index + 1}"
 
     def attempt(previous_errors, attempt_number):
-        data = request_json(
-            client,
-            schemas.lesson_request,
-            build_lesson_prompt(
+        data = provider.generate_json(
+            prompt=build_lesson_prompt(
                 request,
                 module_index,
                 lesson_index,
@@ -173,7 +171,8 @@ def write_lesson(
                 details,
                 previous_errors,
             ),
-            f"writing {label.lower()}",
+            schema=schemas.lesson_request,
+            label=f"writing {label.lower()}",
         )
 
         if not isinstance(data, dict):
@@ -195,7 +194,7 @@ def write_lesson(
                 break
 
             key = keys.pop()
-            fixed = repair_section(client, request, data, key, structure_errors, schemas)
+            fixed = repair_section(provider, request, data, key, structure_errors, schemas)
 
             if fixed is None:
                 break

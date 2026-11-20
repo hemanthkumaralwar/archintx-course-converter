@@ -17,7 +17,6 @@ from copy import deepcopy
 
 from .checkpoint import load_plan, save_plan
 from .config import (
-    API_KEY,
     ARRAY_PATH,
     LESSON_ARRAY_PATH,
     LESSON_ITEM_COUNTS,
@@ -28,7 +27,6 @@ from .exceptions import CheckpointError, ConfigurationError, DataPathError
 from .json_utils import get_value, load_json, replace_array, save_json
 from .module_writer import write_lesson, write_overview
 from .planner import generate_course_details, generate_plan
-from .providers.gemini import create_client
 from .schema_utils import build_schema_set
 from .validation import ensure_valid
 
@@ -49,7 +47,7 @@ def ensure_output_dirs(request):
         ) from exc
 
 
-def load_or_create_plan(request, client):
+def load_or_create_plan(request, provider):
     """
     WHAT: Return the planned modules, from the saved plan if it exists,
           otherwise by generating and saving a new plan.
@@ -62,12 +60,12 @@ def load_or_create_plan(request, client):
         print(f"Reusing the saved plan from {request.plan_file}.")
         return modules
 
-    modules = generate_plan(client, request)
+    modules = generate_plan(provider, request)
     save_plan(request.plan_file, request, modules)
     return modules
 
 
-def load_or_create_output(request, schemas, client):
+def load_or_create_output(request, schemas, provider):
     """
     WHAT: Return the course object, from the saved output if it exists,
           otherwise by generating the course details and saving them.
@@ -86,7 +84,7 @@ def load_or_create_output(request, schemas, client):
         print(f"Reusing the saved output from {request.output_file}.")
         return output
 
-    details = generate_course_details(client, request, schemas)
+    details = generate_course_details(provider, request, schemas)
 
     # IDs are set by code so they follow the same pattern every time.
     # courseId is placed where the schema defines it (for example inside "course").
@@ -121,7 +119,7 @@ def course_details_from(output, array_path):
     return details
 
 
-def write_course(request, schemas, client, plan_modules, output):
+def write_course(request, schemas, provider, plan_modules, output):
     """
     WHAT: Write every missing module overview and lesson, in order.
 
@@ -155,7 +153,7 @@ def write_course(request, schemas, client, plan_modules, output):
         print(f"\nModule {m_index + 1}/{total_modules}: {plan_module['title']}")
 
         if m_index >= len(modules):
-            overview = write_overview(client, request, m_index, plan_modules, details, schemas)
+            overview = write_overview(provider, request, m_index, plan_modules, details, schemas)
             overview["moduleId"] = f"{request.course_id}-mod-{m_index + 1}"
             overview[schemas.lesson_path] = []  # Lessons are added one at a time below.
             modules.append(overview)
@@ -177,7 +175,7 @@ def write_course(request, schemas, client, plan_modules, output):
                 continue
 
             lesson = write_lesson(
-                client,
+                provider,
                 request,
                 m_index,
                 l_index,
@@ -241,12 +239,13 @@ def finish(request, schemas, plan_modules):
     print(f"Output: {request.output_file.resolve()}")
 
 
-def run_pipeline(request):
+def run_pipeline(request, provider):
     """
     WHAT: Run every step for one course request.
 
-    WHY:  This is the only function main.py calls, so the whole workflow is
-          visible in one place.
+    WHY:  This is the only function generate.py calls, so the whole workflow
+          is visible in one place. The LLM provider is passed in, so tests can
+          use a fake one and the entry point decides between Gemini and OpenAI.
 
     RAISES:
         CourseGenerationError subclasses for any expected failure.
@@ -272,10 +271,8 @@ def run_pipeline(request):
             f"An output file exists without its plan. Delete '{request.output_dir}' to start over."
         )
 
-    client = create_client(API_KEY)
+    plan_modules = load_or_create_plan(request, provider)
+    output = load_or_create_output(request, schemas, provider)
 
-    plan_modules = load_or_create_plan(request, client)
-    output = load_or_create_output(request, schemas, client)
-
-    write_course(request, schemas, client, plan_modules, output)
+    write_course(request, schemas, provider, plan_modules, output)
     finish(request, schemas, plan_modules)

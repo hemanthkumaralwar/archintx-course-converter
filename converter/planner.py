@@ -13,7 +13,6 @@ WHY:  Planning first gives every later step the same map of the course.
 from .exceptions import ValidationFailedError
 from .json_utils import replace_array
 from .prompts import build_details_prompt, build_plan_prompt, plan_schema
-from .providers.gemini import request_json
 from .retry import run_with_retries
 from .validation import ensure_valid
 
@@ -88,7 +87,7 @@ def validate_plan(data, request):  # noqa: C901 — TODO(team): split, PLAN.md S
     ]
 
 
-def generate_plan(client, request):
+def generate_plan(provider, request):
     """
     WHAT: Ask Gemini for every module and lesson title, and return them once valid.
 
@@ -100,18 +99,17 @@ def generate_plan(client, request):
     """
 
     def attempt(previous_errors, attempt_number):
-        data = request_json(
-            client,
-            plan_schema(),
-            build_plan_prompt(request, previous_errors),
-            "planning the course",
+        data = provider.generate_json(
+            prompt=build_plan_prompt(request, previous_errors),
+            schema=plan_schema(),
+            label="planning the course",
         )
         return validate_plan(data, request)
 
     return run_with_retries("Course plan", attempt)
 
 
-def generate_course_details(client, request, schemas):
+def generate_course_details(provider, request, schemas):
     """
     WHAT: Ask Gemini for the course-level fields. The module list is kept empty.
 
@@ -123,11 +121,10 @@ def generate_course_details(client, request, schemas):
     """
 
     def attempt(previous_errors, attempt_number):
-        data = request_json(
-            client,
-            schemas.details_request,
-            build_details_prompt(request, previous_errors),
-            "creating course details",
+        data = provider.generate_json(
+            prompt=build_details_prompt(request, previous_errors),
+            schema=schemas.details_request,
+            label="creating course details",
         )
 
         if not isinstance(data, dict):
