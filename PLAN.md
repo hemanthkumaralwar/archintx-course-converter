@@ -327,6 +327,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `tests/test_module_writer.py` (new), `tests/conftest.py` (new: loads the sample).
 - **Depends on:** Step 0.
 - **Done when:** `pytest tests/test_module_writer.py` passes. Every sample lesson passes every check (any lesson that does not is listed in the test file with the reason), and for each check at least one deliberately broken lesson fails with the expected message.
+- **Done 2026-11-20.** The rules were first aligned to the sample (the team's ideal): objectives have 3 points, syntax examples 1–6 lines, diagrams may have several start nodes or loops, code snippets are allowed as card-matching terms, and the Mermaid parser now reads labelled, dotted, thick and chained arrows. 56 of 64 sample lessons pass; the 8 that do not are genuine slips (7 give the answer away, 1 diagram has unconnected boxes) and are listed in `KNOWN_EXCEPTIONS` in the test file. Baseline coverage of `module_writer.py`: 85% (untested lines are the LLM-calling functions, covered in Step 6b).
 
 #### Step 3 — Split the content checks and cut complexity
 - **Goal:** Move the pure checks into their own module and split every function over 10 branches, without changing behaviour.
