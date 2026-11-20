@@ -1,5 +1,5 @@
 """
-Tests that lock the lesson content checks in converter/module_writer.py.
+Tests that lock the lesson content checks in converter/lesson_checks.py.
 
 The rules follow samples/javascript-beginner.json, the team's ideal output:
 every sample lesson must pass, except the known slips listed below.
@@ -9,7 +9,7 @@ import copy
 
 import pytest
 
-from converter import lesson_checks as mw
+from converter import lesson_checks as checks
 from tests.sample_course import SAMPLE_LESSONS
 
 # Sample lessons that break a rule the team's format still needs. Each one is a
@@ -59,7 +59,7 @@ def mermaid_block(*lines):
 def test_sample_lesson_passes_every_check(sample_lesson):
     lesson = copy.deepcopy(sample_lesson)
 
-    errors = mw.lesson_structure_errors(lesson)
+    errors = checks.lesson_structure_errors(lesson)
 
     assert errors == KNOWN_EXCEPTIONS.get(sample_lesson["lessonId"], [])
     assert lesson == sample_lesson, "repairs must not change a valid lesson"
@@ -79,29 +79,29 @@ OBJECTIVE = "By the end of this lesson, you will be able to: (1) a, (2) b, (3) c
 
 
 def test_objective_with_three_points_passes():
-    assert mw.check_objective(OBJECTIVE, 3) == []
+    assert checks.check_objective(OBJECTIVE, 3) == []
 
 
 def test_objective_missing_point():
-    assert mw.check_objective("You will: (1) a, (2) b.", 3) == [
+    assert checks.check_objective("You will: (1) a, (2) b.", 3) == [
         "objective is missing numbered point (3)"
     ]
 
 
 def test_objective_extra_point():
-    assert mw.check_objective(OBJECTIVE + " (4) d.", 3) == [
+    assert checks.check_objective(OBJECTIVE + " (4) d.", 3) == [
         "objective has more than 3 numbered points"
     ]
 
 
 def test_objective_not_text():
-    assert mw.check_objective(None, 3) == ["objective must be text"]
+    assert checks.check_objective(None, 3) == ["objective must be text"]
 
 
 def test_lesson_uses_configured_three_points(lesson):
     lesson["objective"] = OBJECTIVE + " (4) d."
 
-    assert "objective has more than 3 numbered points" in mw.lesson_structure_errors(lesson)
+    assert "objective has more than 3 numbered points" in checks.lesson_structure_errors(lesson)
 
 
 # ---------------------------------------------------------------------------
@@ -117,16 +117,18 @@ SHUFFLED = ["// 2. b", "// 1. a", "// 3. c"]
 
 
 def test_code_reorder_valid():
-    assert mw.check_code_reorder(reorder_section(SHUFFLED, ["1", "0", "2"])) == []
+    assert checks.check_code_reorder(reorder_section(SHUFFLED, ["1", "0", "2"])) == []
 
 
 @pytest.mark.parametrize("section", [None, {}, {"codelines": "x", "correctOrder": []}])
 def test_code_reorder_missing_section_is_left_to_schema(section):
-    assert mw.check_code_reorder(section) == []
+    assert checks.check_code_reorder(section) == []
 
 
 def test_code_reorder_line_without_step_number():
-    errors = mw.check_code_reorder(reorder_section(["// 2. b", "a", "// 3. c"], ["1", "0", "2"]))
+    errors = checks.check_code_reorder(
+        reorder_section(["// 2. b", "a", "// 3. c"], ["1", "0", "2"])
+    )
 
     assert errors == [
         'codereordering.codelines must start with a step number such as "// 1." '
@@ -135,13 +137,13 @@ def test_code_reorder_line_without_step_number():
 
 
 def test_code_reorder_repeated_step_number():
-    errors = mw.check_code_reorder(reorder_section(["// 2. b", "// 2. a", "// 3. c"], []))
+    errors = checks.check_code_reorder(reorder_section(["// 2. b", "// 2. a", "// 3. c"], []))
 
     assert errors == ["codereordering step numbers must be 1 to 3, each used once"]
 
 
 def test_code_reorder_already_in_order_and_wrong_order_list():
-    errors = mw.check_code_reorder(reorder_section(["// 1. a", "// 2. b", "// 3. c"], ["2"]))
+    errors = checks.check_code_reorder(reorder_section(["// 1. a", "// 2. b", "// 3. c"], ["2"]))
 
     assert errors == [
         "codereordering.codelines are already in step order; shuffle them",
@@ -153,19 +155,19 @@ def test_code_reorder_already_in_order_and_wrong_order_list():
 def test_repair_code_reorder_shuffles_sorted_lines_and_rebuilds_order():
     section = reorder_section(["// 1. a", "// 2. b", "// 3. c"], ["9"])
 
-    mw.repair_code_reorder(section)
+    checks.repair_code_reorder(section)
 
     assert section == {
         "codelines": ["// 3. c", "// 2. b", "// 1. a"],
         "correctOrder": ["2", "1", "0"],
     }
-    assert mw.check_code_reorder(section) == []
+    assert checks.check_code_reorder(section) == []
 
 
 def test_repair_code_reorder_fixes_wrong_order_only():
     section = reorder_section(list(SHUFFLED), ["0", "1", "2"])
 
-    mw.repair_code_reorder(section)
+    checks.repair_code_reorder(section)
 
     assert section == reorder_section(SHUFFLED, ["1", "0", "2"])
 
@@ -178,7 +180,7 @@ def test_repair_code_reorder_fixes_wrong_order_only():
 def test_repair_code_reorder_leaves_unfixable_sections(lines):
     section = reorder_section(list(lines), ["x"])
 
-    mw.repair_code_reorder(section)
+    checks.repair_code_reorder(section)
 
     assert section == reorder_section(lines, ["x"])
 
@@ -202,19 +204,30 @@ GOOD_ITEMS = [("A value read once at startup", "const"), ("A loop counter", "let
 
 
 def test_drag_drop_valid():
-    assert mw.check_drag_drop(drag_section(GOOD_ITEMS)) == []
+    assert checks.check_drag_drop(drag_section(GOOD_ITEMS)) == []
 
 
 def test_drag_drop_unknown_bucket():
-    errors = mw.check_drag_drop(drag_section([*GOOD_ITEMS, ("A setting", "var")]))
+    errors = checks.check_drag_drop(drag_section([*GOOD_ITEMS, ("A setting", "var")]))
 
     assert errors == [
         "dragandropp.items[2] correctCategory 'var' is not one of the buckets in correctpairs"
     ]
 
 
+def test_drag_drop_unknown_bucket_does_not_count_as_used():
+    errors = checks.check_drag_drop(drag_section([("A setting", "const"), ("A flag", "var")]))
+
+    assert errors == [
+        "dragandropp.items[1] correctCategory 'var' is not one of the buckets in correctpairs",
+        "dragandropp items must use at least 2 different buckets",
+    ]
+
+
 def test_drag_drop_bucket_rules():
-    errors = mw.check_drag_drop(drag_section([("A value", "const")], buckets=("const", "const")))
+    errors = checks.check_drag_drop(
+        drag_section([("A value", "const")], buckets=("const", "const"))
+    )
 
     assert errors == [
         "dragandropp.correctpairs repeats a bucket name",
@@ -224,7 +237,7 @@ def test_drag_drop_bucket_rules():
 
 
 def test_drag_drop_bucket_names_must_be_text():
-    assert mw.check_drag_drop(drag_section(GOOD_ITEMS, buckets=("const", ""))) == [
+    assert checks.check_drag_drop(drag_section(GOOD_ITEMS, buckets=("const", ""))) == [
         "dragandropp.correctpairs must be a list of bucket names"
     ]
 
@@ -234,14 +247,16 @@ def test_drag_drop_duplicate_ids_and_non_object_item():
     section["items"][1]["id"] = "1"
     section["items"].append("not an object")
 
-    assert mw.check_drag_drop(section) == [
+    assert checks.check_drag_drop(section) == [
         "dragandropp.items[2] is not an object",
         "dragandropp item ids must be unique",
     ]
 
 
 def test_drag_drop_item_naming_its_bucket_gives_answer_away():
-    errors = mw.check_drag_drop(drag_section([("Use const for this", "const"), *GOOD_ITEMS[1:]]))
+    errors = checks.check_drag_drop(
+        drag_section([("Use const for this", "const"), *GOOD_ITEMS[1:]])
+    )
 
     assert errors == ["dragandropp.items[0] content names its bucket 'const'"]
 
@@ -251,7 +266,16 @@ def test_drag_drop_ambiguous_bucket_word_is_allowed():
         [("A phone number", "number"), ("A user's name", "string")], ("number", "string")
     )
 
-    assert mw.check_drag_drop(section) == []
+    assert checks.check_drag_drop(section) == []
+
+
+def test_drag_drop_giveaways_are_reported_in_bucket_order():
+    buckets = ("const", "var", "static")
+    section = drag_section([("static, var or const?", "const"), ("A counter", "var")], buckets)
+
+    assert checks.check_drag_drop(section) == [
+        f"dragandropp.items[0] content names its bucket '{bucket}'" for bucket in buckets
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -272,16 +296,16 @@ GOOD_PAIRS = [("const", "Cannot be reassigned"), ("let", "Block scoped and reass
 
 
 def test_card_matching_valid():
-    assert mw.check_card_matching(card_section(GOOD_PAIRS)) == []
+    assert checks.check_card_matching(card_section(GOOD_PAIRS)) == []
 
 
 @pytest.mark.parametrize("term", ["n => n * 2", "const { a: { b } } = obj", "cond ? a : b"])
 def test_card_matching_long_code_term_is_allowed(term):
-    assert mw.check_card_matching(card_section([(term, "A short form"), *GOOD_PAIRS])) == []
+    assert checks.check_card_matching(card_section([(term, "A short form"), *GOOD_PAIRS])) == []
 
 
 def test_card_matching_plain_term_longer_than_four_words():
-    errors = mw.check_card_matching(
+    errors = checks.check_card_matching(
         card_section([("one two three four five", "Words"), *GOOD_PAIRS])
     )
 
@@ -291,7 +315,7 @@ def test_card_matching_plain_term_longer_than_four_words():
 
 
 def test_card_matching_description_names_its_term():
-    errors = mw.check_card_matching(
+    errors = checks.check_card_matching(
         card_section([("const", "Use const for constants"), GOOD_PAIRS[1]])
     )
 
@@ -299,7 +323,7 @@ def test_card_matching_description_names_its_term():
 
 
 def test_card_matching_identical_cards_and_repeated_terms():
-    errors = mw.check_card_matching(card_section([("set", "set"), ("set", "A collection")]))
+    errors = checks.check_card_matching(card_section([("set", "set"), ("set", "A collection")]))
 
     assert errors == [
         "cardmatching.matches[0] has identical cards",
@@ -314,7 +338,7 @@ def test_card_matching_id_problems():
     section["cards"].append("not an object")
     section["matches"] += [{"card1Id": "7", "card2Id": "7"}, "not an object"]
 
-    assert mw.check_card_matching(section) == [
+    assert checks.check_card_matching(section) == [
         "cardmatching card id '1' is used more than once",
         "cardmatching.cards[6] is not an object",
         "cardmatching.matches[2] pairs a card with itself",
@@ -328,7 +352,7 @@ def test_card_matching_id_problems():
 
 @pytest.mark.parametrize("section", [None, {"cards": [], "matches": None}])
 def test_card_matching_missing_section_is_left_to_schema(section):
-    assert mw.check_card_matching(section) == []
+    assert checks.check_card_matching(section) == []
 
 
 # ---------------------------------------------------------------------------
@@ -360,11 +384,11 @@ def test_card_matching_missing_section_is_left_to_schema(section):
     ],
 )
 def test_parse_mermaid_arrow_forms(line, edge):
-    assert mw.parse_mermaid(["flowchart TD", line]) == ({"A", "B"}, [edge])
+    assert checks.parse_mermaid(["flowchart TD", line]) == ({"A", "B"}, [edge])
 
 
 def test_parse_mermaid_chain_and_quoted_brackets():
-    nodes, edges = mw.parse_mermaid(["flowchart LR", 'A["[1,2]"] --> B["f(x)"] --> C{"ok?"}'])
+    nodes, edges = checks.parse_mermaid(["flowchart LR", 'A["[1,2]"] --> B["f(x)"] --> C{"ok?"}'])
 
     assert nodes == {"A", "B", "C"}
     assert edges == [("A", "B"), ("B", "C")]
@@ -373,17 +397,17 @@ def test_parse_mermaid_chain_and_quoted_brackets():
 def test_mermaid_loop_without_start_node_is_allowed():
     lines = ["flowchart LR", 'A["object"] --> B["text"]', "B --> A"]
 
-    assert mw.check_mermaid_structure(lines, "diagram") == []
+    assert checks.check_mermaid_structure(lines, "diagram") == []
 
 
 def test_mermaid_single_node_is_allowed():
-    assert mw.check_mermaid_structure(["flowchart TD", 'A["only"]'], "diagram") == []
+    assert checks.check_mermaid_structure(["flowchart TD", 'A["only"]'], "diagram") == []
 
 
 def test_mermaid_structure_errors():
     lines = ["graph TD", 'A["a"] --> B', 'C["c"]']
 
-    assert mw.check_mermaid_structure(lines, "diagram") == [
+    assert checks.check_mermaid_structure(lines, "diagram") == [
         "diagram must start with 'flowchart TD' (or TB, LR, BT, RL)",
         "diagram uses node 'B' but never defines it",
         "diagram has disconnected nodes: C",
@@ -391,7 +415,7 @@ def test_mermaid_structure_errors():
 
 
 def test_mermaid_with_no_nodes():
-    assert mw.check_mermaid_structure(["flowchart TD", "%% nothing"], "diagram") == [
+    assert checks.check_mermaid_structure(["flowchart TD", "%% nothing"], "diagram") == [
         "diagram defines no nodes"
     ]
 
@@ -399,11 +423,11 @@ def test_mermaid_with_no_nodes():
 def test_flowchart_checks(lesson):
     lesson["flowchart"] = {"type": "svg", "code": " "}
 
-    assert mw.check_flowchart(lesson["flowchart"]) == [
+    assert checks.check_flowchart(lesson["flowchart"]) == [
         'flowchart.type must be "mermaid"',
         "flowchart.code is empty",
     ]
-    assert mw.check_flowchart(None) == []
+    assert checks.check_flowchart(None) == []
 
 
 # ---------------------------------------------------------------------------
@@ -424,14 +448,14 @@ def hook_image(**changes):
 
 
 def test_hook_image_valid():
-    assert mw.check_hook_image(hook_image()) == []
-    assert mw.check_hook_image(None) == []
+    assert checks.check_hook_image(hook_image()) == []
+    assert checks.check_hook_image(None) == []
 
 
 def test_hook_image_field_rules():
     image = hook_image(status="generated", style="photo", prompt="draw it", alt=" ")
 
-    assert mw.check_hook_image(image) == [
+    assert checks.check_hook_image(image) == [
         'hooklineimage.status must be "included"',
         'hooklineimage.style must be "diagram"',
         "hooklineimage.prompt must be an empty string for a diagram",
@@ -451,23 +475,23 @@ def test_hook_image_field_rules():
     ],
 )
 def test_hook_image_html_problems(html, error):
-    assert mw.check_hook_image(hook_image(html=html)) == [error]
+    assert checks.check_hook_image(hook_image(html=html)) == [error]
 
 
 def test_repair_adds_missing_mermaid_fence():
     image = hook_image(html='flowchart TD\n    A["a"] --> B["b"]')
 
-    mw.repair_hook_image(image)
+    checks.repair_hook_image(image)
 
     assert image["html"] == mermaid_block("flowchart TD", '    A["a"] --> B["b"]')
-    assert mw.check_hook_image(image) == []
+    assert checks.check_hook_image(image) == []
 
 
 @pytest.mark.parametrize("html", ["just words", None])
 def test_repair_leaves_non_diagram_html(html):
     image = hook_image(html=html)
 
-    mw.repair_hook_image(image)
+    checks.repair_hook_image(image)
 
     assert image["html"] == html
 
@@ -475,7 +499,7 @@ def test_repair_leaves_non_diagram_html(html):
 def test_hookline_item_errors_name_their_item(lesson):
     lesson["hooklines"][1]["image"]["style"] = "photo"
 
-    assert mw.check_hookline_images(lesson) == [
+    assert checks.check_hookline_images(lesson) == [
         'hooklines[1] hooklineimage.style must be "diagram"'
     ]
 
@@ -489,7 +513,7 @@ def test_hookline_item_errors_name_their_item(lesson):
 def test_syntax_line_limits_pass(lesson, line_count):
     lesson["syntax"]["highlight"]["code"] = "\n".join(["x;"] * line_count)
 
-    assert mw.check_syntax_and_parts(lesson) == []
+    assert checks.check_syntax_and_parts(lesson) == []
 
 
 @pytest.mark.parametrize(
@@ -502,7 +526,7 @@ def test_syntax_line_limits_pass(lesson, line_count):
 def test_syntax_line_limit_errors(lesson, code, error):
     lesson["syntax"]["highlight"]["code"] = code
 
-    assert mw.check_syntax_and_parts(lesson) == [error]
+    assert checks.check_syntax_and_parts(lesson) == [error]
 
 
 def test_parts_rules(lesson):
@@ -511,7 +535,7 @@ def test_parts_rules(lesson):
     lesson["parts"][3]["name"] = ""
     lesson["parts"][4] = "not an object"
 
-    assert mw.check_syntax_and_parts(lesson) == [
+    assert checks.check_syntax_and_parts(lesson) == [
         "parts[0] label must be 'Step 1'",
         "parts[3] has no name",
         "parts[4] is not an object",
@@ -529,7 +553,7 @@ def test_quiz_answer_rules(lesson):
     lesson["quiz"][1]["correctAnswer"] = "4"
     lesson["quiz"][2]["options"] = ["only one"]
 
-    assert mw.check_quiz_answers(lesson) == [
+    assert checks.check_quiz_answers(lesson) == [
         'quiz 1 correctAnswer must be an index as text, such as "0"',
         'quiz 2 correctAnswer "4" is outside its 4 options',
         "quiz 3 needs at least 2 options",
@@ -542,7 +566,7 @@ def test_example_titles_must_be_numbered_in_order(lesson):
         lesson["example"][0]["title"],
     )
 
-    assert mw.check_example_titles(lesson) == [
+    assert checks.check_example_titles(lesson) == [
         "example 1 title must start with 'Example 1:'",
         "example 2 title must start with 'Example 2:'",
     ]
@@ -552,18 +576,18 @@ def test_example_titles_must_be_numbered_in_order(lesson):
 def test_lesson_title_without_number_prefix(lesson, title):
     lesson["title"] = title
 
-    assert mw.check_lesson_title(lesson) == [
+    assert checks.check_lesson_title(lesson) == [
         f"lesson title '{title}' must not start with 'Lesson' or a number"
     ]
 
 
 def test_key_takeaway_prefixes(lesson):
     lesson["keyTakeaways"][4] = "Common Mistake: written without the emoji is fine."
-    assert mw.check_key_takeaways(lesson) == []
+    assert checks.check_key_takeaways(lesson) == []
 
     lesson["keyTakeaways"][4] = "A mistake."
     lesson["keyTakeaways"][5] = "A tip."
-    assert mw.check_key_takeaways(lesson) == [
+    assert checks.check_key_takeaways(lesson) == [
         "keyTakeaways item 5 must start with '⚠️ Common Mistake:'",
         "keyTakeaways item 6 must start with '💡 Pro Tip:'",
     ]
@@ -572,8 +596,40 @@ def test_key_takeaway_prefixes(lesson):
 def test_missing_lists_are_left_to_schema():
     empty = {}
 
-    assert mw.check_quiz_answers(empty) == []
-    assert mw.check_example_titles(empty) == []
-    assert mw.check_key_takeaways(empty) == []
-    assert mw.check_hookline_images(empty) == []
-    assert mw.check_syntax_and_parts(empty) == []
+    assert checks.check_quiz_answers(empty) == []
+    assert checks.check_example_titles(empty) == []
+    assert checks.check_key_takeaways(empty) == []
+    assert checks.check_hookline_images(empty) == []
+    assert checks.check_syntax_and_parts(empty) == []
+
+
+# ---------------------------------------------------------------------------
+# Mapping errors to lesson fields
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("error", "field"),
+    [
+        ("syntax.highlight.code is empty", "syntax"),
+        ("hooklineimage.alt must describe the diagram", "hooklineimage"),
+        ('hooklines[1] hooklineimage.style must be "diagram"', "hooklines"),
+        ("cardmatching: two pairs use the same term", "cardmatching"),
+        ("lesson title 'Lesson 1: x' must not start with 'Lesson' or a number", "title"),
+        ("something unexpected", None),
+    ],
+)
+def test_section_for_error(error, field):
+    assert checks.section_for_error(error) == field
+
+
+def test_every_check_message_maps_to_a_field():
+    errors = []
+    for sample_lesson in SAMPLE_LESSONS:
+        broken = copy.deepcopy(sample_lesson)
+        for key in ("objective", "codereordering", "dragandropp", "cardmatching", "flowchart"):
+            broken[key] = "x" if key == "objective" else {"type": "x", "code": "x", "items": []}
+        errors += checks.lesson_structure_errors(broken)
+
+    assert errors
+    assert all(checks.section_for_error(error) for error in errors)

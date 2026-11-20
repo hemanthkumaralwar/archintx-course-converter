@@ -18,6 +18,7 @@ from .config import (
     SYNTAX_LINES_MAX,
     SYNTAX_LINES_MIN,
 )
+from .lesson_checks import MAX_TERM_WORDS
 
 # How many earlier errors to send back. Long lists add cost without much gain.
 MAX_ERRORS_IN_PROMPT = 15
@@ -164,7 +165,7 @@ Drag-and-drop format (the "dragandropp" object):
 """
 
 
-CARD_MATCH_RULES = """
+CARD_MATCH_RULES = f"""
 Card matching format (the "cardmatching" object):
 - "title": a short name for the exercise, such as "Match the term with its meaning".
 - "instruction": one sentence that tells the learner what to match, such as
@@ -173,7 +174,7 @@ Card matching format (the "cardmatching" object):
   pairs: each pair is one TERM card and one DESCRIPTION card.
   - Cards are numbered "1", "2", "3", ... in order, and each pair uses two
     consecutive numbers, with the term first (for example "1" and "2").
-  - A term card is a short keyword or concept name of 1 to 4 words, or a short
+  - A term card is a short keyword or concept name of 1 to {MAX_TERM_WORDS} words, or a short
     code snippet such as `n => n * 2`, taken from the lesson.
   - A description card is one plain-English sentence that explains the term. It
     must not contain its own term as a word.

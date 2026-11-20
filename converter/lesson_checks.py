@@ -112,8 +112,8 @@ def check_code_reorder(section):
 
 
 # Words that are also ordinary English or common type names. A plain whole-word
-# match would reject normal sentences such as "a phone number", so for these
-# words only a quoted or backticked name counts as giving the answer away.
+# match would reject normal sentences such as "a phone number", so these words
+# are never treated as giving the answer away (see names_term).
 AMBIGUOUS_NAMES = {
     # Operators and keywords that are also English words
     "and",
@@ -182,7 +182,53 @@ def names_term(text, term):
     return re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE) is not None
 
 
-def check_drag_drop(section):  # noqa: C901 — TODO(team): split; see PLAN.md §6.4 Step 3
+def _drag_drop_bucket_errors(buckets):
+    """Return problems with the bucket list itself (repeats, fewer than two)."""
+    errors = []
+
+    if len(set(buckets)) != len(buckets):
+        errors.append("dragandropp.correctpairs repeats a bucket name")
+
+    if len(set(buckets)) < 2:
+        errors.append("dragandropp.correctpairs must name at least 2 buckets")
+
+    return errors
+
+
+def _drag_drop_item_errors(number, item, buckets):
+    """
+    WHAT: Check one drag-and-drop item.
+
+    RETURNS:
+        (errors, category): category is the item's bucket, or None when the
+        item is not an object or its bucket is not in the list.
+    """
+    if not isinstance(item, dict):
+        return [f"dragandropp.items[{number}] is not an object"], None
+
+    errors = []
+    category = item.get("correctCategory")
+
+    if category not in buckets:
+        errors.append(
+            f"dragandropp.items[{number}] correctCategory '{category}' "
+            "is not one of the buckets in correctpairs"
+        )
+        category = None
+
+    content = item.get("content")
+
+    if isinstance(content, str):
+        errors += [
+            f"dragandropp.items[{number}] content names its bucket '{bucket}'"
+            for bucket in buckets
+            if names_term(content, bucket)
+        ]
+
+    return errors, category
+
+
+def check_drag_drop(section):
     """
     WHAT: Check the drag-and-drop exercise for rules the schema cannot enforce.
 
@@ -207,41 +253,19 @@ def check_drag_drop(section):  # noqa: C901 — TODO(team): split; see PLAN.md �
     if not all(isinstance(bucket, str) and bucket.strip() for bucket in buckets):
         return ["dragandropp.correctpairs must be a list of bucket names"]
 
-    errors = []
-    distinct = set(buckets)
-
-    if len(distinct) != len(buckets):
-        errors.append("dragandropp.correctpairs repeats a bucket name")
-
-    if len(distinct) < 2:
-        errors.append("dragandropp.correctpairs must name at least 2 buckets")
-
+    errors = _drag_drop_bucket_errors(buckets)
+    # Listed order without repeats, so messages always come out in the same order.
+    unique_buckets = list(dict.fromkeys(buckets))
     used = set()
-    ids = []
 
     for number, item in enumerate(items):
-        if not isinstance(item, dict):
-            errors.append(f"dragandropp.items[{number}] is not an object")
-            continue
+        item_errors, category = _drag_drop_item_errors(number, item, unique_buckets)
+        errors += item_errors
 
-        ids.append(str(item.get("id")))
-        category = item.get("correctCategory")
-        content = item.get("content")
-
-        if category not in distinct:
-            errors.append(
-                f"dragandropp.items[{number}] correctCategory '{category}' "
-                "is not one of the buckets in correctpairs"
-            )
-        else:
+        if category is not None:
             used.add(category)
 
-        if isinstance(content, str):
-            for bucket in distinct:
-                if names_term(content, bucket):
-                    errors.append(
-                        f"dragandropp.items[{number}] content names its bucket '{bucket}'"
-                    )
+    ids = [str(item.get("id")) for item in items if isinstance(item, dict)]
 
     if items and len(used) < 2:
         errors.append("dragandropp items must use at least 2 different buckets")
@@ -335,7 +359,82 @@ def repair_lesson(data):
     repair_hook_image(data.get("hooklineimage"))
 
 
-def check_card_matching(section):  # noqa: C901 — TODO(team): split; see PLAN.md §6.4 Step 3
+def _card_contents(cards):
+    """
+    WHAT: Map each card id to its text.
+
+    RETURNS:
+        (contents, errors): errors name cards that are not objects or reuse an id.
+    """
+    contents = {}
+    errors = []
+
+    for number, card in enumerate(cards):
+        if not isinstance(card, dict):
+            errors.append(f"cardmatching.cards[{number}] is not an object")
+            continue
+
+        card_id = str(card.get("id"))
+
+        if card_id in contents:
+            errors.append(f"cardmatching card id '{card_id}' is used more than once")
+
+        contents[card_id] = card.get("content")
+
+    return contents, errors
+
+
+def _match_id_errors(number, term_id, description_id, contents):
+    """Return problems with the two card ids of one match."""
+    errors = []
+
+    if term_id == description_id:
+        errors.append(f"cardmatching.matches[{number}] pairs a card with itself")
+
+    for card_id in (term_id, description_id):
+        if card_id not in contents:
+            errors.append(f"cardmatching.matches[{number}] refers to unknown card id '{card_id}'")
+
+    return errors
+
+
+def _pair_text_errors(number, term, description):
+    """Return problems with the text of one term and its description."""
+    errors = []
+
+    if not is_code_term(term) and len(term.split()) > MAX_TERM_WORDS:
+        errors.append(
+            f"cardmatching.matches[{number}] term '{term}' has more than {MAX_TERM_WORDS} words"
+        )
+
+    if term.strip().lower() == description.strip().lower():
+        errors.append(f"cardmatching.matches[{number}] has identical cards")
+
+    if names_term(description, term):
+        errors.append(f"cardmatching.matches[{number}] description names its own term '{term}'")
+
+    return errors
+
+
+def _card_usage_errors(contents, used, terms):
+    """Return problems across all matches: reused cards, unused cards, repeated terms."""
+    errors = []
+
+    if len(used) != len(set(used)):
+        errors.append("cardmatching: a card appears in more than one match")
+
+    missing = sorted(set(contents) - set(used))
+
+    if missing:
+        errors.append("cardmatching: these card ids are not in any match: " + ", ".join(missing))
+
+    if len(terms) != len(set(terms)):
+        errors.append("cardmatching: two pairs use the same term")
+
+    return errors
+
+
+def check_card_matching(section):
     """
     WHAT: Check the card matching exercise for rules the schema cannot enforce.
 
@@ -357,21 +456,7 @@ def check_card_matching(section):  # noqa: C901 — TODO(team): split; see PLAN.
     if not isinstance(cards, list) or not isinstance(matches, list):
         return []
 
-    errors = []
-    contents = {}
-
-    for number, card in enumerate(cards):
-        if not isinstance(card, dict):
-            errors.append(f"cardmatching.cards[{number}] is not an object")
-            continue
-
-        card_id = str(card.get("id"))
-
-        if card_id in contents:
-            errors.append(f"cardmatching card id '{card_id}' is used more than once")
-
-        contents[card_id] = card.get("content")
-
+    contents, errors = _card_contents(cards)
     used = []
     terms = []
 
@@ -382,49 +467,17 @@ def check_card_matching(section):  # noqa: C901 — TODO(team): split; see PLAN.
 
         term_id = str(match.get("card1Id"))
         description_id = str(match.get("card2Id"))
-
-        if term_id == description_id:
-            errors.append(f"cardmatching.matches[{number}] pairs a card with itself")
-
-        for card_id in (term_id, description_id):
-            if card_id not in contents:
-                errors.append(
-                    f"cardmatching.matches[{number}] refers to unknown card id '{card_id}'"
-                )
-
-        used.extend([term_id, description_id])
+        errors += _match_id_errors(number, term_id, description_id, contents)
+        used += [term_id, description_id]
 
         term = contents.get(term_id)
         description = contents.get(description_id)
 
-        if not isinstance(term, str) or not isinstance(description, str):
-            continue
+        if isinstance(term, str) and isinstance(description, str):
+            errors += _pair_text_errors(number, term, description)
+            terms.append(term.strip().lower())
 
-        if not is_code_term(term) and len(term.split()) > MAX_TERM_WORDS:
-            errors.append(
-                f"cardmatching.matches[{number}] term '{term}' has more than {MAX_TERM_WORDS} words"
-            )
-
-        if term.strip().lower() == description.strip().lower():
-            errors.append(f"cardmatching.matches[{number}] has identical cards")
-
-        if names_term(description, term):
-            errors.append(f"cardmatching.matches[{number}] description names its own term '{term}'")
-
-        terms.append(term.strip().lower())
-
-    if len(used) != len(set(used)):
-        errors.append("cardmatching: a card appears in more than one match")
-
-    missing = sorted(set(contents) - set(used))
-
-    if missing:
-        errors.append("cardmatching: these card ids are not in any match: " + ", ".join(missing))
-
-    if len(terms) != len(set(terms)):
-        errors.append("cardmatching: two pairs use the same term")
-
-    return errors
+    return errors + _card_usage_errors(contents, used, terms)
 
 
 # Characters that mark a card-matching term as code, such as "n => n * 2" or

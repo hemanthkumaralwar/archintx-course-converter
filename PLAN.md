@@ -334,6 +334,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `converter/lesson_checks.py` (new), `converter/module_writer.py` (keeps writing and repair only), `tests/test_module_writer.py` → `tests/test_lesson_checks.py`.
 - **Depends on:** Step 2.
 - **Done when:** the Step 2 tests pass with only their import lines changed; `ruff check --select C901 converter/lesson_checks.py converter/module_writer.py` passes with max complexity 10; coverage of `lesson_checks.py` is ≥ 85%.
+- **Done 2026-11-20.** Repairs moved into `lesson_checks.py` with the checks (not left in `module_writer.py` as first planned), because the Step 2 tests call them and could otherwise not pass with only the import changed. `lesson_structure_errors` now only checks; the writer calls `repair_and_check`. Commit `f8733d5` is the pure move (test diff: one import line). Coverage of `lesson_checks.py`: 96%.
 
 #### Step 4 — Read .txt, .docx and .pdf files [SECURITY]
 - **Goal:** `extract_blocks(path)` returns the document as ordered blocks (heading with level, or paragraph), with untrusted-file limits enforced.
