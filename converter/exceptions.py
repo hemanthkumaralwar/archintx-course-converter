@@ -17,6 +17,14 @@ class ConfigurationError(CourseGenerationError):
     """A setting, user input value, or required file is missing or invalid."""
 
 
+class ExtractionError(CourseGenerationError):
+    """An input document is missing, too large, unsupported, or has no readable text.
+
+    The message is shown to the user, so it names the file but never its folder
+    or any library internals.
+    """
+
+
 class JSONFileError(CourseGenerationError):
     """A JSON file could not be found, read, parsed, or written."""
 

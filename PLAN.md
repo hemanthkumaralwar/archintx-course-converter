@@ -342,6 +342,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Rules:** type checked by extension **and** first bytes (`%PDF-`, or a zip containing `word/document.xml`); ≤ 10 MB file; ≤ 200 PDF pages; `.docx` total unzipped size ≤ 50 MB (zip-bomb check before parsing); ≤ 500,000 characters of text; `.txt` decoded as UTF-8 (BOM allowed), then cp1252; password-protected and text-less (scanned) PDFs rejected with a clear message; error messages never include full server paths.
 - **Depends on:** Step 0.
 - **Done when:** `pytest tests/test_extractors.py --cov=converter.extractors --cov-fail-under=85` passes, covering: happy path for each format (docx headings and a table, a 2-page PDF); BOM, cp1252 and no-newline text; and rejection of empty, whitespace-only, unsupported, wrong-extension, oversized, too-many-pages, password-protected, scanned and zip-bomb files.
+- **Done 2026-11-20.** 38 tests, 99% coverage. Changes from the plan: limits live in an `ExtractionLimits` object passed to `extract_blocks()` (defaults as above) instead of more import-time constants in `config.py`, so tests use small limits and Step 6a can put it in `Settings`; UTF-16 text with a byte-order mark is also read; PDFs with only an owner password (they open without one) are read, and only PDFs that need a password to open are rejected; a one-line Markdown heading (`## Loops`) in a `.txt` becomes a heading block. python-docx parses XML with `resolve_entities=False`, so Word files cannot use XML entity attacks. Known risk: a crafted PDF can still make `pypdf` slow; Step 12 runs extraction with a time limit.
 
 #### Step 5 — Split text into sections
 - **Goal:** `split_sections(blocks, max_chars)` groups blocks into sections (id, heading path, text) at headings, and splits long or heading-less text by length.
@@ -394,7 +395,7 @@ finished only when its **Done when** check passes. Steps flagged
 #### Step 12 — Web API [SECURITY] [PERFORMANCE] [BUDGET]
 - **Goal:** FastAPI endpoints: `POST /api/convert` (upload + options), `GET /api/jobs/{id}` (progress), `GET /api/jobs/{id}/download`, `GET /healthz`. One job at a time, protected by an access code, temporary files removed after each job.
 - **Components/files:** `app/main.py`, `app/jobs.py` (new), `tests/test_api.py`.
-- **Rules:** size limit enforced while the upload is read, before it is saved; a pasted API key is kept in memory for that job only and never logged or stored; error responses give a short message and the job id, never a path or traceback; random job ids (`uuid4`).
+- **Rules:** size limit enforced while the upload is read, before it is saved; a pasted API key is kept in memory for that job only and never logged or stored; error responses give a short message and the job id, never a path or traceback; random job ids (`uuid4`); document extraction runs with a time limit (for example 60 s, in a separate process) because a crafted PDF can make `pypdf` very slow.
 - **Depends on:** Step 10.
 - **Done when:** `pytest tests/test_api.py` passes with `FakeProvider` for: upload → progress → download, and the result validates; 11 MB upload → 413; unsupported type → 415; wrong or missing access code → 401; a second job while one is running → 429; error bodies contain no file path or traceback; the temp folder is empty after a job; captured logs do not contain the test API key.
 
