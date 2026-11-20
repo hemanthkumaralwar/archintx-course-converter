@@ -1,0 +1,2862 @@
+{
+  "course": {
+    "courseId": "python-basics-for-complete-beginners-beginner-v1",
+    "courseTitle": "Python Basics for Complete Beginners",
+    "courseDescription": "A gentle, hands-on introduction to programming designed for absolute beginners. You will learn to think like a programmer, write your first scripts to automate simple tasks, and understand the core building blocks of software development. By the end of this course, you will be able to create a functional calculator, manage data lists, and write logic that makes decisions based on user input.",
+    "level": "Beginner",
+    "totalDuration": "3 hours",
+    "modules": [
+      {
+        "moduleId": "python-basics-for-complete-beginners-beginner-v1-mod-1",
+        "title": "Foundations of Python Programming",
+        "description": "This module establishes the essential building blocks of Python, focusing on how to store data, perform mathematical operations, and manipulate text. These skills are the bedrock of all software development, enabling you to move from passive observation to active script creation.",
+        "moduleExplanation": [
+          {
+            "topic": "Foundations of Python Programming",
+            "points": [
+              "This module consists of three foundational lessons that introduce the core syntax required to store information, process data, and format output, providing the necessary skills to write functional Python scripts.",
+              "By the end of this module, you will be able to store user data in variables, perform complex arithmetic calculations, and format text strings for readable output.",
+              "Key terms introduced include `variables`, `assignment`, `integers`, `floats`, `strings`, `concatenation`, `f-strings`, and `methods`.",
+              "The lesson progression is: 1. Introduction to Variables and Assignment, which builds the concept of memory storage; 2. Performing Calculations with Numbers, which builds on variables to process data; and 3. Manipulating Text and Strings, which builds on previous lessons to format and display information.",
+              "Built-in functions and operators include `print()` for output, `round()` for precision, `//` for integer division, `%` for remainders, `**` for exponentiation, and string methods like `.upper()` and `.strip()`.",
+              "Beginner mistakes include: using the equals sign as a mathematical equality rather than assignment, forgetting to convert numbers to strings before concatenation, and confusing case-sensitive variable names like `Score` and `score`.",
+              "Practice includes interactive coding exercises, debugging tasks to fix common syntax errors, and mini-challenges that require combining variables, math, and string formatting.",
+              "This module prepares you for the next module by ensuring you can handle data effectively, which is a prerequisite for writing the control flow logic and decision-making structures that follow."
+            ]
+          }
+        ],
+        "duration": "1 hour 30 minutes",
+        "lessons": [
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-1-lesson-1",
+            "title": "Introduction to Variables and Assignment",
+            "objective": "By the end of this lesson, you will be able to: (1) Create and initialize variables using the assignment operator to store data. (2) Update the value stored in an existing variable by referencing its current state. (3) Apply Python's naming conventions to create descriptive and valid variable identifiers.",
+            "lessonExplanation": [
+              {
+                "topic": "Understanding Variables and Assignment",
+                "points": [
+                  "A variable acts as a labeled container in your computer's memory that holds a specific piece of information.",
+                  "The assignment operator, represented by the equals sign (=), directs Python to store the value on the right side into the memory location named on the left side.",
+                  "Python is dynamically typed, meaning you do not need to specify the data type (like integer or text) when you create a variable.",
+                  "Variable names must be descriptive and follow specific rules: they must start with a letter or underscore, cannot contain spaces, and are case-sensitive.",
+                  "You can update a variable by performing a calculation using its current value and re-assigning the result back to the same name."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why do we need variables?",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Data\"] --> B[\"Variable Name\"]\n    B --> C[\"Memory Storage\"]\n    C --> D[\"Program Access\"]\n```",
+              "alt": "A diagram showing how data is stored in a named variable for later use.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Variables allow your program to remember information like a user's score or a product price.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Input: 10\"] --> B[\"Variable: score\"]\n    B --> C[\"Output: 10\"]\n```",
+                  "alt": "A diagram showing input being stored in a variable and retrieved.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "Without variables, your program would have no way to track changes or update data over time.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Old Value\"] --> B[\"New Calculation\"]\n    B --> C[\"Updated Variable\"]\n```",
+                  "alt": "A diagram showing the process of updating a variable's value.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "Variable",
+              "Assignment Operator",
+              "Memory Storage",
+              "Dynamic Typing",
+              "Identifier",
+              "Case Sensitivity",
+              "Naming Convention",
+              "Reassignment"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "variable_name = value\n# Example:\nuser_age = 25\ncurrent_score = 100\ncurrent_score = current_score + 10"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "Naming the variable",
+                "description": "Choose a descriptive name like 'total_items' that explains what the data represents. Avoid single letters like 'x' which make code hard to read."
+              },
+              {
+                "label": "Step 2",
+                "name": "Assignment operator",
+                "description": "Use the single equals sign (=) to assign a value. Remember that this is not a mathematical equality check but an instruction to store data."
+              },
+              {
+                "label": "Step 3",
+                "name": "Assigning values",
+                "description": "Place the value you want to store on the right side of the equals sign. Python automatically determines if it is a number or text."
+              },
+              {
+                "label": "Step 4",
+                "name": "Case sensitivity",
+                "description": "Be careful with capitalization because 'User' and 'user' are treated as two completely different variables by Python."
+              },
+              {
+                "label": "Step 5",
+                "name": "Updating variables",
+                "description": "To update a value, reference the variable name on the right side of the assignment. For example, 'score = score + 1' increases the existing value."
+              },
+              {
+                "label": "Step 6",
+                "name": "Invalid names",
+                "description": "Never start a variable name with a digit like '1st_place'. Python will raise a syntax error if you try to do this."
+              },
+              {
+                "label": "Step 7",
+                "name": "Whitespace rules",
+                "description": "Variable names cannot contain spaces. Use underscores to separate words, such as 'customer_email' instead of 'customer email'."
+              },
+              {
+                "label": "Step 8",
+                "name": "Consistency",
+                "description": "Stick to one naming style throughout your script. If you start with lowercase and underscores, keep using that pattern for all variables."
+              }
+            ],
+            "analogy": {
+              "subject": "Variables",
+              "comparison": "A variable is like a labeled storage box in a warehouse.",
+              "mapping": [
+                {
+                  "from": "Variable Name",
+                  "to": "The label written on the outside of the box."
+                },
+                {
+                  "from": "Value",
+                  "to": "The item placed inside the box."
+                },
+                {
+                  "from": "Assignment",
+                  "to": "The act of putting an item into the box."
+                },
+                {
+                  "from": "Reassignment",
+                  "to": "Taking the old item out and putting a new one in."
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Storing a simple number",
+                "code": "player_lives = 3",
+                "explanation": "This creates a variable named player_lives and stores the integer 3 inside it."
+              },
+              {
+                "title": "Example 2: Storing a name",
+                "code": "user_name = \"Alex\"",
+                "explanation": "This stores the text string \"Alex\" in the variable user_name."
+              },
+              {
+                "title": "Example 3: Updating a score",
+                "code": "score = 10\nscore = score + 5",
+                "explanation": "The variable score starts at 10, then is updated to 15 by adding 5 to its current value."
+              },
+              {
+                "title": "Example 4: Using descriptive names",
+                "code": "total_price = 50.0\ndiscount = 5.0\nfinal_price = total_price - discount",
+                "explanation": "Descriptive names make it clear that we are calculating a final price after a discount."
+              },
+              {
+                "title": "Example 5: Multiple assignments",
+                "code": "item_count = 10\nitem_count = 20\nitem_count = 30",
+                "explanation": "Variables can be overwritten; the final value of item_count will be 30."
+              }
+            ],
+            "flowchart": {
+              "title": "Creating a Variable",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Start\"] --> B{\"Is the name valid?\"}\n    B -- no --> C[\"Choose a new name\"]\n    C --> B\n    B -- yes --> D[\"Write name = value\"]\n    D --> E[\"Variable is ready\"]\n    E --> F[\"End\"]"
+            },
+            "interactiveExercise": {
+              "title": "Create your first variable",
+              "instruction": "Create a variable named 'team_score' and assign it the value 50.",
+              "starterCode": "# Write your code below",
+              "expectebehavior": "The variable team_score should be defined with the value 50."
+            },
+            "quiz": [
+              {
+                "question": "Which of the following is a valid variable name in Python?",
+                "options": [
+                  "1st_player",
+                  "user name",
+                  "total_score",
+                  "class"
+                ],
+                "correctAnswer": "2",
+                "explanation": "total_score is valid because it uses an underscore and starts with a letter. 1st_player is invalid because it starts with a digit, user name contains a space, and class is a reserved keyword."
+              },
+              {
+                "question": "What happens when you write 'score = score + 10'?",
+                "options": [
+                  "It checks if the score is equal to 10.",
+                  "It adds 10 to the current value of score and saves it back.",
+                  "It creates a new variable called score.",
+                  "It causes an error because score cannot appear on both sides."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Python evaluates the right side first (current score + 10) and then assigns that new result to the variable name on the left."
+              },
+              {
+                "question": "If you define 'Age = 20' and then try to print 'age', what happens?",
+                "options": [
+                  "It prints 20.",
+                  "It prints nothing.",
+                  "It crashes because Python is case-sensitive.",
+                  "It automatically fixes the capitalization."
+                ],
+                "correctAnswer": "2",
+                "explanation": "Python is case-sensitive, so 'Age' and 'age' are treated as two different names. If 'age' was never defined, the program will crash."
+              },
+              {
+                "question": "What is the purpose of the assignment operator (=)?",
+                "options": [
+                  "To compare two values for equality.",
+                  "To store a value in a variable.",
+                  "To perform mathematical addition.",
+                  "To delete a variable."
+                ],
+                "correctAnswer": "1",
+                "explanation": "In Python, = is used to assign a value to a name. Comparing values for equality uses the == operator."
+              },
+              {
+                "question": "Which naming style is recommended for Python variables?",
+                "options": [
+                  "CamelCase",
+                  "UPPERCASE",
+                  "lowercase_with_underscores",
+                  "PascalCase"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The standard Python convention (PEP 8) is to use lowercase letters separated by underscores for readability."
+              },
+              {
+                "question": "Can you change the value of a variable after it has been created?",
+                "options": [
+                  "No, variables are permanent.",
+                  "Yes, you can reassign a new value at any time.",
+                  "Only if the new value is the same type as the old one.",
+                  "Only if you delete the variable first."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Variables are designed to hold data that can change throughout the execution of a program."
+              },
+              {
+                "question": "What is the result of 'x = 5' followed by 'x = x * 2'?",
+                "options": [
+                  "5",
+                  "10",
+                  "2",
+                  "Error"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The first line sets x to 5. The second line takes 5, multiplies it by 2 to get 10, and updates x to 10."
+              },
+              {
+                "question": "Which of these is NOT a rule for naming variables?",
+                "options": [
+                  "Cannot contain spaces.",
+                  "Cannot start with a number.",
+                  "Must be all uppercase letters.",
+                  "Cannot be a reserved keyword."
+                ],
+                "correctAnswer": "2",
+                "explanation": "Variable names do not have to be uppercase; in fact, lowercase is preferred. The other three options are strict rules."
+              },
+              {
+                "question": "What does Python do when you assign a value to a new name?",
+                "options": [
+                  "It asks you to define the data type.",
+                  "It creates the variable in memory automatically.",
+                  "It checks if the name is already used in other programs.",
+                  "It requires a special declaration keyword."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Python is dynamically typed, so it creates the variable and assigns the type based on the value provided without needing extra steps."
+              },
+              {
+                "question": "Why should you use descriptive variable names?",
+                "options": [
+                  "To make the code run faster.",
+                  "To help other people (and yourself) understand what the code does.",
+                  "To satisfy the Python compiler requirements.",
+                  "To save memory space."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Descriptive names improve code readability and maintainability, making it easier to debug and update later."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Updating a variable",
+              "instruction": "Drag the steps into the order the computer follows when this code runs: 'score = 10; score = score + 5'.",
+              "codelines": [
+                "// 6. The variable 'score' is updated to hold the new value 15.",
+                "// 5. The result 15 is calculated.",
+                "// 4. The computer performs the addition of 10 and 5.",
+                "// 3. The computer retrieves the current value of 'score' which is 10.",
+                "// 2. The value 10 is assigned to the variable 'score'.",
+                "// 1. The computer identifies the name 'score' to store the value."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: Valid vs Invalid Names",
+              "instruction": "Drag each scenario into the right keyword bucket.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "user_age",
+                  "correctCategory": "Valid"
+                },
+                {
+                  "id": "2",
+                  "content": "2nd_place",
+                  "correctCategory": "Invalid"
+                },
+                {
+                  "id": "3",
+                  "content": "total price",
+                  "correctCategory": "Invalid"
+                },
+                {
+                  "id": "4",
+                  "content": "_internal_id",
+                  "correctCategory": "Valid"
+                },
+                {
+                  "id": "5",
+                  "content": "myVariable",
+                  "correctCategory": "Valid"
+                },
+                {
+                  "id": "6",
+                  "content": "class",
+                  "correctCategory": "Invalid"
+                }
+              ],
+              "correctpairs": [
+                "Valid",
+                "Invalid"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "Variable"
+                },
+                {
+                  "id": "2",
+                  "content": "A named container that holds a value in memory."
+                },
+                {
+                  "id": "3",
+                  "content": "Assignment"
+                },
+                {
+                  "id": "4",
+                  "content": "The process of storing a value into a variable."
+                },
+                {
+                  "id": "5",
+                  "content": "Identifier"
+                },
+                {
+                  "id": "6",
+                  "content": "The name given to a variable."
+                },
+                {
+                  "id": "7",
+                  "content": "Dynamic Typing"
+                },
+                {
+                  "id": "8",
+                  "content": "The feature where Python determines the data type automatically."
+                },
+                {
+                  "id": "9",
+                  "content": "Reassignment"
+                },
+                {
+                  "id": "10",
+                  "content": "Changing the value stored in an existing variable."
+                },
+                {
+                  "id": "11",
+                  "content": "Case Sensitivity"
+                },
+                {
+                  "id": "12",
+                  "content": "The rule that uppercase and lowercase letters are treated differently."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the syntax error",
+              "instruction": "Find the bug in the code below and fix it.",
+              "buggyCode": "1st_score = 100\nprint(1st_score)",
+              "bug": "Variable names cannot start with a digit.",
+              "fixedCode": "first_score = 100\nprint(first_score)",
+              "hint": "Look at the first character of the variable name."
+            },
+            "miniChallenge": {
+              "title": "Track Inventory",
+              "scenario": "You are managing a small inventory for a bookstore. You start with 50 copies of a book, and then 10 more arrive.",
+              "prompt": "Create a variable for the initial stock, update it by adding the new shipment, and print the final total.",
+              "starterCode": "books_in_stock = 50\n# Add the new shipment of 10\n# Update the variable\n# Print the result",
+              "hints": [
+                "Use the assignment operator to add to the existing variable.",
+                "The final value should be 60."
+              ],
+              "expectedOutput": "60",
+              "difficulty": "Easy"
+            },
+            "useCaseCards": [
+              {
+                "industry": "Finance",
+                "jobRole": "Data Analyst",
+                "useCase": "Storing daily stock prices in variables to calculate percentage changes."
+              },
+              {
+                "industry": "Retail",
+                "jobRole": "Inventory Manager",
+                "useCase": "Tracking the number of items sold in a day to update stock levels."
+              },
+              {
+                "industry": "Education",
+                "jobRole": "Teacher",
+                "useCase": "Holding student scores in variables to calculate class averages."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "The Digital Ledger",
+              "storyText": "At a local logistics firm, a junior developer was tasked with tracking package deliveries. By using variables to store the count of 'delivered' and 'pending' packages, they were able to create a simple script that updated these totals in real-time as drivers scanned items. This replaced a manual spreadsheet process, saving the team hours of work every week.",
+              "storyCompany": "SwiftLogistics"
+            },
+            "keyTakeaways": [
+              "Always use descriptive names for your variables to make your code easier to read.",
+              "Use the `=` operator to assign a value to a variable name.",
+              "Variable names must start with a letter or underscore and cannot contain spaces.",
+              "Python is case-sensitive, so `Total` and `total` are two different variables.",
+              "⚠️ Common Mistake: Using the equals sign as a mathematical equality check instead of an assignment operator.",
+              "💡 Pro Tip: Use underscores to separate words in variable names, such as `user_account_balance`."
+            ]
+          },
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-1-lesson-2",
+            "title": "Performing Calculations with Numbers",
+            "objective": "By the end of this lesson, you will be able to: (1) Distinguish between integer and float data types to select the correct numeric representation for your data. (2) Apply arithmetic operators including floor division, modulo, and exponentiation to solve real-world logic problems. (3) Format floating-point results using the round() function to ensure readable and accurate output for end-users.",
+            "lessonExplanation": [
+              {
+                "topic": "Numeric Data and Arithmetic Operations",
+                "points": [
+                  "Python categorizes numbers into integers, which are whole numbers, and floats, which include decimal points.",
+                  "Standard arithmetic operators like addition, subtraction, multiplication, and division function intuitively, though division always produces a float.",
+                  "Specialized operators like floor division (//) extract the whole-number quotient, while the modulo operator (%) retrieves the remainder of a division operation.",
+                  "The exponentiation operator (**) allows for calculating powers, essential for growth or scaling calculations.",
+                  "Because computers store floats in binary, precision errors can occur, such as 0.1 + 0.2 resulting in a tiny trailing fraction.",
+                  "The built-in round() function is the primary tool for cleaning up floating-point display values to a specific number of decimal places."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why Math Matters in Code",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Raw Data\"] --> B{\"Type Check\"}\n    B -- Whole --> C[\"Integer\"]\n    B -- Decimal --> D[\"Float\"]\n    C --> E[\"Math Logic\"]\n    D --> E\n    E --> F[\"Formatted Output\"]\n```",
+              "alt": "A diagram showing how raw data is categorized into integers or floats before being processed and formatted.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Ever wonder how a banking app calculates interest or how a game engine tracks player health?",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Interest Rate\"] --> B[\"Calculation\"]\n    C[\"Principal\"] --> B\n    B --> D[\"Final Balance\"]\n```",
+                  "alt": "A flowchart showing the calculation of a final bank balance from interest and principal.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "Mastering numeric operators allows you to transform raw inputs into meaningful business insights.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Input\"] --> B[\"Modulo Operator\"]\n    B --> C[\"Remainder\"]\n    A --> D[\"Floor Division\"]\n    D --> E[\"Whole Quotient\"]\n```",
+                  "alt": "A diagram illustrating the difference between modulo and floor division outputs.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "Integer",
+              "Float",
+              "Arithmetic Operators",
+              "Floor Division",
+              "Modulo Operator",
+              "Exponentiation",
+              "Binary Precision",
+              "Rounding"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "total = 100 // 3\nremainder = 100 % 3\npower = 2 ** 10\nresult = round(0.1 + 0.2, 2)"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "Defining Integers",
+                "description": "Use integers for counts that cannot be split, such as the number of items in a shopping cart."
+              },
+              {
+                "label": "Step 2",
+                "name": "Using Floats",
+                "description": "Use floats for measurements like currency or physical dimensions that require decimal precision."
+              },
+              {
+                "label": "Step 3",
+                "name": "Standard Operators",
+                "description": "Use +, -, *, and / for basic math, remembering that / always returns a float."
+              },
+              {
+                "label": "Step 4",
+                "name": "Floor Division",
+                "description": "Use // to discard the remainder and keep only the whole number result of a division."
+              },
+              {
+                "label": "Step 5",
+                "name": "Modulo Operator",
+                "description": "Use % to find the remainder, which is perfect for checking if a number is even or odd."
+              },
+              {
+                "label": "Step 6",
+                "name": "Exponentiation",
+                "description": "Use ** to raise a number to a power, such as calculating area or exponential growth."
+              },
+              {
+                "label": "Step 7",
+                "name": "Binary Precision",
+                "description": "Be aware that floats may have tiny inaccuracies because computers store them in binary format."
+              },
+              {
+                "label": "Step 8",
+                "name": "Rounding Values",
+                "description": "Use round(value, 2) to clean up floating-point results before displaying them to a user."
+              }
+            ],
+            "analogy": {
+              "subject": "Integer vs Float",
+              "comparison": "Think of integers as whole physical objects like apples, and floats as measurements like weight in kilograms.",
+              "mapping": [
+                {
+                  "from": "Integer",
+                  "to": "Whole apples that cannot be divided without destroying the object."
+                },
+                {
+                  "from": "Float",
+                  "to": "The weight of the apples on a scale, which can be 1.5kg or 2.25kg."
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Basic Arithmetic",
+                "code": "price = 20\ntax = 0.05\ntotal = price + (price * tax)\nprint(total)",
+                "explanation": "This calculates the total price by adding tax to the base price, resulting in a float."
+              },
+              {
+                "title": "Example 2: Floor Division",
+                "code": "items = 13\nboxes = items // 4\nprint(boxes)",
+                "explanation": "Floor division determines how many full boxes of 4 items can be packed, ignoring the remainder."
+              },
+              {
+                "title": "Example 3: Modulo for Remainders",
+                "code": "items = 13\nleftover = items % 4\nprint(leftover)",
+                "explanation": "The modulo operator finds the single item left over after filling the boxes."
+              },
+              {
+                "title": "Example 4: Exponentiation",
+                "code": "base_area = 5 ** 2\nprint(base_area)",
+                "explanation": "This calculates the area of a square with a side length of 5 using the exponentiation operator."
+              },
+              {
+                "title": "Example 5: Rounding Results",
+                "code": "value = 10 / 3\nprint(round(value, 2))",
+                "explanation": "Rounding limits the repeating decimal to two places, making it look like standard currency."
+              }
+            ],
+            "flowchart": {
+              "title": "Choosing the Right Division",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Division Task\"] --> B{\"Need remainder?\"}\n    B -- Yes --> C[\"Use %\"]\n    B -- No --> D{\"Need whole number?\"}\n    D -- Yes --> E[\"Use //\"]\n    D -- No --> F[\"Use /\"]"
+            },
+            "interactiveExercise": {
+              "title": "Calculate Weekly Hours",
+              "instruction": "Write code to convert 150 total minutes into hours and remaining minutes.",
+              "starterCode": "total_minutes = 150\n# Calculate hours using //\n# Calculate remaining minutes using %\nprint(hours, \"hours and\", remaining, \"minutes\")",
+              "expectebehavior": "The output should be 2 hours and 30 minutes."
+            },
+            "quiz": [
+              {
+                "question": "Which operator would you use to determine if a number of items can be divided evenly into groups of 5?",
+                "options": [
+                  "/",
+                  "//",
+                  "%",
+                  "**"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The modulo operator (%) returns the remainder. If the result is 0, the number is divisible by 5."
+              },
+              {
+                "question": "What is the result of 7 // 2?",
+                "options": [
+                  "3.5",
+                  "3",
+                  "4",
+                  "1"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Floor division (//) discards the fractional part, leaving only the whole number 3."
+              },
+              {
+                "question": "Why does 0.1 + 0.2 sometimes result in 0.30000000000000004?",
+                "options": [
+                  "Python is broken",
+                  "Floats are stored in binary",
+                  "The addition operator is imprecise",
+                  "Integers are required for decimals"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Computers store floats in binary, and some decimal fractions cannot be represented perfectly."
+              },
+              {
+                "question": "Which function is best for displaying a calculated price to a customer?",
+                "options": [
+                  "int()",
+                  "round()",
+                  "float()",
+                  "math()"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The round() function is used to limit decimal places for readable output."
+              },
+              {
+                "question": "What is the data type of the result of 10 / 2?",
+                "options": [
+                  "Integer",
+                  "Float",
+                  "String",
+                  "Boolean"
+                ],
+                "correctAnswer": "1",
+                "explanation": "In Python, the division operator (/) always returns a float, even if the result is a whole number."
+              },
+              {
+                "question": "How do you calculate 3 raised to the power of 4?",
+                "options": [
+                  "3 * 4",
+                  "3 ^ 4",
+                  "3 ** 4",
+                  "3 * 3 * 3"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The ** operator is the standard way to perform exponentiation in Python."
+              },
+              {
+                "question": "If you have 25 items and want to put them into packs of 6, how many items are left over?",
+                "options": [
+                  "25 // 6",
+                  "25 % 6",
+                  "25 / 6",
+                  "25 ** 6"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The modulo operator (%) calculates the remainder of the division."
+              },
+              {
+                "question": "Which of these is an integer?",
+                "options": [
+                  "5.0",
+                  "-10",
+                  "0.5",
+                  "3.14"
+                ],
+                "correctAnswer": "1",
+                "explanation": "-10 is a whole number, making it an integer. 5.0 is a float because of the decimal."
+              },
+              {
+                "question": "What happens if you try to divide by zero?",
+                "options": [
+                  "The result is 0",
+                  "The result is infinity",
+                  "Python raises an error",
+                  "The program ignores the line"
+                ],
+                "correctAnswer": "2",
+                "explanation": "Division by zero is mathematically undefined, so Python stops execution with an error."
+              },
+              {
+                "question": "Which expression correctly calculates the number of full weeks in 45 days?",
+                "options": [
+                  "45 / 7",
+                  "45 // 7",
+                  "45 % 7",
+                  "45 ** 7"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Floor division (//) gives the number of full weeks, ignoring the remaining days."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Calculating Change",
+              "instruction": "Drag the steps into the order the computer follows to calculate change from a purchase.",
+              "codelines": [
+                "// 6. Print the result formatted for the user.",
+                "// 5. Use modulo to find the remaining cents.",
+                "// 4. Use floor division to find how many whole dollars are in the change.",
+                "// 3. Calculate the total change by subtracting cost from cash.",
+                "// 2. Define the amount of cash provided by the customer.",
+                "// 1. Define the total cost of the items as a float."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: Math Operation Types",
+              "instruction": "Drag each scenario into the right operator bucket.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "Determining if a user's ID number is even or odd.",
+                  "correctCategory": "Modulo"
+                },
+                {
+                  "id": "2",
+                  "content": "Calculating how many full crates fit in a shipping container.",
+                  "correctCategory": "Floor Division"
+                },
+                {
+                  "id": "3",
+                  "content": "Finding the area of a square room.",
+                  "correctCategory": "Exponentiation"
+                },
+                {
+                  "id": "4",
+                  "content": "Splitting a bill equally among three friends.",
+                  "correctCategory": "Division"
+                },
+                {
+                  "id": "5",
+                  "content": "Calculating the remaining items after filling boxes.",
+                  "correctCategory": "Modulo"
+                },
+                {
+                  "id": "6",
+                  "content": "Calculating compound interest growth over years.",
+                  "correctCategory": "Exponentiation"
+                }
+              ],
+              "correctpairs": [
+                "Modulo",
+                "Floor Division",
+                "Exponentiation",
+                "Division"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "Integer"
+                },
+                {
+                  "id": "2",
+                  "content": "A whole number without any decimal component."
+                },
+                {
+                  "id": "3",
+                  "content": "Float"
+                },
+                {
+                  "id": "4",
+                  "content": "A number that includes a decimal point for precision."
+                },
+                {
+                  "id": "5",
+                  "content": "//"
+                },
+                {
+                  "id": "6",
+                  "content": "An operator that returns only the whole-number quotient."
+                },
+                {
+                  "id": "7",
+                  "content": "%"
+                },
+                {
+                  "id": "8",
+                  "content": "An operator that returns the remainder of a division."
+                },
+                {
+                  "id": "9",
+                  "content": "**"
+                },
+                {
+                  "id": "10",
+                  "content": "An operator used to raise a number to a specific power."
+                },
+                {
+                  "id": "11",
+                  "content": "round()"
+                },
+                {
+                  "id": "12",
+                  "content": "A function that limits the number of decimal places."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the Math Bug",
+              "instruction": "The code below is supposed to show the remainder of items, but it is returning the wrong value.",
+              "buggyCode": "items = 20\nremainder = items / 3\nprint(remainder)",
+              "bug": "The code uses the division operator (/) instead of the modulo operator (%).",
+              "fixedCode": "items = 20\nremainder = items % 3\nprint(remainder)",
+              "hint": "You need an operator that specifically finds the remainder, not the quotient."
+            },
+            "miniChallenge": {
+              "title": "Inventory Calculator",
+              "scenario": "You are managing a warehouse. You have 500 items and need to pack them into boxes that hold 12 items each.",
+              "prompt": "Write a script to calculate how many full boxes you can fill and how many items will be left over.",
+              "starterCode": "total_items = 500\nbox_capacity = 12\n# Write your code here",
+              "hints": [
+                "Use // to find the number of full boxes.",
+                "Use % to find the leftover items.",
+                "Print both results clearly."
+              ],
+              "expectedOutput": "41 full boxes and 8 items left over.",
+              "difficulty": "Easy"
+            },
+            "useCaseCards": [
+              {
+                "industry": "Finance",
+                "jobRole": "Data Analyst",
+                "useCase": "Using modulo to determine if a transaction ID is valid based on a checksum."
+              },
+              {
+                "industry": "Retail",
+                "jobRole": "Inventory Manager",
+                "useCase": "Using floor division to calculate how many full pallets can be shipped from total stock."
+              },
+              {
+                "industry": "Engineering",
+                "jobRole": "Software Developer",
+                "useCase": "Using exponentiation to calculate signal strength decay over distance."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "Precision in Logistics",
+              "storyText": "A logistics firm needed to optimize their truck loading process. By using floor division and modulo operators, they were able to automate the calculation of how many pallets fit in a truck and how many would remain for the next shipment, reducing manual errors by 40%.",
+              "storyCompany": "Global Freight Solutions"
+            },
+            "keyTakeaways": [
+              "Use `int` for whole numbers and `float` for numbers requiring decimal precision.",
+              "The `/` operator always returns a `float`, while `//` performs floor division to return an integer quotient.",
+              "The `%` operator is essential for finding remainders, which is useful for grouping and validation tasks.",
+              "Use `round(value, n)` to ensure your output is clean and readable for end-users.",
+              "⚠️ Common Mistake: Forgetting that floating-point math can result in tiny precision errors, which is why you should always round before displaying results.",
+              "💡 Pro Tip: When working with currency, always perform calculations in the smallest unit (like cents as integers) to avoid binary precision issues."
+            ]
+          },
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-1-lesson-3",
+            "title": "Manipulating Text and Strings",
+            "objective": "By the end of this lesson, you will be able to: (1) create and combine text strings using concatenation and f-strings, (2) convert numerical data into string format for display, and (3) apply built-in string methods to transform and analyze text data.",
+            "lessonExplanation": [
+              {
+                "topic": "Working with Text and Strings",
+                "points": [
+                  "In Python, text is stored as a data type called a string, which is defined by enclosing characters in either single or double quotes.",
+                  "Concatenation allows you to join multiple strings together using the plus operator, effectively building complex sentences from smaller variables.",
+                  "Python prevents direct addition of numbers to strings to avoid ambiguity, requiring explicit conversion using the str() function or the use of f-strings.",
+                  "F-strings provide a readable and efficient way to embed variables directly into text by placing them inside curly braces prefixed by an 'f'.",
+                  "Strings are treated as sequences of characters, allowing you to access specific positions using index notation, where 0 is the first character.",
+                  "Built-in string methods like .upper() and .strip() provide powerful tools for cleaning and formatting user input or data retrieved from external files.",
+                  "The len() function is a versatile tool that returns the total count of characters in a string, which is essential for validating input length.",
+                  "Understanding these manipulations is critical for creating user-friendly interfaces and generating dynamic reports in real-world applications."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why Text Manipulation Matters",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Raw Data\"] --> B{\"Need Formatting?\"}\n    B -- Yes --> C[\"Apply Methods\"]\n    B -- No --> D[\"Display Raw\"]\n    C --> E[\"Cleaned Output\"]\n    D --> E\n```",
+              "alt": "A diagram showing how raw data is processed through string methods to create clean output.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Imagine building a personalized greeting system for a customer database.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"First Name\"] --> C[\"Greeting\"]\n    B[\"Last Name\"] --> C\n    C --> D[\"Print Message\"]\n```",
+                  "alt": "Diagram showing variables combining into a greeting.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "Learn how to clean messy user input from web forms automatically.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"User Input\"] --> B[\".strip()\"]\n    B --> C[\"Cleaned Data\"]\n```",
+                  "alt": "Diagram showing the strip method cleaning input.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "String",
+              "Concatenation",
+              "F-strings",
+              "Type Conversion",
+              "String Methods",
+              "Indexing",
+              "Whitespace Removal",
+              "Character Counting"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "name = \"Alice\"\nmessage = f\"Hello, {name.upper()}!\"\nprint(message)\nprint(len(name))"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "Defining Strings",
+                "description": "Use single or double quotes to create a string. Both 'Hello' and \"Hello\" are valid and identical in Python."
+              },
+              {
+                "label": "Step 2",
+                "name": "Concatenation",
+                "description": "Join strings using the + operator. Remember to add spaces manually, like \"Hello\" + \" \" + \"World\"."
+              },
+              {
+                "label": "Step 3",
+                "name": "Type Conversion",
+                "description": "Use str() to turn a number into a string. You cannot add an integer to a string directly."
+              },
+              {
+                "label": "Step 4",
+                "name": "F-strings",
+                "description": "Prefix a string with f and use curly braces to insert variables. This is cleaner than concatenation."
+              },
+              {
+                "label": "Step 5",
+                "name": "String Indexing",
+                "description": "Access characters by position using brackets. The first character is at index 0, and the last is at -1."
+              },
+              {
+                "label": "Step 6",
+                "name": "Upper Method",
+                "description": "Call .upper() on a string variable to return a new version with all characters capitalized."
+              },
+              {
+                "label": "Step 7",
+                "name": "Strip Method",
+                "description": "Use .strip() to remove accidental leading or trailing spaces from user input."
+              },
+              {
+                "label": "Step 8",
+                "name": "Length Function",
+                "description": "Use len() to find the number of characters in a string. It is useful for checking password length."
+              }
+            ],
+            "analogy": {
+              "subject": "String manipulation",
+              "comparison": "Editing a document in a word processor",
+              "mapping": [
+                {
+                  "from": "String",
+                  "to": "A block of text on a page"
+                },
+                {
+                  "from": "Concatenation",
+                  "to": "Gluing two paper strips together"
+                },
+                {
+                  "from": "Methods",
+                  "to": "Using tools like a highlighter or eraser"
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Basic Concatenation",
+                "code": "greeting = \"Hello\" + \" \" + \"User\"\nprint(greeting)",
+                "explanation": "This joins three separate strings into one single message."
+              },
+              {
+                "title": "Example 2: Fixing Type Errors",
+                "code": "score = 95\nprint(\"Score: \" + str(score))",
+                "explanation": "We convert the integer 95 to a string so it can be joined with the label."
+              },
+              {
+                "title": "Example 3: Using F-strings",
+                "code": "item = \"Laptop\"\nprice = 1200\nprint(f\"The {item} costs ${price}\")",
+                "explanation": "F-strings automatically handle the conversion of numbers to text."
+              },
+              {
+                "title": "Example 4: String Methods",
+                "code": "email = \"  user@example.com  \"\nprint(email.strip().upper())",
+                "explanation": "We chain methods to remove spaces and capitalize the email address."
+              },
+              {
+                "title": "Example 5: Accessing Characters",
+                "code": "word = \"Python\"\nprint(word[0])\nprint(word[-1])",
+                "explanation": "We extract the first letter 'P' and the last letter 'n' using indices."
+              }
+            ],
+            "flowchart": {
+              "title": "String Processing Logic",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Input String\"] --> B{\"Needs Cleaning?\"}\n    B -- Yes --> C[\".strip()\"]\n    B -- No --> D{\"Needs Formatting?\"}\n    C --> D\n    D -- Yes --> E[\".upper()\"]\n    D -- No --> F[\"Final Output\"]\n    E --> F"
+            },
+            "interactiveExercise": {
+              "title": "Personalized Greeting",
+              "instruction": "Write code that takes a name variable and prints a greeting using an f-string.",
+              "starterCode": "name = \"Alex\"\n# Write your code here",
+              "expectebehavior": "The console should print 'Hello, Alex!'"
+            },
+            "quiz": [
+              {
+                "question": "What happens if you try to run 'Age: ' + 25?",
+                "options": [
+                  "It prints 'Age: 25'",
+                  "It raises a TypeError",
+                  "It prints 'Age: 25.0'",
+                  "It ignores the number"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Python cannot automatically combine strings and integers; you must convert the number to a string first."
+              },
+              {
+                "question": "Which method removes spaces from the start and end of a string?",
+                "options": [
+                  ".clean()",
+                  ".remove()",
+                  ".strip()",
+                  ".trim()"
+                ],
+                "correctAnswer": "2",
+                "explanation": ".strip() is the built-in method for removing whitespace, while the others are not standard string methods."
+              },
+              {
+                "question": "What is the index of the first character in a string?",
+                "options": [
+                  "1",
+                  "0",
+                  "-1",
+                  "start"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Python uses zero-based indexing, meaning the first item is always at position 0."
+              },
+              {
+                "question": "How do you correctly use an f-string?",
+                "options": [
+                  "f(variable)",
+                  "f{variable}",
+                  "f\"Text {variable}\"",
+                  "f\"Text (variable)\""
+                ],
+                "correctAnswer": "2",
+                "explanation": "F-strings require the 'f' prefix before the quotes and curly braces around the variable name."
+              },
+              {
+                "question": "What does len('Python') return?",
+                "options": [
+                  "5",
+                  "6",
+                  "7",
+                  "Error"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The len() function counts the characters in the string, and 'Python' has 6 letters."
+              },
+              {
+                "question": "Which operator is used for string concatenation?",
+                "options": [
+                  "&",
+                  "|",
+                  "+",
+                  "*"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The plus sign is the standard operator for joining two strings together."
+              },
+              {
+                "question": "What is the result of 'abc'.upper()?",
+                "options": [
+                  "'abc'",
+                  "'ABC'",
+                  "'Abc'",
+                  "Error"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The .upper() method converts all lowercase letters in a string to uppercase."
+              },
+              {
+                "question": "What does name[-1] return?",
+                "options": [
+                  "The first character",
+                  "The second character",
+                  "The last character",
+                  "An error"
+                ],
+                "correctAnswer": "2",
+                "explanation": "Negative indexing in Python starts from the end of the sequence, with -1 being the last item."
+              },
+              {
+                "question": "Why use f-strings instead of concatenation?",
+                "options": [
+                  "They are faster",
+                  "They are more readable",
+                  "They allow math",
+                  "They are required"
+                ],
+                "correctAnswer": "1",
+                "explanation": "F-strings are considered more readable and easier to maintain than long chains of concatenation."
+              },
+              {
+                "question": "Can you change a single character in a string using index assignment?",
+                "options": [
+                  "Yes, like list[0] = 'a'",
+                  "No, strings are immutable",
+                  "Only if it is a number",
+                  "Yes, using .replace()"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Strings in Python are immutable, meaning you cannot change characters in place; you must create a new string."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Building a formatted message",
+              "instruction": "Drag the steps into the order the computer follows when this code runs.",
+              "codelines": [
+                "// 6. Print the value of 'msg' to the console.",
+                "// 5. Store the final combined string in the variable 'msg'.",
+                "// 4. Combine the string 'User: ' with the name and points.",
+                "// 3. Convert the integer 'points' into a string format.",
+                "// 2. Define a variable named 'points' with the integer 100.",
+                "// 1. Define a variable named 'user' with the value 'Alice'."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: String Operations",
+              "instruction": "Drag each scenario into the right category.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "Joining a first and last name",
+                  "correctCategory": "Concatenation"
+                },
+                {
+                  "id": "2",
+                  "content": "Making a username all caps",
+                  "correctCategory": "Transformation"
+                },
+                {
+                  "id": "3",
+                  "content": "Removing accidental spaces from a form",
+                  "correctCategory": "Transformation"
+                },
+                {
+                  "id": "4",
+                  "content": "Adding a variable to a sentence",
+                  "correctCategory": "Concatenation"
+                },
+                {
+                  "id": "5",
+                  "content": "Converting a price to a string",
+                  "correctCategory": "Type Conversion"
+                },
+                {
+                  "id": "6",
+                  "content": "Turning an integer into text",
+                  "correctCategory": "Type Conversion"
+                }
+              ],
+              "correctpairs": [
+                "Concatenation",
+                "Transformation",
+                "Type Conversion"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "String"
+                },
+                {
+                  "id": "2",
+                  "content": "A sequence of characters enclosed in quotes."
+                },
+                {
+                  "id": "3",
+                  "content": "Concatenation"
+                },
+                {
+                  "id": "4",
+                  "content": "The process of joining two or more strings."
+                },
+                {
+                  "id": "5",
+                  "content": "F-string"
+                },
+                {
+                  "id": "6",
+                  "content": "A way to embed variables inside text using curly braces."
+                },
+                {
+                  "id": "7",
+                  "content": "Index"
+                },
+                {
+                  "id": "8",
+                  "content": "The numerical position of a character in a sequence."
+                },
+                {
+                  "id": "9",
+                  "content": "Method"
+                },
+                {
+                  "id": "10",
+                  "content": "A built-in function associated with a specific data type."
+                },
+                {
+                  "id": "11",
+                  "content": "len()"
+                },
+                {
+                  "id": "12",
+                  "content": "A function that returns the total count of characters."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the String Error",
+              "instruction": "Find the error in the code below and fix it.",
+              "buggyCode": "age = 25\nprint(\"I am \" + age + \" years old.\")",
+              "bug": "Cannot concatenate a string with an integer directly.",
+              "fixedCode": "age = 25\nprint(f\"I am {age} years old.\")",
+              "hint": "Try using an f-string or converting the age variable to a string."
+            },
+            "miniChallenge": {
+              "title": "Format User Profile",
+              "scenario": "You are building a profile page for a social media app. You have a username and a follower count.",
+              "prompt": "Create a string that says 'User: [name] has [count] followers' using an f-string.",
+              "starterCode": "name = \"coder123\"\nfollowers = 500",
+              "hints": [
+                "Use the f prefix before the string.",
+                "Put the variables inside curly braces."
+              ],
+              "expectedOutput": "User: coder123 has 500 followers",
+              "difficulty": "Easy"
+            },
+            "useCaseCards": [
+              {
+                "industry": "E-commerce",
+                "jobRole": "Data Analyst",
+                "useCase": "Cleaning product names by removing extra spaces and standardizing case."
+              },
+              {
+                "industry": "Finance",
+                "jobRole": "Software Developer",
+                "useCase": "Generating dynamic transaction receipts with user names and amounts."
+              },
+              {
+                "industry": "Healthcare",
+                "jobRole": "System Administrator",
+                "useCase": "Validating patient ID strings to ensure they meet length requirements."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "Automating Customer Reports",
+              "storyText": "A logistics company used Python to automate their daily delivery reports. By using string concatenation and f-strings, they transformed raw database entries into professional, readable emails for their clients, saving hours of manual work every day.",
+              "storyCompany": "LogiTech Solutions"
+            },
+            "keyTakeaways": [
+              "Always enclose text in quotes to define a `string` in Python.",
+              "Use the `+` operator to perform `concatenation` of multiple strings.",
+              "Use `f-strings` with `{}` to insert variables into text cleanly.",
+              "Apply `str()` to convert numbers into text before joining them with other strings.",
+              "⚠️ Common Mistake: Forgetting that strings are immutable, so methods like `.upper()` return a new string rather than changing the original.",
+              "💡 Pro Tip: Always use `.strip()` on user input from forms to prevent hidden spaces from causing logic errors."
+            ]
+          }
+        ]
+      },
+      {
+        "moduleId": "python-basics-for-complete-beginners-beginner-v1-mod-2",
+        "title": "Control Flow and Program Logic",
+        "description": "Master the art of decision-making and repetition in Python. This module transitions you from writing simple scripts to creating intelligent programs that can evaluate data and perform automated tasks efficiently.",
+        "moduleExplanation": [
+          {
+            "topic": "Control Flow and Program Logic",
+            "points": [
+              "This module covers the essential logic structures of Python across three lessons, providing the foundation for building dynamic programs that respond to user input and process data sets.",
+              "By the end of this module, you will be able to write scripts that make logical decisions, automate repetitive tasks, and combine these elements into a functional, interactive application.",
+              "Key terms introduced include `if` statements, `elif` and `else` blocks, `for` loops, `while` loops, comparison operators like `==` and `!=`, and control keywords such as `break` and `continue`.",
+              "The lesson progression is: 1. Making Decisions with If Statements, which introduces conditional logic; 2. Repeating Tasks with Loops, which builds on logic to handle sequences; and 3. Building a Complete Python Program, which integrates these concepts into a cohesive script.",
+              "We utilize built-in tools including `input()` to capture user data, `range()` to generate numerical sequences, `float()` to convert text to numbers, and `round()` to format numerical output.",
+              "A common mistake in lesson 1 is using `=` instead of `==` for comparisons; in lesson 2, it is creating infinite `while` loops by failing to update the condition; and in lesson 3, it is neglecting to convert user input types before performing calculations.",
+              "Practice is integrated through interactive coding exercises, logic flow debugging tasks, and a final mini-challenge that requires synthesizing conditional and loop structures.",
+              "This module prepares you for advanced programming by establishing the logical framework required to handle complex data structures and larger software projects in future modules."
+            ]
+          }
+        ],
+        "duration": "1 hour 30 minutes",
+        "lessons": [
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-2-lesson-1",
+            "title": "Making Decisions with If Statements",
+            "objective": "By the end of this lesson, you will be able to: (1) Construct conditional logic using 'if', 'elif', and 'else' statements to control program flow. (2) Apply comparison operators to evaluate numerical and boolean conditions accurately. (3) Debug common syntax errors related to indentation and the misuse of assignment versus comparison operators.",
+            "lessonExplanation": [
+              {
+                "topic": "Conditional Logic in Python",
+                "points": [
+                  "Python uses 'if' statements to execute specific code blocks only when a defined condition evaluates to True.",
+                  "The syntax requires a colon after the condition, followed by an indented block of code, which is how Python groups related instructions.",
+                  "The 'elif' keyword allows for checking multiple alternative conditions sequentially if the initial 'if' condition is False.",
+                  "The 'else' block serves as a catch-all, executing only if none of the preceding conditions in the chain are met.",
+                  "Comparison operators such as '==', '!=', '<', '>', '<=', and '>=' are essential for creating the logic that drives these decisions.",
+                  "Logical operators like 'and', 'or', and 'not' enable the combination of multiple conditions into a single, complex decision point.",
+                  "Indentation is not just for readability in Python; it is a strict requirement that defines the scope of the code block belonging to a condition.",
+                  "A critical distinction exists between the assignment operator '=' and the equality comparison operator '==', which is a frequent source of logic errors."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why Programs Need to Decide",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Input Data\"] --> B{\"Condition Met?\"}\n    B -- Yes --> C[\"Execute Path A\"]\n    B -- No --> D[\"Execute Path B\"]\n```",
+              "alt": "A flowchart showing a program splitting into two paths based on a condition.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Just like a thermostat decides to turn on the heater when the room is cold, your code can make decisions based on data.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Temp < 20\"] --> B{\"Turn on Heat?\"}\n    B -- True --> C[\"Activate Heater\"]\n    B -- False --> D[\"Stay Idle\"]\n```",
+                  "alt": "A diagram showing how a thermostat logic works.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "Conditional logic allows your program to react differently to user input, making your scripts feel intelligent and interactive.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"User Input\"] --> B{\"Is Input Valid?\"}\n    B -- Yes --> C[\"Process Data\"]\n    B -- No --> D[\"Show Error\"]\n```",
+                  "alt": "A diagram showing input validation logic.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "if statement",
+              "elif block",
+              "else block",
+              "indentation",
+              "comparison operators",
+              "equality operator",
+              "logical operators",
+              "conditional flow"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "if condition:\n    # Code block\nelif other_condition:\n    # Code block\nelse:\n    # Default block"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "The if Keyword",
+                "description": "Start your logic with the 'if' keyword followed by a condition and a colon. For example, 'if score > 50:' checks if a variable exceeds a threshold."
+              },
+              {
+                "label": "Step 2",
+                "name": "Indentation Rules",
+                "description": "Every line inside the 'if' block must be indented by four spaces. This tells Python which code belongs to that specific decision."
+              },
+              {
+                "label": "Step 3",
+                "name": "Comparison Operators",
+                "description": "Use operators like '>' or '<' to compare values. Ensure you use '==' for checking equality, not '=' which is for assigning values."
+              },
+              {
+                "label": "Step 4",
+                "name": "The elif Block",
+                "description": "Use 'elif' to check additional conditions if the first 'if' fails. You can chain as many 'elif' statements as needed."
+              },
+              {
+                "label": "Step 5",
+                "name": "The else Block",
+                "description": "Add an 'else' block at the end to handle cases where no other conditions were met. It requires no condition itself."
+              },
+              {
+                "label": "Step 6",
+                "name": "Logical Operators",
+                "description": "Combine multiple conditions using 'and' or 'or'. For example, 'if x > 0 and x < 10:' checks if a number is within a specific range."
+              },
+              {
+                "label": "Step 7",
+                "name": "Order of Execution",
+                "description": "Python evaluates conditions from top to bottom. It executes only the first block that evaluates to True and skips the rest."
+              },
+              {
+                "label": "Step 8",
+                "name": "Debugging Logic",
+                "description": "If your code does nothing, check your indentation levels. If it behaves unexpectedly, verify your comparison operators."
+              }
+            ],
+            "analogy": {
+              "subject": "A traffic light controller",
+              "comparison": "An if-elif-else structure acts like a traffic light controller deciding which signal to show based on sensors.",
+              "mapping": [
+                {
+                  "from": "if condition",
+                  "to": "Checking if a car is waiting at the red light"
+                },
+                {
+                  "from": "elif condition",
+                  "to": "Checking if a pedestrian button was pressed"
+                },
+                {
+                  "from": "else block",
+                  "to": "Defaulting to green for the main road when no other sensors are active"
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Basic Comparison",
+                "code": "age = 18\nif age >= 18:\n    print(\"You are an adult.\")",
+                "explanation": "This checks if the variable age is greater than or equal to 18 and prints a message if true."
+              },
+              {
+                "title": "Example 2: Using Else",
+                "code": "score = 45\nif score >= 50:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")",
+                "explanation": "This provides a fallback action if the score is below 50."
+              },
+              {
+                "title": "Example 3: Chaining Conditions",
+                "code": "grade = 85\nif grade >= 90:\n    print(\"A\")\nelif grade >= 80:\n    print(\"B\")\nelse:\n    print(\"C\")",
+                "explanation": "This demonstrates how to evaluate multiple ranges using elif."
+              },
+              {
+                "title": "Example 4: Logical Operators",
+                "code": "temp = 25\nif temp > 20 and temp < 30:\n    print(\"Perfect weather\")",
+                "explanation": "This uses 'and' to ensure the temperature is within a specific range."
+              },
+              {
+                "title": "Example 5: Inequality Check",
+                "code": "status = \"error\"\nif status != \"ok\":\n    print(\"System alert!\")",
+                "explanation": "This uses the '!=' operator to trigger an action when the status is not 'ok'."
+              }
+            ],
+            "flowchart": {
+              "title": "Decision Logic Flow",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Start Check\"] --> B{\"Condition 1 True?\"}\n    B -- Yes --> C[\"Run Block 1\"]\n    B -- No --> D{\"Condition 2 True?\"}\n    D -- Yes --> E[\"Run Block 2\"]\n    D -- No --> F[\"Run Else Block\"]\n    C --> G[\"End\"]\n    E --> G\n    F --> G"
+            },
+            "interactiveExercise": {
+              "title": "Fix the Logic",
+              "instruction": "The code below should print 'Welcome' if the user is a member, but it currently has a syntax error. Fix the indentation and the comparison operator.",
+              "starterCode": "is_member = True\nif is_member = True\nprint(\"Welcome\")",
+              "expectebehavior": "The code should correctly compare the boolean and print 'Welcome' without syntax errors."
+            },
+            "quiz": [
+              {
+                "question": "What happens if you use '=' instead of '==' in an if statement?",
+                "options": [
+                  "It works the same as '=='.",
+                  "It causes a syntax error because assignment is not allowed in conditions.",
+                  "It compares the values correctly.",
+                  "It assigns the value instead of comparing it, often leading to logic errors."
+                ],
+                "correctAnswer": "3",
+                "explanation": "Using '=' performs assignment, which is not a valid condition check, whereas '==' is the correct operator for equality comparison."
+              },
+              {
+                "question": "Which block runs if all conditions in an if-elif chain are False?",
+                "options": [
+                  "The first if block.",
+                  "The last elif block.",
+                  "The else block.",
+                  "No code runs."
+                ],
+                "correctAnswer": "2",
+                "explanation": "The else block is designed to catch all scenarios where no preceding conditions were met."
+              },
+              {
+                "question": "How does Python determine which lines belong to an if statement?",
+                "options": [
+                  "By curly braces {}.",
+                  "By the indentation level.",
+                  "By the end keyword.",
+                  "By the semicolon ;."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Python uses indentation (typically 4 spaces) to define the scope of code blocks."
+              },
+              {
+                "question": "If multiple conditions in an if-elif chain are True, which one runs?",
+                "options": [
+                  "All of them.",
+                  "The last one.",
+                  "The first one.",
+                  "None of them."
+                ],
+                "correctAnswer": "2",
+                "explanation": "Python evaluates from top to bottom and executes only the first block that evaluates to True."
+              },
+              {
+                "question": "What is the correct way to check if x is not equal to 10?",
+                "options": [
+                  "if x <> 10:",
+                  "if x != 10:",
+                  "if x =! 10:",
+                  "if x not 10:"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The '!=' operator is the standard Python syntax for 'not equal'."
+              },
+              {
+                "question": "Which operator is used to check if both conditions are True?",
+                "options": [
+                  "or",
+                  "not",
+                  "and",
+                  "both"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The 'and' operator requires both sides of the expression to be True."
+              },
+              {
+                "question": "What is the result of 'if 5 > 3:'?",
+                "options": [
+                  "True",
+                  "False",
+                  "Error",
+                  "None"
+                ],
+                "correctAnswer": "0",
+                "explanation": "5 is indeed greater than 3, so the condition evaluates to True."
+              },
+              {
+                "question": "Why is indentation important in Python?",
+                "options": [
+                  "It is optional but recommended.",
+                  "It is required to define code blocks.",
+                  "It makes the code run faster.",
+                  "It is only for comments."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Indentation is a core part of Python's syntax, defining the structure of the program."
+              },
+              {
+                "question": "Can you have an if statement without an else block?",
+                "options": [
+                  "Yes, it is perfectly valid.",
+                  "No, else is mandatory.",
+                  "Only if there is an elif.",
+                  "Only if the condition is True."
+                ],
+                "correctAnswer": "0",
+                "explanation": "An if statement can exist entirely on its own without any elif or else blocks."
+              },
+              {
+                "question": "What is the purpose of the colon ':' at the end of an if line?",
+                "options": [
+                  "It is a typo.",
+                  "It marks the end of the statement.",
+                  "It tells Python that a block of code follows.",
+                  "It separates the if from the condition."
+                ],
+                "correctAnswer": "2",
+                "explanation": "The colon is required syntax to indicate that the following indented lines belong to the if statement."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Logic Execution",
+              "instruction": "Drag the steps into the order the computer follows when this code runs.",
+              "codelines": [
+                "// 6. The program prints 'Grade: B' to the console.",
+                "// 5. Because the second condition is True, the program enters the 'elif' block.",
+                "// 4. The program checks if 'score' is greater than or equal to 70.",
+                "// 3. Since the first condition is False, the program moves to the 'elif' check.",
+                "// 2. The program checks if 'score' is greater than or equal to 90.",
+                "// 1. The program initializes the variable 'score' with the value 75."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: Logic Scenarios",
+              "instruction": "Drag each scenario into the right logic bucket.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "Checking if a user's age is over 18 to allow access.",
+                  "correctCategory": "If Statement"
+                },
+                {
+                  "id": "2",
+                  "content": "Providing a fallback message when no other criteria match.",
+                  "correctCategory": "Else Block"
+                },
+                {
+                  "id": "3",
+                  "content": "Evaluating a second option if the first one is not met.",
+                  "correctCategory": "Elif Block"
+                },
+                {
+                  "id": "4",
+                  "content": "Validating if a password meets the minimum length requirement.",
+                  "correctCategory": "If Statement"
+                },
+                {
+                  "id": "5",
+                  "content": "Handling the 'Guest' user type when 'Admin' and 'Member' checks fail.",
+                  "correctCategory": "Else Block"
+                },
+                {
+                  "id": "6",
+                  "content": "Checking for a 'Silver' tier discount if the 'Gold' tier check fails.",
+                  "correctCategory": "Elif Block"
+                }
+              ],
+              "correctpairs": [
+                "If Statement",
+                "Elif Block",
+                "Else Block"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "if"
+                },
+                {
+                  "id": "2",
+                  "content": "Starts a conditional check."
+                },
+                {
+                  "id": "3",
+                  "content": "elif"
+                },
+                {
+                  "id": "4",
+                  "content": "Checks an alternative condition."
+                },
+                {
+                  "id": "5",
+                  "content": "else"
+                },
+                {
+                  "id": "6",
+                  "content": "Handles all remaining cases."
+                },
+                {
+                  "id": "7",
+                  "content": "=="
+                },
+                {
+                  "id": "8",
+                  "content": "Checks if two values are identical."
+                },
+                {
+                  "id": "9",
+                  "content": "!="
+                },
+                {
+                  "id": "10",
+                  "content": "Checks if two values are different."
+                },
+                {
+                  "id": "11",
+                  "content": "Indentation"
+                },
+                {
+                  "id": "12",
+                  "content": "Defines the scope of a block."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the Comparison Bug",
+              "instruction": "Find the bug in the code that checks for a specific user ID.",
+              "buggyCode": "user_id = 101\nif user_id = 100:\n    print(\"Access Granted\")",
+              "bug": "The code uses the assignment operator '=' instead of the equality operator '=='.",
+              "fixedCode": "user_id = 101\nif user_id == 100:\n    print(\"Access Granted\")",
+              "hint": "Remember that '=' is for setting a variable, while '==' is for comparing two values."
+            },
+            "miniChallenge": {
+              "title": "Shipping Calculator",
+              "scenario": "You are building a checkout page for an e-commerce site. Orders over $100 get free shipping, orders between $50 and $100 have a $10 fee, and orders under $50 have a $20 fee.",
+              "prompt": "Write a script that takes a variable 'order_total' and prints the correct shipping cost.",
+              "starterCode": "order_total = 75\n# Add your logic here",
+              "hints": [
+                "Use an if-elif-else chain.",
+                "Check the highest threshold first.",
+                "Ensure your print statements match the fee amounts."
+              ],
+              "expectedOutput": "Shipping fee: $10",
+              "difficulty": "Beginner"
+            },
+            "useCaseCards": [
+              {
+                "industry": "Finance",
+                "jobRole": "Data Analyst",
+                "useCase": "Flagging transactions as 'High Risk' if the amount exceeds a specific threshold."
+              },
+              {
+                "industry": "Healthcare",
+                "jobRole": "Medical Researcher",
+                "useCase": "Categorizing patient heart rates as 'Normal', 'High', or 'Critical' based on sensor data."
+              },
+              {
+                "industry": "Retail",
+                "jobRole": "Inventory Manager",
+                "useCase": "Triggering an automated reorder email when stock levels drop below a minimum count."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "Automating Quality Control",
+              "storyText": "A manufacturing plant used to manually inspect every part for defects. By implementing a simple Python script connected to a sensor, they now automatically sort parts into 'Pass' or 'Fail' bins based on weight measurements. This simple logic saved the company hundreds of hours of manual labor per month.",
+              "storyCompany": "Precision Parts Manufacturing"
+            },
+            "keyTakeaways": [
+              "Use 'if' to start a conditional block and 'elif' to add subsequent checks.",
+              "The 'else' block is optional but useful for handling all remaining cases.",
+              "Always use '==' for equality comparisons and '!=' for inequality.",
+              "Indentation is mandatory in Python to define the code that belongs to a condition.",
+              "⚠️ Common Mistake: Using '=' instead of '==' will cause your logic to fail or produce unexpected results.",
+              "💡 Pro Tip: When chaining conditions, order them from the most specific to the most general to ensure the correct block executes."
+            ]
+          },
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-2-lesson-2",
+            "title": "Repeating Tasks with Loops",
+            "objective": "By the end of this lesson, you will be able to: (1) Use 'for' loops to iterate over sequences like lists and numerical ranges. (2) Implement 'while' loops to handle tasks that require repetition based on dynamic conditions. (3) Control loop execution flow using 'break' and 'continue' keywords to manage complex iteration logic.",
+            "lessonExplanation": [
+              {
+                "topic": "Mastering Iteration in Python",
+                "points": [
+                  "Loops are fundamental control structures that allow you to execute a block of code multiple times without duplicating it manually.",
+                  "The 'for' loop is designed for iterating over sequences, such as lists of items or numerical ranges generated by the 'range()' function.",
+                  "The 'while' loop provides a way to repeat actions as long as a specific boolean condition remains true, which is ideal for scenarios where the number of repetitions is unknown.",
+                  "The 'range()' function is a powerful tool for generating sequences of numbers, where 'range(n)' creates values from 0 up to n-1, and 'range(start, stop)' allows custom boundaries.",
+                  "Control keywords like 'break' allow you to exit a loop prematurely, while 'continue' allows you to skip the remainder of the current iteration and jump immediately to the next one.",
+                  "Effective loop management requires ensuring that 'while' loop conditions eventually become false to avoid infinite loops that can crash or freeze your program."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why Loops Matter",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Manual Work\"] --> B{\"Need to repeat?\"}\n    B -- yes --> C[\"Write loop\"]\n    B -- no --> D[\"Write once\"]\n    C --> E[\"Automated efficiency\"]\n```",
+              "alt": "A diagram showing the transition from manual repetition to using loops for efficiency.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Imagine calculating the average temperature for 365 days; writing 365 lines of code is inefficient, but a loop does it in three.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Data: 365 days\"] --> B[\"Loop: 1 to 365\"]\n    B --> C[\"Calculate sum\"]\n    C --> D[\"Result: Average\"]\n```",
+                  "alt": "Flowchart showing how a loop processes a large dataset of 365 days.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "Loops allow your program to wait for user input until the data is valid, preventing crashes from bad entries.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Prompt user\"] --> B{\"Valid input?\"}\n    B -- no --> A\n    B -- yes --> C[\"Proceed\"]\n```",
+                  "alt": "Flowchart showing a while loop waiting for valid user input.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "Iteration",
+              "For Loop",
+              "While Loop",
+              "Range Function",
+              "Infinite Loop",
+              "Break Keyword",
+              "Continue Keyword",
+              "Sequence Processing"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "for item in sequence:\n    # Do something\nwhile condition:\n    # Keep doing something\n    if stop_now: break"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "For Loop Basics",
+                "description": "Use a for loop to iterate over a list. For example, 'for item in [1, 2, 3]:' will execute the block three times."
+              },
+              {
+                "label": "Step 2",
+                "name": "Using Range",
+                "description": "The range function generates numbers. 'range(5)' creates 0 through 4, while 'range(1, 4)' creates 1, 2, and 3."
+              },
+              {
+                "label": "Step 3",
+                "name": "While Loop Logic",
+                "description": "A while loop checks a condition before every repetition. It runs as long as the condition evaluates to True."
+              },
+              {
+                "label": "Step 4",
+                "name": "Avoiding Infinite Loops",
+                "description": "Always ensure the condition in a while loop changes. If the condition never becomes False, the program will hang."
+              },
+              {
+                "label": "Step 5",
+                "name": "Breaking Early",
+                "description": "The 'break' keyword forces an immediate exit from the current loop. Use it when a specific target is found."
+              },
+              {
+                "label": "Step 6",
+                "name": "Skipping Iterations",
+                "description": "The 'continue' keyword skips the rest of the current loop body. It moves directly to the next iteration."
+              },
+              {
+                "label": "Step 7",
+                "name": "Accumulating Values",
+                "description": "Use a variable outside the loop to store running totals. Initialize it to zero before starting the loop."
+              },
+              {
+                "label": "Step 8",
+                "name": "Nested Logic",
+                "description": "You can place if-statements inside loops. This allows you to perform specific actions only on certain items."
+              }
+            ],
+            "analogy": {
+              "subject": "Loops",
+              "comparison": "A music playlist on repeat versus a song that plays once.",
+              "mapping": [
+                {
+                  "from": "For loop",
+                  "to": "Playing a specific list of songs in order."
+                },
+                {
+                  "from": "While loop",
+                  "to": "Playing songs until you manually press the stop button."
+                },
+                {
+                  "from": "Break",
+                  "to": "Skipping to the end of the playlist immediately."
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Iterating over a list",
+                "code": "fruits = ['apple', 'mango', 'banana']\nfor fruit in fruits:\n    print('I like', fruit)",
+                "explanation": "This loop visits every item in the list 'fruits' one by one and prints a message for each."
+              },
+              {
+                "title": "Example 2: Using range for counting",
+                "code": "for i in range(3):\n    print('Counting:', i)",
+                "explanation": "The range(3) generates 0, 1, and 2, causing the loop to run exactly three times."
+              },
+              {
+                "title": "Example 3: Summing numbers",
+                "code": "total = 0\nfor num in range(1, 4):\n    total += num\nprint(total)",
+                "explanation": "This accumulates the sum of 1, 2, and 3 into the 'total' variable."
+              },
+              {
+                "title": "Example 4: While loop for input",
+                "code": "user_input = ''\nwhile user_input != 'quit':\n    user_input = input('Type quit to exit: ')",
+                "explanation": "The program keeps asking for input until the user types 'quit', which makes the condition False."
+              },
+              {
+                "title": "Example 5: Using break",
+                "code": "for i in range(10):\n    if i == 3:\n        break\n    print(i)",
+                "explanation": "The loop starts to count to 10 but stops immediately when 'i' reaches 3."
+              }
+            ],
+            "flowchart": {
+              "title": "Loop Decision Process",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Start Loop\"] --> B{\"Know count?\"}\n    B -- yes --> C[\"Use for loop\"]\n    B -- no --> D[\"Use while loop\"]\n    C --> E[\"Execute block\"]\n    D --> E\n    E --> F{\"Need to stop?\"}\n    F -- yes --> G[\"Break\"]\n    F -- no --> E"
+            },
+            "interactiveExercise": {
+              "title": "Summing Even Numbers",
+              "instruction": "Write a loop that calculates the sum of even numbers from 1 to 10.",
+              "starterCode": "total = 0\n# Write your loop here\nprint(total)",
+              "expectebehavior": "The variable 'total' should equal 30 (2+4+6+8+10)."
+            },
+            "quiz": [
+              {
+                "question": "What is the result of 'range(4)'?",
+                "options": [
+                  "1, 2, 3, 4",
+                  "0, 1, 2, 3",
+                  "0, 1, 2, 3, 4",
+                  "1, 2, 3"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The range function starts at 0 by default and stops before the specified number, so it produces 0, 1, 2, 3."
+              },
+              {
+                "question": "Why might a 'while' loop run forever?",
+                "options": [
+                  "The condition is always True",
+                  "The loop uses a list",
+                  "The loop uses 'break'",
+                  "The condition is always False"
+                ],
+                "correctAnswer": "0",
+                "explanation": "If the condition never changes to False, the loop will continue to execute indefinitely."
+              },
+              {
+                "question": "What does 'break' do inside a loop?",
+                "options": [
+                  "Skips the current item",
+                  "Restarts the loop",
+                  "Exits the loop immediately",
+                  "Pauses the loop"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The 'break' keyword terminates the loop entirely, regardless of the loop condition."
+              },
+              {
+                "question": "Which loop is best for iterating over a known list of items?",
+                "options": [
+                  "while loop",
+                  "for loop",
+                  "if statement",
+                  "range loop"
+                ],
+                "correctAnswer": "1",
+                "explanation": "The 'for' loop is specifically designed to iterate over sequences like lists."
+              },
+              {
+                "question": "What happens if you use 'continue' in a loop?",
+                "options": [
+                  "The loop stops",
+                  "The program crashes",
+                  "The current iteration ends and the next begins",
+                  "The loop repeats the same item"
+                ],
+                "correctAnswer": "2",
+                "explanation": "'continue' skips the remaining code in the current iteration and jumps to the next one."
+              },
+              {
+                "question": "If you want to repeat a task 5 times, which is the most idiomatic Python approach?",
+                "options": [
+                  "while i < 5",
+                  "for i in range(5)",
+                  "for i in [1, 2, 3, 4, 5]",
+                  "while True"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Using 'range(5)' with a 'for' loop is the standard, cleanest way to repeat a task a specific number of times."
+              },
+              {
+                "question": "What is the value of 'total' after: total = 0; for i in range(3): total += 1?",
+                "options": [
+                  "0",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "correctAnswer": "2",
+                "explanation": "The loop runs for i=0, i=1, and i=2, adding 1 to total three times, resulting in 3."
+              },
+              {
+                "question": "How do you stop a 'while' loop that is waiting for user input?",
+                "options": [
+                  "Use 'continue'",
+                  "Use 'break' when input is valid",
+                  "Use 'range'",
+                  "Use 'if' only"
+                ],
+                "correctAnswer": "1",
+                "explanation": "You use 'break' to exit the loop once the user provides the expected valid input."
+              },
+              {
+                "question": "What is the difference between 'range(3)' and 'range(1, 4)'?",
+                "options": [
+                  "They are identical",
+                  "The first starts at 0, the second at 1",
+                  "The first is for lists, the second for numbers",
+                  "The first is infinite"
+                ],
+                "correctAnswer": "1",
+                "explanation": "range(3) generates 0, 1, 2. range(1, 4) generates 1, 2, 3. They have different starting points."
+              },
+              {
+                "question": "Which of these is a valid way to iterate over a list named 'data'?",
+                "options": [
+                  "for item in data:",
+                  "while item in data:",
+                  "for data in item:",
+                  "while data:"
+                ],
+                "correctAnswer": "0",
+                "explanation": "The syntax 'for item in sequence:' is the correct way to iterate over a collection in Python."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Summing numbers with a loop",
+              "instruction": "Drag the steps into the order the computer follows when this code runs.",
+              "codelines": [
+                "// 6. Print the final calculated sum to the console.",
+                "// 5. Exit the loop once all numbers have been processed.",
+                "// 4. Check if there are more numbers to process in the range.",
+                "// 3. Add the current number to the total variable.",
+                "// 2. Start the loop to iterate through the range of numbers.",
+                "// 1. Initialize the total variable to zero before the loop starts."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: For vs While",
+              "instruction": "Drag each scenario into the right loop type bucket.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "Processing every customer in a list of 50 names.",
+                  "correctCategory": "For Loop"
+                },
+                {
+                  "id": "2",
+                  "content": "Asking for a password until the user types it correctly.",
+                  "correctCategory": "While Loop"
+                },
+                {
+                  "id": "3",
+                  "content": "Calculating the square of every number from 1 to 10.",
+                  "correctCategory": "For Loop"
+                },
+                {
+                  "id": "4",
+                  "content": "Running a game loop until the player clicks 'Exit'.",
+                  "correctCategory": "While Loop"
+                },
+                {
+                  "id": "5",
+                  "content": "Printing each character in a string.",
+                  "correctCategory": "For Loop"
+                },
+                {
+                  "id": "6",
+                  "content": "Waiting for a sensor to detect a specific temperature.",
+                  "correctCategory": "While Loop"
+                }
+              ],
+              "correctpairs": [
+                "For Loop",
+                "While Loop"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "Iteration"
+                },
+                {
+                  "id": "2",
+                  "content": "The process of repeating a block of code multiple times."
+                },
+                {
+                  "id": "3",
+                  "content": "For Loop"
+                },
+                {
+                  "id": "4",
+                  "content": "A structure used to repeat code over a known sequence."
+                },
+                {
+                  "id": "5",
+                  "content": "While Loop"
+                },
+                {
+                  "id": "6",
+                  "content": "A structure that repeats code based on a boolean condition."
+                },
+                {
+                  "id": "7",
+                  "content": "Break"
+                },
+                {
+                  "id": "8",
+                  "content": "A command that exits a loop immediately."
+                },
+                {
+                  "id": "9",
+                  "content": "Continue"
+                },
+                {
+                  "id": "10",
+                  "content": "A command that skips to the next loop iteration."
+                },
+                {
+                  "id": "11",
+                  "content": "Range"
+                },
+                {
+                  "id": "12",
+                  "content": "A function that generates a sequence of numbers."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the Infinite Loop",
+              "instruction": "Identify and fix the bug in this code that causes it to run forever.",
+              "buggyCode": "count = 0\nwhile count < 5:\n    print(count)",
+              "bug": "The variable 'count' is never updated inside the loop, so the condition 'count < 5' remains True forever.",
+              "fixedCode": "count = 0\nwhile count < 5:\n    print(count)\n    count += 1",
+              "hint": "You need to increment the counter inside the loop body."
+            },
+            "miniChallenge": {
+              "title": "Inventory Checker",
+              "scenario": "You are managing a warehouse inventory list. You need to find the first item that is 'out of stock' and stop searching once you find it.",
+              "prompt": "Write a loop that iterates through a list of items and prints 'Found it!' when it encounters 'out of stock', then stops.",
+              "starterCode": "inventory = ['in stock', 'in stock', 'out of stock', 'in stock']\n# Write your code here",
+              "hints": [
+                "Use a for loop to go through the list.",
+                "Use an if statement to check if the item is 'out of stock'.",
+                "Use the break keyword to stop the loop."
+              ],
+              "expectedOutput": "Found it!",
+              "difficulty": "Easy"
+            },
+            "useCaseCards": [
+              {
+                "industry": "Finance",
+                "jobRole": "Data Analyst",
+                "useCase": "Iterating through thousands of daily transaction records to calculate the total revenue for the month."
+              },
+              {
+                "industry": "E-commerce",
+                "jobRole": "Web Developer",
+                "useCase": "Looping through a list of products to display them dynamically on a webpage until the end of the list is reached."
+              },
+              {
+                "industry": "Manufacturing",
+                "jobRole": "Systems Engineer",
+                "useCase": "Using a while loop to continuously monitor sensor data from a machine until an error threshold is triggered."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "Automating Quality Control",
+              "storyText": "At a large electronics manufacturer, engineers used to manually check every circuit board for defects. By implementing a Python script with a 'for' loop, they were able to process images of thousands of boards per hour. The script iterates through the image files, applies a filter, and uses a 'while' loop to retry the scan if the image is blurry, significantly reducing human error and increasing production speed.",
+              "storyCompany": "Global Tech Manufacturing"
+            },
+            "keyTakeaways": [
+              "Use a `for` loop when you know how many times you need to repeat a task or have a sequence to process.",
+              "Use a `while` loop when you need to repeat a task until a specific condition changes.",
+              "The `range()` function is essential for creating numerical sequences for loops.",
+              "Use `break` to exit a loop early and `continue` to skip to the next iteration.",
+              "⚠️ Common Mistake: Forgetting to update the condition in a `while` loop, which creates an infinite loop that freezes your program.",
+              "💡 Pro Tip: Always test your loop with a small range or list first to ensure the logic works before running it on large datasets."
+            ]
+          },
+          {
+            "lessonId": "python-basics-for-complete-beginners-beginner-v1-mod-2-lesson-3",
+            "title": "Building a Complete Python Program",
+            "objective": "By the end of this lesson, you will be able to: (1) Integrate input, conditional logic, and loops into a single cohesive script. (2) Apply type conversion and rounding functions to process user-provided numerical data. (3) Debug logical flow by tracing how variables update throughout the execution of a program.",
+            "lessonExplanation": [
+              {
+                "topic": "Synthesizing Control Flow",
+                "points": [
+                  "Building a complete program requires orchestrating multiple logical structures, such as using a loop to collect data and an if-else block to evaluate the result.",
+                  "The `input()` function always returns a string, so it must be wrapped in `float()` or `int()` before performing any mathematical operations.",
+                  "Accumulator variables, like `total`, allow you to maintain a running state across multiple iterations of a loop.",
+                  "Logical flow control, such as `if-elif-else`, acts as the final decision-maker after data collection is complete.",
+                  "Formatting functions like `round()` are essential for presenting calculated data in a user-friendly way.",
+                  "Testing your program with different inputs ensures that all logical branches, including edge cases, behave as expected."
+                ]
+              }
+            ],
+            "duration": "25-30 minutes",
+            "hooklines_title": "Why combine logic and loops?",
+            "hooklineimage": {
+              "status": "included",
+              "html": "```mermaid\nflowchart TD\n    A[\"Input Data\"] --> B[\"Loop for Processing\"]\n    B --> C[\"Accumulate Results\"]\n    C --> D[\"Evaluate Logic\"]\n    D --> E[\"Output Result\"]\n```",
+              "alt": "A diagram showing the flow from input to processing, evaluation, and output.",
+              "prompt": "",
+              "style": "diagram"
+            },
+            "hooklines": [
+              {
+                "text": "Programs become powerful when they can handle repeated input and make smart decisions based on that data.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"User Input\"] --> B[\"Loop\"]\n    B --> C[\"Decision Logic\"]\n    C --> D[\"Final Report\"]\n```",
+                  "alt": "A diagram showing how user input flows through a loop and decision logic to a final report.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              },
+              {
+                "text": "By chaining these structures, you can build tools that automate complex calculations like grade tracking or inventory management.",
+                "image": {
+                  "status": "included",
+                  "html": "```mermaid\nflowchart TD\n    A[\"Data Collection\"] --> B[\"Calculation\"]\n    B --> C[\"Conditional Output\"]\n```",
+                  "alt": "A diagram showing data collection moving into calculation and conditional output.",
+                  "prompt": "",
+                  "style": "diagram"
+                }
+              }
+            ],
+            "concepts": [
+              "Accumulator Pattern",
+              "Input Sanitization",
+              "Type Casting",
+              "Control Flow Integration",
+              "Conditional Branching",
+              "Iterative Processing",
+              "Data Formatting",
+              "Program State"
+            ],
+            "syntax": {
+              "title": "Syntax",
+              "highlight": {
+                "code": "total = 0\nfor i in range(3):\n    val = float(input('Enter: '))\n    total += val\nprint(f'Total: {total}')"
+              }
+            },
+            "parts": [
+              {
+                "label": "Step 1",
+                "name": "Initialize Accumulator",
+                "description": "Create a variable like `total = 0` before the loop starts to store the running sum of inputs."
+              },
+              {
+                "label": "Step 2",
+                "name": "Looping Input",
+                "description": "Use a `for` or `while` loop to repeatedly prompt the user for data until the required amount is collected."
+              },
+              {
+                "label": "Step 3",
+                "name": "Type Conversion",
+                "description": "Always wrap `input()` in `float()` or `int()` to ensure the data can be used in mathematical calculations."
+              },
+              {
+                "label": "Step 4",
+                "name": "Updating State",
+                "description": "Add the new input to your accumulator variable inside the loop to track the cumulative value."
+              },
+              {
+                "label": "Step 5",
+                "name": "Post-Loop Calculation",
+                "description": "Perform final calculations, such as finding an average, only after the loop has finished running."
+              },
+              {
+                "label": "Step 6",
+                "name": "Conditional Logic",
+                "description": "Use `if-elif-else` blocks to categorize the final result based on specific thresholds."
+              },
+              {
+                "label": "Step 7",
+                "name": "Formatting Output",
+                "description": "Use `round()` to clean up long decimal numbers before displaying them to the user."
+              },
+              {
+                "label": "Step 8",
+                "name": "Testing Branches",
+                "description": "Run your program with different inputs to verify that every branch of your conditional logic works correctly."
+              }
+            ],
+            "analogy": {
+              "subject": "Building a Program",
+              "comparison": "Cooking a multi-course meal",
+              "mapping": [
+                {
+                  "from": "Accumulator variable",
+                  "to": "The mixing bowl that holds all ingredients"
+                },
+                {
+                  "from": "Loop",
+                  "to": "Adding ingredients one by one"
+                },
+                {
+                  "from": "Conditional logic",
+                  "to": "Deciding if the dish needs more salt or sugar based on taste"
+                },
+                {
+                  "from": "Final output",
+                  "to": "Serving the finished meal"
+                }
+              ]
+            },
+            "example": [
+              {
+                "title": "Example 1: Basic Accumulator",
+                "code": "total = 0\nfor i in range(3):\n    total += 10\nprint(total)",
+                "explanation": "This shows how a variable outside the loop keeps track of values added during each iteration."
+              },
+              {
+                "title": "Example 2: Converting Input",
+                "code": "score = float(input('Enter score: '))\nprint(score + 5)",
+                "explanation": "Demonstrates the necessity of converting string input to a float to perform math."
+              },
+              {
+                "title": "Example 3: Conditional Grading",
+                "code": "avg = 75\nif avg >= 70: print('Pass')\nelse: print('Fail')",
+                "explanation": "A simple decision structure that evaluates a calculated variable."
+              },
+              {
+                "title": "Example 4: Rounding Output",
+                "code": "val = 88.666\nprint(round(val, 1))",
+                "explanation": "Shows how to format a number to one decimal place for cleaner output."
+              },
+              {
+                "title": "Example 5: Complete Program",
+                "code": "total = 0\nfor i in range(2):\n    total += float(input('Score: '))\nprint(f'Avg: {total/2}')",
+                "explanation": "Combines input, loop, accumulation, and calculation into one functional script."
+              }
+            ],
+            "flowchart": {
+              "title": "Program Logic Flow",
+              "type": "mermaid",
+              "code": "flowchart TD\n    A[\"Initialize total = 0\"] --> B[\"Start Loop\"]\n    B --> C[\"Get Input\"]\n    C --> D[\"Convert to Float\"]\n    D --> E[\"Add to total\"]\n    E --> F{\"More items?\"}\n    F -- yes --> B\n    F -- no --> G[\"Calculate Average\"]\n    G --> H[\"Print Result\"]"
+            },
+            "interactiveExercise": {
+              "title": "Build a Budget Tracker",
+              "instruction": "Write a program that asks the user for 3 expenses, calculates the total, and prints if they are 'Over Budget' (total > 100) or 'Under Budget'.",
+              "starterCode": "total = 0\n# Add your loop here\n# Add your logic here",
+              "expectebehavior": "The program should prompt for three numbers, sum them, and print the correct budget status based on the total."
+            },
+            "quiz": [
+              {
+                "question": "Why must you use float() on input() when calculating an average?",
+                "options": [
+                  "To make the number look better.",
+                  "Because input() returns a string, which cannot be divided.",
+                  "To ensure the user only enters positive numbers.",
+                  "To speed up the computer's processing time."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Input() always returns text (a string). You must convert it to a number type like float or int to perform mathematical operations like division."
+              },
+              {
+                "question": "What happens if you initialize your total variable inside the loop?",
+                "options": [
+                  "The program will run faster.",
+                  "The total will reset to zero every time the loop runs.",
+                  "The program will crash immediately.",
+                  "The total will be more accurate."
+                ],
+                "correctAnswer": "1",
+                "explanation": "If you put the total inside the loop, it resets to zero on every iteration, meaning you only ever keep the value of the very last input."
+              },
+              {
+                "question": "Which structure is best for checking if a grade is A, B, or C?",
+                "options": [
+                  "A single if statement.",
+                  "A for loop.",
+                  "An if-elif-else block.",
+                  "A while loop."
+                ],
+                "correctAnswer": "2",
+                "explanation": "An if-elif-else block is designed for checking multiple mutually exclusive conditions, which is perfect for grading scales."
+              },
+              {
+                "question": "What is the purpose of the range(1, 6) function in a loop?",
+                "options": [
+                  "It limits the input to numbers between 1 and 6.",
+                  "It generates a sequence of numbers from 1 to 5.",
+                  "It rounds the input to the nearest 6.",
+                  "It forces the user to enter exactly 6 scores."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Range(1, 6) generates numbers starting at 1 and ending at 5 (the stop value is exclusive). This is useful for counting iterations."
+              },
+              {
+                "question": "If your average is 59.9, which branch of an if-elif-else (>=60 is B, else C) will execute?",
+                "options": [
+                  "The >= 60 branch.",
+                  "The else branch.",
+                  "Both branches.",
+                  "Neither branch."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Since 59.9 is not greater than or equal to 60, the condition fails, and the code moves to the else block."
+              },
+              {
+                "question": "How do you format a number to one decimal place in a print statement?",
+                "options": [
+                  "round(number, 1)",
+                  "format(number, 1)",
+                  "decimal(number, 1)",
+                  "limit(number, 1)"
+                ],
+                "correctAnswer": "0",
+                "explanation": "The round() function takes the number and the number of decimal places as arguments, returning the rounded value."
+              },
+              {
+                "question": "What is an accumulator variable?",
+                "options": [
+                  "A variable that stores the user's name.",
+                  "A variable that keeps a running total of values.",
+                  "A variable that stores the loop count.",
+                  "A variable that holds the final result only."
+                ],
+                "correctAnswer": "1",
+                "explanation": "An accumulator is a variable used to keep track of a sum or count that changes as the program iterates through data."
+              },
+              {
+                "question": "Why is it important to test your program with different inputs?",
+                "options": [
+                  "To make the code look longer.",
+                  "To ensure all logical branches work as intended.",
+                  "To see if the computer crashes.",
+                  "To satisfy the Python interpreter."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Testing with various inputs helps verify that your conditional logic handles edge cases and different scenarios correctly."
+              },
+              {
+                "question": "What is the result of '5' + '5' in Python?",
+                "options": [
+                  "10",
+                  "55",
+                  "Error",
+                  "5.0"
+                ],
+                "correctAnswer": "1",
+                "explanation": "Since both are strings, the + operator performs concatenation, joining the two strings together rather than adding them mathematically."
+              },
+              {
+                "question": "Which of these is a common mistake when building a program?",
+                "options": [
+                  "Using meaningful variable names.",
+                  "Forgetting to convert input types.",
+                  "Adding comments to the code.",
+                  "Testing the program too often."
+                ],
+                "correctAnswer": "1",
+                "explanation": "Neglecting to convert input types is a frequent error that leads to crashes when the program tries to perform math on text."
+              }
+            ],
+            "codereordering": {
+              "title": "Reorder: Building a Grade Calculator",
+              "instruction": "Drag the steps into the order the computer follows when this code runs.",
+              "codelines": [
+                "// 6. The final result is printed to the console with `print(f'Average: {round(average, 1)}')`.",
+                "// 5. The loop finishes and the average is calculated with `average = total / 5`.",
+                "// 4. The current score is added to the running total with `total = total + score`.",
+                "// 3. The program captures user input and converts it to a float with `score = float(input(...))`.",
+                "// 2. The loop begins to iterate through the specified range with `for test in range(1, 6):`.",
+                "// 1. The program initializes the accumulator variable to zero with `total = 0`."
+              ],
+              "correctOrder": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1",
+                "0"
+              ]
+            },
+            "dragandropp": {
+              "title": "Sort: Data Handling",
+              "instruction": "Drag each scenario into the right category.",
+              "items": [
+                {
+                  "id": "1",
+                  "content": "Capturing a user's age to calculate a discount.",
+                  "correctCategory": "Input Handling"
+                },
+                {
+                  "id": "2",
+                  "content": "Adding a new transaction amount to a daily balance.",
+                  "correctCategory": "Accumulation"
+                },
+                {
+                  "id": "3",
+                  "content": "Converting a text-based price into a number.",
+                  "correctCategory": "Input Handling"
+                },
+                {
+                  "id": "4",
+                  "content": "Summing up five different test scores.",
+                  "correctCategory": "Accumulation"
+                },
+                {
+                  "id": "5",
+                  "content": "Asking for a user's name to display a greeting.",
+                  "correctCategory": "Input Handling"
+                },
+                {
+                  "id": "6",
+                  "content": "Keeping a running count of items in a shopping cart.",
+                  "correctCategory": "Accumulation"
+                }
+              ],
+              "correctpairs": [
+                "Input Handling",
+                "Accumulation"
+              ]
+            },
+            "cardmatching": {
+              "title": "Match the term with its meaning",
+              "instruction": "Match each term on the left with its plain-English description on the right.",
+              "cards": [
+                {
+                  "id": "1",
+                  "content": "Accumulator"
+                },
+                {
+                  "id": "2",
+                  "content": "A variable that stores a running total across multiple loop iterations."
+                },
+                {
+                  "id": "3",
+                  "content": "Type Conversion"
+                },
+                {
+                  "id": "4",
+                  "content": "Changing data from one format, like a string, into another, like a float."
+                },
+                {
+                  "id": "5",
+                  "content": "Input"
+                },
+                {
+                  "id": "6",
+                  "content": "Data received from the user through the keyboard."
+                },
+                {
+                  "id": "7",
+                  "content": "Loop"
+                },
+                {
+                  "id": "8",
+                  "content": "A structure that repeats a block of code multiple times."
+                },
+                {
+                  "id": "9",
+                  "content": "Conditional Logic"
+                },
+                {
+                  "id": "10",
+                  "content": "A decision-making structure that executes different code based on a condition."
+                },
+                {
+                  "id": "11",
+                  "content": "Rounding"
+                },
+                {
+                  "id": "12",
+                  "content": "Reducing the number of decimal places in a numerical value."
+                }
+              ],
+              "matches": [
+                {
+                  "card1Id": "1",
+                  "card2Id": "2"
+                },
+                {
+                  "card1Id": "3",
+                  "card2Id": "4"
+                },
+                {
+                  "card1Id": "5",
+                  "card2Id": "6"
+                },
+                {
+                  "card1Id": "7",
+                  "card2Id": "8"
+                },
+                {
+                  "card1Id": "9",
+                  "card2Id": "10"
+                },
+                {
+                  "card1Id": "11",
+                  "card2Id": "12"
+                }
+              ]
+            },
+            "bugHunt": {
+              "title": "Fix the Grade Calculator",
+              "instruction": "Find the bug in this code that prevents it from calculating the average correctly.",
+              "buggyCode": "total = 0\nfor i in range(3):\n    total = 0\n    score = float(input('Score: '))\n    total += score\nprint(total / 3)",
+              "bug": "The accumulator variable 'total' is being reset to 0 inside the loop.",
+              "fixedCode": "total = 0\nfor i in range(3):\n    score = float(input('Score: '))\n    total += score\nprint(total / 3)",
+              "hint": "Look at where the 'total' variable is defined relative to the loop."
+            },
+            "miniChallenge": {
+              "title": "Inventory Value Calculator",
+              "scenario": "You are building a tool for a small shop. The user enters the price of 4 items, and you need to calculate the total value and print 'High Value' if the total is over 200, or 'Standard' otherwise.",
+              "prompt": "Write a script that loops 4 times to collect prices, sums them, and prints the correct category.",
+              "starterCode": "total = 0\n# Your code here",
+              "hints": [
+                "Use a for loop with range(4).",
+                "Remember to convert input to float.",
+                "Use an if-else statement after the loop to check the total."
+              ],
+              "expectedOutput": "The total sum of 4 inputs and the correct category label.",
+              "difficulty": "Medium"
+            },
+            "useCaseCards": [
+              {
+                "industry": "Education",
+                "jobRole": "Teacher",
+                "useCase": "Automating the calculation of final student grades from a list of assignment scores."
+              },
+              {
+                "industry": "Retail",
+                "jobRole": "Store Manager",
+                "useCase": "Tracking daily sales totals to determine if the store met its performance targets."
+              },
+              {
+                "industry": "Finance",
+                "jobRole": "Financial Analyst",
+                "useCase": "Calculating the average return on investment for a portfolio of stocks over a specific period."
+              }
+            ],
+            "realWorldStory": {
+              "storyTitle": "Automating the Classroom",
+              "storyText": "A high school teacher spent hours every weekend manually calculating averages for 150 students. By writing a simple Python script that loops through scores and applies conditional grading logic, they reduced their grading time from six hours to just thirty minutes, allowing more time for lesson planning.",
+              "storyCompany": "City Public Schools"
+            },
+            "keyTakeaways": [
+              "Always initialize your accumulator variable outside of the loop to ensure it persists across iterations.",
+              "Use `float()` or `int()` to convert the string returned by `input()` before performing any math.",
+              "The `if-elif-else` structure is the standard way to handle multiple logical outcomes in a program.",
+              "Use `round()` to format numerical results so they are readable and professional for the end user.",
+              "⚠️ Common Mistake: Resetting your accumulator variable inside the loop, which causes the program to only remember the last input.",
+              "💡 Pro Tip: Test your program with extreme values, such as 0 or very large numbers, to ensure your logic handles all possibilities."
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -404,6 +404,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `docs/examples/` (output JSON), `docs/TEST_RESULTS.md`.
 - **Depends on:** Steps 1 and 10.
 - **Done when:** all three outputs pass `python tools/validate_json.py docs/examples/<file>.json schema/course_schema.json`, and `docs/TEST_RESULTS.md` lists, per file: API calls, retries, total time, and the full `pytest` summary with coverage.
+- **Done 2026-11-20.** All three outputs are VALID, 35 API calls in total. Gemini returned "503 high demand" 5 times; the PDF run stopped once and resumed with the same command. Fix made in this step: API failures now wait 15 s then 30 s, and validation failures retry at once. Open quality issues (prompt wording, need new runs to confirm): lesson durations written as a range ("25-30 minutes"), and mostly recall-style quiz questions. 396 tests, 96% coverage.
 
 #### Step 12 — Web API [SECURITY] [PERFORMANCE] [BUDGET]
 - **Goal:** FastAPI endpoints: `POST /api/convert` (upload + options), `GET /api/jobs/{id}` (progress), `GET /api/jobs/{id}/download`, `GET /healthz`. One job at a time, protected by an access code, temporary files removed after each job.

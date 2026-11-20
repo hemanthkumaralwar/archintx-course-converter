@@ -111,3 +111,88 @@ Nothing in the lesson contradicts the source, and nothing comes from another les
    test application. To look at in Step 11 (prompt wording, or a check).
 2. **One ambiguous quiz answer:** "check if x is between 10 and 20" gives
    `x > 10 and x < 20`, which excludes 10 and 20 without saying so.
+
+## Step 11 — End-to-end conversions of the three sample files (Gemini)
+
+**Date:** 2026-11-20 · **Model:** `gemini-3.1-flash-lite` · **Size:** 2 modules × 3 lessons
+**How:** the real command line (`converter.cli.main`) for each file, with a counting
+wrapper around the Gemini provider (outside the repository) to record every call:
+
+```bash
+python -m converter.cli samples/inputs/python-basics.<ext> --modules 2 --lessons 3 -o docs/examples/python-basics-<ext>.json
+```
+
+**Done-when check:** all three outputs pass
+`python tools/validate_json.py docs/examples/<file>.json schema/course_schema.json`. **Passed.**
+
+| File | Output | API calls | Failed calls (503) | Retries | Repair calls | Total time | Result |
+|---|---|---|---|---|---|---|---|
+| `python-basics.txt` | [`python-basics-txt.json`](examples/python-basics-txt.json) | 10 | 0 | 0 | 0 | 98 s | VALID |
+| `python-basics.docx` | [`python-basics-docx.json`](examples/python-basics-docx.json) | 12 | 2 | 2 | 0 | 185 s | VALID |
+| `python-basics.pdf`, run 1 | — | 7 | 3 | 2 | 0 | 73 s | stopped (exit 1) |
+| `python-basics.pdf`, run 2 (resumed) | [`python-basics-pdf.json`](examples/python-basics-pdf.json) | 6 | 0 | 0 | 0 | 86 s | VALID |
+| **Total** | | **35** | **5** | **4** | **0** | **7 min 22 s** | |
+
+Every lesson in all three courses passes every content check (0 problems), and each
+course's `totalDuration` (3 hours) equals the sum of its modules (1 hour 30 minutes each).
+
+### What happened with the PDF
+
+During the run Gemini answered several calls with `503 UNAVAILABLE`, "This model is
+currently experiencing high demand". The retry logic then waited only 2 s and 4 s,
+so lesson 1.2 of the PDF failed three times in a row and the run stopped with a
+one-line error (exit code 1). The finished pieces were kept.
+
+- **Fix:** after an API failure the converter now waits 15 s, then 30 s (doubling),
+  and a validation failure is retried at once, since waiting cannot fix it
+  (`converter/retry.py`, `RETRY_DELAY_SECONDS` in `converter/config.py`, tests in
+  `tests/test_retry.py`).
+- **Resume, tested for real:** running the same command again reused the outline,
+  course details, module 1 overview and lesson 1.1 (`already saved`) and wrote only
+  the 6 remaining pieces, with no repeated calls.
+
+### Outlines produced
+
+| File | Module 1 | Module 2 |
+|---|---|---|
+| `.txt` | Variables and Assignment · Numbers and Arithmetic · Working with Text | Making Decisions with if · Repeating Work with Loops · Putting It Together |
+| `.docx` | Introduction to Variables and Assignment · Performing Calculations with Numbers · Manipulating Text and Strings | Making Decisions with If Statements · Repeating Tasks with Loops · Building a Complete Python Program |
+| `.pdf` | Introduction to Variables and Assignment · Working with Numbers and Arithmetic · String Manipulation and Formatting | Making Decisions with If Statements · Repeating Work with For Loops · While Loops and Putting It Together |
+
+All three follow the document's own chapters.
+
+### Quality issues found (not caught by automatic checks)
+
+1. **Lesson durations are written as a range**, "25-30 minutes", in all 18 lessons,
+   because the prompt gives the target as a range. The sample uses one value
+   ("25 minutes"). The duration code reads such a range as 30 minutes, so totals stay
+   consistent. Fix: ask for a single value in the prompt.
+2. **Quiz questions are mostly recall**, as in Step 9: a rough check (long or
+   situation-based wording) finds 1 to 6 scenario-style questions out of 10 per lesson.
+   Fix: stronger quiz wording in the prompt, possibly with an example question.
+
+Both are prompt changes that need new Gemini runs to confirm; they are not part of this step.
+
+### Offline test suite
+
+Run after the retry fix: `pytest --cov=converter` → **396 passed**, **96% coverage**
+(lines and branches). Lint (`ruff check`, `ruff format --check`) clean;
+`pip-audit` finds no known vulnerabilities.
+
+| Module | Coverage | Module | Coverage |
+|---|---|---|---|
+| `checkpoint.py` | 100% | `planner.py` | 100% |
+| `chunking.py` | 99% | `prompts.py` | 100% |
+| `cli.py` | 97% | `providers/__init__.py` | 100% |
+| `config.py` | 100% | `providers/base.py` | 100% |
+| `convert.py` | 100% | `providers/gemini.py` | 100% |
+| `exceptions.py` | 100% | `providers/openai.py` | 100% |
+| `extractors.py` | 99% | `retry.py` | 100% |
+| `generate.py` | 92% | `schema_utils.py` | 80% |
+| `json_utils.py` | 65% | `user_input.py` | 100% |
+| `lesson_checks.py` | 97% | `validation.py` | 90% |
+| `module_writer.py` | 98% | **Total** | **96%** |
+| `pipeline.py` | 92% | | |
+
+`json_utils.py` and `schema_utils.py` are older modules from the title-based generator;
+their uncovered lines are error branches (unreadable files, malformed schemas).

@@ -35,8 +35,10 @@ def run_with_retries(
 
     HOW:  attempt_fn(previous_errors, attempt_number) is called each time.
           If it raises a retryable error, its errors (or the exception text)
-          become previous_errors for the next attempt. The wait grows with
-          each attempt to ease rate limits.
+          become previous_errors for the next attempt. After an API failure
+          (GenerationError, such as Gemini's "503 high demand" or a 429 rate
+          limit) the wait doubles each time: base, 2 x base, ... A validation
+          failure is retried at once, because waiting cannot fix the answer.
 
     WHY:  The function receives the errors as an argument, not from shared
           state, so each attempt starts clean. `sleep` defaults to time.sleep,
@@ -80,7 +82,8 @@ def run_with_retries(
             else:
                 previous_errors = [str(exc)]
 
-            sleep(base_delay_seconds * attempt_number)
+            if not isinstance(exc, ValidationFailedError):
+                sleep(base_delay_seconds * 2 ** (attempt_number - 1))
 
     # Unreachable: the last attempt either returns or raises above.
     raise AssertionError("retry loop ended without returning or raising")  # pragma: no cover

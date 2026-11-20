@@ -106,8 +106,10 @@ MAX_MODULES = 30
 # Attempts per request before the run stops.
 MAX_RETRIES = 3
 
-# Base wait between attempts. It grows with each attempt.
-RETRY_DELAY_SECONDS = 2
+# First wait after an API failure, in seconds; it doubles on each retry (15, 30).
+# In real runs, Gemini's "503 high demand" lasted longer than the earlier 2 + 4 s
+# waits (docs/TEST_RESULTS.md, Step 11). Validation failures are retried at once.
+RETRY_DELAY_SECONDS = 15
 
 # Lower values give more predictable output. Gemini accepts 0 to 2.
 TEMPERATURE = 0.3

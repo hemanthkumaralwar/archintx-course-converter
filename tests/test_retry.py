@@ -59,12 +59,20 @@ def test_validation_error_without_list_uses_message(waits):
     assert attempt.calls[1][0] == ["not an object"]
 
 
-def test_wait_grows_with_each_attempt(waits):
-    attempt = Recorder(GenerationError("a"), GenerationError("b"))
+def test_wait_doubles_after_each_api_failure(waits):
+    attempt = Recorder(GenerationError("a"), GenerationError("b"), GenerationError("c"))
+
+    run(attempt, waits, max_attempts=4)
+
+    assert waits == [2, 4, 8]
+
+
+def test_validation_failure_is_retried_without_waiting(waits):
+    attempt = Recorder(ValidationFailedError("bad", errors=["x"]), GenerationError("503"))
 
     run(attempt, waits)
 
-    assert waits == [2, 4]
+    assert waits == [4]  # only the API failure (attempt 2) waits
 
 
 def test_gives_up_after_last_attempt(waits):
