@@ -4,7 +4,7 @@ Converts course material in `.txt`, `.docx` and `.pdf` files into structured cou
 in the format of [`samples/javascript-beginner.json`](samples/javascript-beginner.json),
 using Google Gemini (free tier) or, optionally, OpenAI.
 
-> **Status:** the command-line converter and the web app work locally; deployment is next. See [PLAN.md](PLAN.md).
+> **Status:** the command-line converter and the web app work on your own computer (no hosting needed; only the LLM API is used online). Output quality work is next. See [PLAN.md](PLAN.md).
 > The original title-based course generator also still works (below).
 
 ## Project layout

@@ -8,7 +8,7 @@
 | **Product purpose** | Converts course material in `.txt`, `.docx` or `.pdf` files into structured course JSON that follows the format of `javascript-beginner.json` (course → modules → lessons, with quizzes, exercises, diagrams and other activities). An LLM reads the document and maps its content into that structure. |
 | **Target users** | The Archintx content team and course authors who have material in documents and need it as JSON for the learning platform, without writing JSON by hand. |
 | **Technology stack** | Python 3.12 · FastAPI (web API and upload page) · plain HTML/CSS/JS front end · `pypdf` (PDF text) · `python-docx` (Word text) · `jsonschema` (validation) · `google-genai` (Gemini, default) · `openai` (optional, switchable) · `pytest` (tests) · no database; files on disk. |
-| **Deployment environment** | Local for development. Live demo on a free host: Render free web service (recommended) or Hugging Face Spaces. Code on GitHub. |
+| **Deployment environment** | Local only: the CLI or the web page on `localhost`, on the user's own computer. The only network use is the LLM API call (Gemini, or OpenAI if chosen); the document's text is sent there, nothing else. No hosting (decided 2026-11-20). Code on GitHub. |
 | **Current stage** | Existing codebase. An earlier Python prototype generates courses from a title using Gemini. It does not read documents yet. |
 | **Task** | Build a converter that takes an uploaded `.txt`, `.docx` or `.pdf`, extracts its text, uses Gemini (or OpenAI) to turn it into JSON matching `javascript-beginner.json`, validates the result against a schema, and returns the JSON file. Provide a CLI and a web page. |
 | **Constraints** | Budget ₹0: free-tier Gemini, free hosting, open-source libraries only. LLM provider must be switchable to OpenAI with a setting, without code changes. API keys stay in `.env` and never reach GitHub. Free-tier rate limits apply, so the converter must make few, small requests, retry on failure and resume after interruption. Final submission: source code, GitHub link, technical documentation, test results, live demo. |
@@ -276,7 +276,7 @@ finished only when its **Done when** check passes. Steps flagged
 6. TODO notes use `TODO(team): <text> — see PLAN.md §<n>` until GitHub issues exist.
 7. Python 3.14 from the existing `venv` is the runtime (the system also has 3.12; code stays 3.12-compatible).
 8. Sample input documents in `samples/inputs/` are written by us (original text), so there are no copyright issues.
-9. The live demo is protected by an access code so strangers cannot use up the Gemini quota.
+9. The web page asks for an access code so nobody else on the network can use up the Gemini quota. *(Updated 2026-11-20: there is no public deployment; the demo runs locally.)*
 
 **Open questions** (work can start without them, but they affect later steps):
 
@@ -421,22 +421,28 @@ finished only when its **Done when** check passes. Steps flagged
 - **Done when:** with `uvicorn app.main:app` running, the sample `.txt` converts in the browser and the downloaded JSON validates. `grep -n innerHTML app/static/app.js` prints nothing (model output is shown with `textContent` only, because fields such as `hooklineimage.html` come from the LLM). Responses carry a `Content-Security-Policy: default-src 'self'` header. The page works at 375 px width.
 - **Done 2026-11-20.** Server started with `uvicorn app.main:create_app --factory` (Step 12 made the app a factory). In the browser pane, the sample was loaded with the page's "Use the sample document" button (it uploads `samples/inputs/python-basics.txt` through the same code path as a picked file, and lets reviewers try the app without a file), converted at 2 × 3 with real Gemini (10 of 10 parts, no console errors), and the downloaded course was VALID. Every response carries `Content-Security-Policy: default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'` plus `nosniff`, `X-Frame-Options: DENY` and `Referrer-Policy: no-referrer`. At 375 px there is no sideways scrolling. JavaScript has no linter (Node.js is not installed); `tests/test_web_page.py` checks the page files instead (no inline script or style, no `innerHTML` / `eval`, no browser storage, password fields for secrets).
 
-#### Step 14 — Continuous integration
-- **Goal:** GitHub Actions runs ruff, pytest with coverage and pip-audit on every push and pull request.
-- **Components/files:** `.github/workflows/ci.yml` (new), `README.md` (badge).
-- **Depends on:** Step 0 (can be added early); most useful after Step 12.
-- **Done when:** a push to GitHub shows a green run; a test branch with one failing test shows a red run.
+#### Step 14 — Continuous integration — **skipped (2026-11-20)**
+- **Decision:** the converter is used locally, so automatic test runs on GitHub add nothing to the output. Test results are recorded locally in `docs/TEST_RESULTS.md` instead.
+- *(Original goal: GitHub Actions running ruff, pytest with coverage and pip-audit on every push.)*
 
-#### Step 15 — Deploy the live demo [SECURITY] [BUDGET] [DEADLINE]
-- **Goal:** Deploy to Render's free tier, with `GEMINI_API_KEY` and `DEMO_ACCESS_CODE` set as Render environment variables.
-- **Components/files:** `render.yaml` (new), `README.md` (demo link).
-- **Depends on:** Steps 13 and 14.
-- **Done when:** `curl https://<app>.onrender.com/healthz` returns 200; the public page converts the sample `.txt` at 2 × 3 and the downloaded file validates; without the access code the API returns 401.
+#### Step 15 — Deploy the live demo — **skipped (2026-11-20)**
+- **Decision:** everything runs on the user's own computer; the only network use is the LLM API call (Gemini, or OpenAI if chosen). No hosting is needed. The submission's live demonstration is done locally, with the CLI or the web page on `localhost`.
+- *(Original goal: deploy the web app to Render's free tier.)*
+
+#### Step 15Q — Output quality against the team's sample [BUDGET]
+- **Goal:** Make generated lessons match the quality of `samples/javascript-beginner.json`, not only its structure. Replaces Steps 14–15.
+- **Components/files:** `converter/prompts.py`, `converter/lesson_checks.py` (only if a soft check is added), `tests/test_prompts.py`, `docs/TEST_RESULTS.md`, `docs/examples/`.
+- **Work:**
+  1. Follow-ups F1 and F2 (§6.6): scenario-based quiz questions; one-value lesson durations ("25 minutes").
+  2. Field-by-field comparison of a generated lesson with a team lesson on a similar topic: depth of explanations, examples, exercises, diagrams, takeaways. Fix the gaps found in the prompts.
+  3. Re-run the three sample files (about 30 calls) and record the before/after comparison.
+- **Depends on:** Step 13.
+- **Done when:** the re-run outputs are VALID; every lesson duration is a single value; the quiz check finds at least 7 of 10 scenario-based questions per lesson on average; `docs/TEST_RESULTS.md` has the field-by-field comparison with the sample and lists any gaps left.
 
 #### Step 16 — Documentation and demo [DEADLINE]
-- **Goal:** Final README, `docs/TECHNICAL.md` (architecture diagram, pipeline, schema rules, prompt design, limits, security), final `docs/TEST_RESULTS.md`, a demo script, and a recorded walkthrough as a backup.
+- **Goal:** Final README, `docs/TECHNICAL.md` (architecture diagram, pipeline, schema rules, prompt design, limits, security), final `docs/TEST_RESULTS.md`, a local demo script, and a recorded walkthrough as a backup.
 - **Components/files:** `README.md`, `docs/TECHNICAL.md`, `docs/TEST_RESULTS.md`, `docs/DEMO.md`.
-- **Depends on:** Step 15.
+- **Depends on:** Step 15Q.
 - **Done when:** someone who has not worked on the project follows the README on a clean machine and runs the CLI and the test suite in under 15 minutes, and every item in section 8 (Submission checklist) is ticked.
 
 ### 6.5 Summary
@@ -458,11 +464,12 @@ finished only when its **Done when** check passes. Steps flagged
 | 11 | Real end-to-end runs | 1, 10 | BUDGET, PERFORMANCE |
 | 12 | Web API | 10 | SECURITY, PERFORMANCE, BUDGET |
 | 13 | Upload page | 12 | SECURITY |
-| 14 | Continuous integration | 0 | |
-| 15 | Deploy live demo | 13, 14 | SECURITY, BUDGET, DEADLINE |
-| 16 | Documentation and demo | 15 | DEADLINE |
+| ~~14~~ | ~~Continuous integration~~ (skipped: local use only) | — | |
+| ~~15~~ | ~~Deploy live demo~~ (skipped: local use only) | — | |
+| 15Q | Output quality against the team's sample | 13 | BUDGET |
+| 16 | Documentation and local demo | 15Q | DEADLINE |
 
-Steps 1, 2 and 4 depend only on Step 0 and can run in any order. Step 7 and Step 14 can be done whenever convenient after their dependency.
+Steps 1, 2 and 4 depend only on Step 0 and can run in any order. Step 7 could be done whenever convenient after its dependency.
 
 ### 6.6 Follow-ups to review later
 
@@ -499,8 +506,8 @@ its **Done when** in section 6.4.
 - [ ] Source code in GitHub (public or shared with the team)
 - [ ] GitHub repository link
 - [ ] `README.md` + `docs/TECHNICAL.md`
-- [ ] `docs/TEST_RESULTS.md` + pytest report + CI badge
-- [ ] Live demo URL (Render) + sample input files + recorded walkthrough as a backup in case the free host is asleep or the quota runs out
+- [ ] `docs/TEST_RESULTS.md` + pytest report (run locally; no CI, see Step 14)
+- [ ] Live demonstration run locally (CLI or `localhost` web page) + sample input files + recorded walkthrough as a backup in case the API quota runs out
 
 ---
 
