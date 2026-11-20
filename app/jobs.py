@@ -113,29 +113,42 @@ class JobRunner:
             return dataclasses.replace(job) if job else None
 
     def _run(self, job, data, provider, options):
+        self._update(job, state="running")
+        outcome = self._convert_in_temp_folder(job, data, provider, options)
+
+        # The final state is set only now, after the temp folder is gone, so
+        # "done" or "failed" always means the job is completely finished.
+        with self._lock:
+            for name, value in outcome.items():
+                setattr(job, name, value)
+            job.finished_at = self._clock()
+            self._busy = False
+
+        logger.info("Job %s finished: %s", job.id, outcome["state"])
+
+    def _convert_in_temp_folder(self, job, data, provider, options):
+        """
+        WHAT: Convert in a fresh temp folder, delete the folder, and return the
+              job's final fields: {"state", "result"} or {"state", "error"}.
+        """
         self._work_root.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(dir=self._work_root))
 
         try:
-            self._update(job, state="running")
             path = work / job.file_name
             path.write_bytes(data)
             options = dataclasses.replace(options, output_root=work / "output")
             course_file = self._convert(path, provider, options, self._progress(job))
-            self._update(job, state="done", result=load_json(course_file))
+            return {"state": "done", "result": load_json(course_file)}
         except CourseGenerationError as exc:
             logger.warning("Job %s failed: %s", job.id, type(exc).__name__)
-            self._update(job, state="failed", error=public_message(exc, job.id))
+            return {"state": "failed", "error": public_message(exc, job.id)}
         except Exception:
             # A bug: keep the traceback in the server log, show a generic message.
             logger.exception("Job %s failed unexpectedly", job.id)
-            self._update(job, state="failed", error=public_message(None, job.id))
+            return {"state": "failed", "error": public_message(None, job.id)}
         finally:
             shutil.rmtree(work, ignore_errors=True)
-            with self._lock:
-                job.finished_at = self._clock()
-                self._busy = False
-            logger.info("Job %s finished: %s", job.id, job.state)
 
     def _progress(self, job):
         def report(event):

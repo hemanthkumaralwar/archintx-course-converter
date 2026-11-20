@@ -1,0 +1,138 @@
+/* Course Converter page. Plain CSS, no external fonts or files (the page's
+   Content-Security-Policy only allows this site's own files). */
+
+:root {
+  --text: #1f2933;
+  --muted: #52606d;
+  --accent: #1f6feb;
+  --border: #cbd2d9;
+  --warning-bg: #fff8e1;
+  --warning-border: #f0b429;
+  --error: #b42318;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+/* Keep the hidden attribute working on elements whose class sets a display. */
+[hidden] {
+  display: none !important;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+h1 {
+  margin: 8px 0;
+  font-size: 1.6rem;
+}
+
+.lead,
+.note {
+  color: var(--muted);
+}
+
+.note {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+
+.warning {
+  padding: 10px 12px;
+  border-left: 4px solid var(--warning-border);
+  background: var(--warning-bg);
+}
+
+fieldset {
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+}
+
+legend {
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+label.choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type="file"],
+input[type="password"],
+input[type="number"],
+select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.row label {
+  flex: 1 1 140px;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.secondary {
+  margin-top: 8px;
+  background: #e4e7eb;
+  color: var(--text);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+progress {
+  width: 100%;
+  height: 16px;
+}
+
+.error {
+  color: var(--error);
+}
+
+pre {
+  max-height: 420px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Course Converter</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Course Converter</h1>
+      <p class="lead">
+        Turn a <strong>.txt</strong>, <strong>.docx</strong> or <strong>.pdf</strong> file into
+        course JSON with modules, lessons, quizzes and exercises.
+      </p>
+
+      <p class="warning" role="note">
+        Do not upload confidential documents. On Gemini's free tier, Google may use what
+        is sent to improve its products.
+      </p>
+
+      <form id="convert-form" novalidate>
+        <fieldset>
+          <legend>Document</legend>
+          <label for="file">File (.txt, .docx or .pdf, up to 10 MB)</label>
+          <input id="file" name="file" type="file" accept=".txt,.docx,.pdf">
+          <button id="use-sample" type="button" class="secondary">Use the sample document</button>
+          <p id="file-note" class="note" aria-live="polite"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Course size</legend>
+          <label class="choice">
+            <input type="radio" name="size" value="auto" checked>
+            Automatic, from the document's length
+          </label>
+          <label class="choice">
+            <input type="radio" name="size" value="custom">
+            Choose
+          </label>
+          <div id="custom-size" class="row" hidden>
+            <label>Modules <input id="modules" type="number" min="1" max="30" value="2"></label>
+            <label>Lessons per module <input id="lessons" type="number" min="1" max="8" value="3"></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Access</legend>
+          <label for="access-code">Access code</label>
+          <input id="access-code" type="password" autocomplete="off" required>
+          <label for="provider">AI service</label>
+          <select id="provider">
+            <option value="gemini">Gemini (default)</option>
+            <option value="openai">OpenAI</option>
+          </select>
+          <label for="api-key">Your own API key (optional)</label>
+          <input id="api-key" type="password" autocomplete="off">
+          <p class="note">Used for this conversion only. It is not stored.</p>
+        </fieldset>
+
+        <button id="convert" type="submit">Convert</button>
+      </form>
+
+      <section id="status" aria-live="polite" hidden>
+        <h2>Progress</h2>
+        <progress id="progress" value="0" max="1"></progress>
+        <p id="status-text"></p>
+      </section>
+
+      <section id="result" hidden>
+        <h2>Course</h2>
+        <button id="download" type="button">Download JSON</button>
+        <pre id="preview"></pre>
+      </section>
+    </main>
+  </body>
+</html>

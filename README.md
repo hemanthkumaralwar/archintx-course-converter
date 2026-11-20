@@ -4,7 +4,7 @@ Converts course material in `.txt`, `.docx` and `.pdf` files into structured cou
 in the format of [`samples/javascript-beginner.json`](samples/javascript-beginner.json),
 using Google Gemini (free tier) or, optionally, OpenAI.
 
-> **Status:** the command-line converter works; the web app is planned. See [PLAN.md](PLAN.md).
+> **Status:** the command-line converter and the web app work locally; deployment is next. See [PLAN.md](PLAN.md).
 > The original title-based course generator also still works (below).
 
 ## Project layout
@@ -13,7 +13,7 @@ using Google Gemini (free tier) or, optionally, OpenAI.
 |---|---|
 | `converter/` | Python package: pipeline, prompts, content checks, validation, retries |
 | `converter/providers/` | LLM providers: `gemini.py` (default, free tier) and `openai.py` (optional, paid) |
-| `app/` | Web app (planned) |
+| `app/` | Web app: API (`main.py`), background jobs, upload page (`static/`) |
 | `schema/course_schema.json` | JSON Schema every output must match |
 | `samples/` | Reference output from the team, and sample input files |
 | `tools/` | `generate_schema.py` and `validate_json.py` |
@@ -80,13 +80,19 @@ Exit codes: `0` done, `1` an expected error (one-line message), `2` wrong argume
 
 A 2 x 3 course takes about 10 API calls; the largest automatic size (8 x 8) about 74.
 
-## Web API
+## Web app
 
 Set `DEMO_ACCESS_CODE` in `.env` (conversions stay switched off without it), then start the server:
 
 ```bash
 uvicorn app.main:create_app --factory
 ```
+
+Open <http://localhost:8000>, choose a file (or press **Use the sample document**), pick the
+size, enter the access code, and press **Convert**. The page shows progress, a preview of the
+course JSON and a **Download JSON** button. It works on phone-sized screens.
+
+### API
 
 | Endpoint | Purpose |
 |---|---|

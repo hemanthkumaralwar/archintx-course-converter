@@ -6,6 +6,8 @@ WHAT: The web API for the converter:
         GET  /api/jobs/{job_id}           the job's state and progress
         GET  /api/jobs/{job_id}/download the finished course JSON
         GET  /healthz                     liveness check (no access code needed)
+        GET  /                            the upload page (app/static/)
+        GET  /sample/python-basics.txt    the sample document, for a quick try
 
       Start it with:  uvicorn app.main:create_app --factory
 
@@ -25,10 +27,11 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from converter.config import load_settings
+from converter.config import PROJECT_ROOT, load_settings
 from converter.convert import ConversionOptions, convert, safe_slug
 from converter.exceptions import ConfigurationError
 from converter.extractors import DEFAULT_LIMITS, READERS
@@ -45,6 +48,21 @@ FORM_OVERHEAD_BYTES = 64 * 1024
 MAX_REQUEST_BYTES = DEFAULT_LIMITS.max_file_bytes + FORM_OVERHEAD_BYTES
 
 DEFAULT_WORK_ROOT = Path(tempfile.gettempdir()) / "archintx-jobs"
+
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+SAMPLE_DOCUMENT = PROJECT_ROOT / "samples" / "inputs" / "python-basics.txt"
+
+# Sent with every response. The page uses only its own files (no inline
+# script or style, nothing from other sites), so the policy can be strict:
+# injected HTML could not run scripts, and the page cannot be framed.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+}
 
 
 def create_app(
@@ -70,6 +88,16 @@ def create_app(
     )
     _add_error_handlers(app)
     app.middleware("http")(_limit_upload_size)
+    app.middleware("http")(_add_security_headers)
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def page():
+        return FileResponse(STATIC_DIR / "index.html")
+
+    @app.get("/sample/python-basics.txt", include_in_schema=False)
+    def sample_document():
+        return FileResponse(SAMPLE_DOCUMENT, media_type="text/plain; charset=utf-8")
 
     @app.get("/healthz")
     def health():
@@ -235,6 +263,12 @@ def find_job(runner, job_id):
         raise HTTPException(404, "No such job. Finished jobs are kept for one hour.")
 
     return job
+
+
+async def _add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.update(SECURITY_HEADERS)
+    return response
 
 
 def _error(status, message):
