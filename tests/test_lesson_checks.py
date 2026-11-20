@@ -9,7 +9,7 @@ import copy
 
 import pytest
 
-from converter import module_writer as mw
+from converter import lesson_checks as mw
 from tests.sample_course import SAMPLE_LESSONS
 
 # Sample lessons that break a rule the team's format still needs. Each one is a
