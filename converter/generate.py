@@ -14,17 +14,12 @@ WHY:  Keeping this file small makes the program start in one obvious place.
 import logging
 import sys
 
+from .cli import print_progress
 from .config import load_settings
 from .exceptions import CourseGenerationError
 from .pipeline import run_pipeline
 from .providers import get_provider
 from .user_input import read_course_request
-
-
-def print_progress(event):
-    """Show one finished piece, such as "[3/19] Lesson 1.1: Variables (saved)"."""
-    status = "already saved" if event.reused else "saved"
-    print(f"[{event.done}/{event.total}] {event.label} ({status})")
 
 
 def main(argv=None):

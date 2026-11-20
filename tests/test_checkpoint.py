@@ -4,8 +4,9 @@ import json
 
 import pytest
 
-from converter.checkpoint import load_plan, save_plan
+from converter.checkpoint import load_outline, load_plan, save_plan
 from converter.exceptions import CheckpointError
+from converter.planner import CourseSize
 from converter.user_input import make_request
 from tests.sample_course import plan_answer
 
@@ -50,3 +51,12 @@ def test_unusable_plan_is_refused(request_2x2, make_data, message):
 
     with pytest.raises(CheckpointError, match=message):
         load_plan(request_2x2.plan_file, request_2x2)
+
+
+@pytest.mark.parametrize("data", [[], {"source_sha256": "x"}, {"outline": "not an object"}])
+def test_incomplete_outline_file_is_refused(tmp_path, data):
+    path = tmp_path / "outline.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(CheckpointError, match="outline file is incomplete"):
+        load_outline(path, "x", CourseSize(1, 2))

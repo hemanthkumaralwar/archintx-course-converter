@@ -68,6 +68,7 @@ class CourseRequest:
     course_id_override: object = None  # Optional --course-id value (None = build from title).
     lessons_per_module: int = LESSONS_PER_MODULE
     output_root: Path = OUTPUT_ROOT
+    folder_name: object = None  # Optional fixed folder name (None = built from the title).
 
     @property
     def module_count(self):
@@ -118,17 +119,17 @@ class CourseRequest:
     @property
     def output_dir(self):
         """Folder that holds every file for this course."""
-        return self.output_root / self.slug
+        return self.output_root / (self.folder_name or self.slug)
 
     @property
     def output_file(self):
         """The course JSON that is built and validated."""
-        return self.output_dir / f"{self.slug}.json"
+        return self.output_dir / f"{self.output_dir.name}.json"
 
     @property
     def plan_file(self):
         """Saved module titles, so a resumed run keeps the same outline."""
-        return self.output_dir / f"{self.slug}_plan.json"
+        return self.output_dir / f"{self.output_dir.name}_plan.json"
 
     @property
     def error_dir(self):

@@ -86,6 +86,22 @@ class CourseContext:
     provider: object
     plan_modules: list
     details: dict
+    # Converter only: lesson_sources[module][lesson] is the list of document
+    # Sections that lesson cites. None for the title-based generator.
+    lesson_sources: list = None
+
+    def lesson_source(self, m_index, l_index):
+        return self.lesson_sources[m_index][l_index] if self.lesson_sources else None
+
+    def module_source(self, m_index):
+        """Every section the module's lessons cite, once each, in first-cited order."""
+        if not self.lesson_sources:
+            return None
+        unique = {}
+        for sections in self.lesson_sources[m_index]:
+            for section in sections:
+                unique.setdefault(section.id, section)
+        return list(unique.values())
 
 
 def ensure_output_dirs(request):
@@ -154,16 +170,25 @@ def load_or_create_output(request, schemas, provider, progress):
     }
 
     for name, value in course_values.items():
-        path = (schemas.course_field_paths or {}).get(name)
-
-        if path:
-            parts = path.split(".")
-            parent = get_value(details, ".".join(parts[:-1])) if len(parts) > 1 else details
-            parent[parts[-1]] = value
+        set_course_field(details, schemas, name, value)
 
     save_json(request.output_file, details)
     progress.report("Course details")
     return details
+
+
+def set_course_field(course, schemas, name, value):
+    """
+    WHAT: Set a course-level field where the schema puts it, for example
+          totalDuration at "course.totalDuration". Does nothing if the schema
+          has no such field.
+    """
+    path = (schemas.course_field_paths or {}).get(name)
+
+    if path:
+        parts = path.split(".")
+        parent = get_value(course, ".".join(parts[:-1])) if len(parts) > 1 else course
+        parent[parts[-1]] = value
 
 
 def course_details_from(output, array_path):
@@ -178,7 +203,7 @@ def course_details_from(output, array_path):
     return details
 
 
-def write_course(request, schemas, provider, plan_modules, output, progress):
+def write_course(request, schemas, provider, plan_modules, output, progress, lesson_sources=None):
     """
     WHAT: Write every missing module overview and lesson, in order.
 
@@ -201,7 +226,12 @@ def write_course(request, schemas, provider, plan_modules, output, progress):
         )
 
     context = CourseContext(
-        request, schemas, provider, plan_modules, course_details_from(output, schemas.array_path)
+        request,
+        schemas,
+        provider,
+        plan_modules,
+        course_details_from(output, schemas.array_path),
+        lesson_sources,
     )
 
     for m_index in range(len(plan_modules)):
@@ -223,7 +253,13 @@ def _write_module(context, m_index, modules, output, progress):
         progress.report(overview_label, reused=True)
     else:
         overview = write_overview(
-            context.provider, request, m_index, context.plan_modules, context.details, schemas
+            context.provider,
+            request,
+            m_index,
+            context.plan_modules,
+            context.details,
+            schemas,
+            source_sections=context.module_source(m_index),
         )
         overview["moduleId"] = f"{request.course_id}-mod-{number}"
         overview[schemas.lesson_path] = []  # Lessons are added one at a time below.
@@ -253,6 +289,7 @@ def _write_module(context, m_index, modules, output, progress):
             course_overview_for_prompt(module, schemas.lesson_path),
             context.details,
             schemas,
+            source_sections=context.lesson_source(m_index, l_index),
         )
         lesson["lessonId"] = f"{request.course_id}-mod-{number}-lesson-{l_index + 1}"
         lessons.append(lesson)

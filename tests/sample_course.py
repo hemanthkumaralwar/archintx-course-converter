@@ -59,3 +59,50 @@ def overview_answer(index):
 
 def lesson_answer(index):
     return copy.deepcopy(LESSONS[index])
+
+
+# Converter: answers for samples/inputs/python-basics.txt
+
+SAMPLE_INPUT = config.PROJECT_ROOT / "samples" / "inputs" / "python-basics.txt"
+
+
+def outline_answer():
+    return {
+        "courseTitle": "Python Basics for Complete Beginners",
+        "level": "beginner",
+        "modules": [
+            {
+                "title": "Core Data and Variables",
+                "lessons": [
+                    {"title": "Introduction to Python Variables", "sections": ["s1", "s2"]},
+                    {"title": "Numbers and Arithmetic", "sections": ["s3"]},
+                    {"title": "Working with Text", "sections": ["s4"]},
+                ],
+            },
+            {
+                "title": "Control Flow",
+                "lessons": [
+                    {"title": "Making Decisions with if", "sections": ["s5"]},
+                    {"title": "Repeating Work with Loops", "sections": ["s6"]},
+                    {"title": "Putting It Together", "sections": ["s7"]},
+                ],
+            },
+        ],
+    }
+
+
+def conversion_answers():
+    """Answers in the order the converter asks for them, for 2 modules x 3 lessons
+    of samples/inputs/python-basics.txt."""
+    return [
+        outline_answer(),
+        details_answer(),
+        overview_answer(0),
+        lesson_answer(0),
+        lesson_answer(1),
+        lesson_answer(2),
+        overview_answer(1),
+        lesson_answer(3),
+        lesson_answer(4),
+        lesson_answer(5),
+    ]

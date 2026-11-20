@@ -4,8 +4,8 @@ Converts course material in `.txt`, `.docx` and `.pdf` files into structured cou
 in the format of [`samples/javascript-beginner.json`](samples/javascript-beginner.json),
 using Google Gemini (free tier) or, optionally, OpenAI.
 
-> **Status:** work in progress. The document converter is being built; see [PLAN.md](PLAN.md).
-> The original title-based course generator still works (below).
+> **Status:** the command-line converter works; the web app is planned. See [PLAN.md](PLAN.md).
+> The original title-based course generator also still works (below).
 
 ## Project layout
 
@@ -56,13 +56,37 @@ pytest --cov                 # tests with coverage
 pip-audit -r requirements.txt -r requirements-dev.txt   # known vulnerabilities
 ```
 
-## Run (from the project root)
+## Convert a document (from the project root)
 
-Original generator (course from a title, no input document):
+```bash
+python -m converter.cli samples/inputs/python-basics.pdf --modules 2 --lessons 3 -o course.json
+```
+
+| Option | Meaning |
+|---|---|
+| `INPUT` | A `.txt`, `.docx` or `.pdf` file (up to 10 MB, 200 pages; scanned PDFs are not supported) |
+| `--modules N --lessons M` | Course size. Leave both out to size the course from the document's length (one lesson per ~3,000 characters, up to 8 x 8) |
+| `--provider gemini\|openai` | Overrides `LLM_PROVIDER` in `.env` |
+| `-o FILE` | Also save the finished course JSON to `FILE` |
+| `--output-dir DIR` | Where work in progress is kept (default `output/`) |
+
+Progress is shown as each piece is saved, for example `[4/10] Lesson 1.2: Numbers and Arithmetic (saved)`.
+Work is kept in `output/<file name>-<file hash>/`, so if a run stops (Ctrl+C, network
+error, daily quota), running the same command again continues from the next lesson.
+An edited file gets a new folder and starts fresh.
+
+Exit codes: `0` done, `1` an expected error (one-line message), `2` wrong arguments,
+`130` stopped with Ctrl+C.
+
+A 2 x 3 course takes about 10 API calls; the largest automatic size (8 x 8) about 74.
+
+## Original generator (course from a title, no input document)
 
 ```bash
 python -m converter.generate --title "AI Engineering fundamentals" --difficulty beginner --duration 31
 ```
+
+## Tools
 
 Validate a course file against the schema:
 
