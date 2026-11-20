@@ -73,7 +73,7 @@ class ConversionOptions:
     output_root: Path = OUTPUT_ROOT
 
 
-def convert(path, provider, options=None, progress_callback=None):
+def convert(path, provider, options=None, progress_callback=None, extract=extract_blocks):
     """
     WHAT: Convert one document into a course JSON file and return its path.
 
@@ -83,6 +83,8 @@ def convert(path, provider, options=None, progress_callback=None):
         options:           ConversionOptions; defaults to automatic size.
         progress_callback: optional function called with a pipeline.Progress
                            after every finished or reused piece.
+        extract:           reads the file into blocks; the web app passes a
+                           version that runs in a separate process with a time limit.
 
     RAISES:
         ExtractionError, ConfigurationError, CheckpointError, GenerationError,
@@ -91,7 +93,7 @@ def convert(path, provider, options=None, progress_callback=None):
     options = options or ConversionOptions()
     validate_config()
     path = Path(path)
-    sections = split_sections(extract_blocks(path))
+    sections = split_sections(extract(path))
     size = options.size or auto_course_size(sections)
     check_course_size(size)
 

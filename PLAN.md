@@ -412,6 +412,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Rules:** size limit enforced while the upload is read, before it is saved; a pasted API key is kept in memory for that job only and never logged or stored; error responses give a short message and the job id, never a path or traceback; random job ids (`uuid4`); document extraction runs with a time limit (for example 60 s, in a separate process) because a crafted PDF can make `pypdf` very slow.
 - **Depends on:** Step 10.
 - **Done when:** `pytest tests/test_api.py` passes with `FakeProvider` for: upload → progress → download, and the result validates; 11 MB upload → 413; unsupported type → 415; wrong or missing access code → 401; a second job while one is running → 429; error bodies contain no file path or traceback; the temp folder is empty after a job; captured logs do not contain the test API key.
+- **Done 2026-11-20.** `app/main.py` (`create_app(...)`, started with `uvicorn app.main:create_app --factory`; no module-level app, so imports have no side effects), `app/jobs.py` (one job at a time on a background thread, in memory, results kept 1 hour / 20 jobs), `app/extraction.py` (extraction in a spawned process stopped after 60 s; the converter's `convert()` takes an `extract` function). Access code (`DEMO_ACCESS_CODE`, header `X-Access-Code`) is required on every `/api` route, compared in constant time, and conversions are off when it is not set. Upload size is checked from `Content-Length` before the body is read (411 if missing, 413 if too large). The browser's file name is reduced to a safe stem plus allowed extension. Users see an extraction error's own message, a fixed message for AI-service failures, or a generic message with the job id; validation errors do not echo input. Not covered: jobs across restarts or several server processes; the real server has not been started yet (Step 13). Tests: `test_api.py`, `test_jobs.py`, `test_extraction.py` (41); `app/main.py` and `app/jobs.py` 100%.
 
 #### Step 13 — Upload page [SECURITY]
 - **Goal:** One page with file picker, provider and size options, optional API key and access code fields, progress bar, JSON preview and download button, plus the confidentiality warning.
@@ -461,6 +462,16 @@ finished only when its **Done when** check passes. Steps flagged
 | 16 | Documentation and demo | 15 | DEADLINE |
 
 Steps 1, 2 and 4 depend only on Step 0 and can run in any order. Step 7 and Step 14 can be done whenever convenient after their dependency.
+
+### 6.6 Follow-ups to review later
+
+| # | Found in | Issue | Likely fix | Needs |
+|---|---|---|---|---|
+| F1 | Steps 9, 11 | **Quiz questions are mostly recall** ("Which operator checks if two values are NOT equal?"); only 1–6 of 10 per lesson are scenario-based, although the prompt's quality rules ask for scenarios. One answer was also ambiguous ("between 10 and 20" as `x > 10 and x < 20`). | Stronger quiz wording in `prompts.py` (QUALITY_RULES), possibly one example question; optionally a soft check. | A new real run (~10 calls) to confirm. |
+| F2 | Step 11 | **Lesson durations written as a range** ("25-30 minutes") in all 18 lessons, because the prompt gives the target as a range; the sample uses one value ("25 minutes"). Totals are still consistent (a range counts as its upper value). | Ask for a single value in the lesson prompt. | Same run as F1. |
+| F3 | Step 9 | `write_lesson` takes 9 parameters. | Bundle them into one context object once the title-based generator's future is decided. | — |
+
+Decided on 2026-11-20 to review these later, after the web app.
 
 ---
 

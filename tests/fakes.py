@@ -27,3 +27,28 @@ class FakeProvider:
             raise answer
 
         return answer
+
+
+# Child-process stand-ins for app.extraction tests. They live here, in a small
+# module, because a spawned child process must import them by name.
+
+
+def slow_reader(path, limits, connection):
+    """Never answers in time."""
+    import time
+
+    time.sleep(60)
+
+
+def crashing_reader(path, limits, connection):
+    """Dies without answering, like a crash inside the PDF library."""
+    import os
+
+    os._exit(1)
+
+
+def failing_reader(path, limits, connection):
+    """Fails with an unexpected error."""
+    from app.extraction import read_in_child
+
+    read_in_child(None, limits, connection)

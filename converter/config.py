@@ -143,6 +143,8 @@ class Settings:
     gemini_model: str = DEFAULT_GEMINI_MODEL
     openai_api_key: str = field(default="", repr=False)
     openai_model: str = DEFAULT_OPENAI_MODEL
+    # Web app only: the code a visitor must enter before converting (protects the quota).
+    demo_access_code: str = field(default="", repr=False)
     temperature: float = TEMPERATURE
 
 
@@ -173,6 +175,7 @@ def load_settings(environ=None, env_file=DEFAULT_ENV_FILE):
         gemini_model=read("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL,
         openai_api_key=read("OPENAI_API_KEY"),
         openai_model=read("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL,
+        demo_access_code=read("DEMO_ACCESS_CODE"),
     )
 
 

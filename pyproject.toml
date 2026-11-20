@@ -23,7 +23,7 @@ pythonpath = ["."]
 addopts = "-ra"
 
 [tool.coverage.run]
-source = ["converter"]
+source = ["converter", "app"]
 branch = true
 
 [tool.coverage.report]

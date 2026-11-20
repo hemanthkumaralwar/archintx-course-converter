@@ -80,6 +80,27 @@ Exit codes: `0` done, `1` an expected error (one-line message), `2` wrong argume
 
 A 2 x 3 course takes about 10 API calls; the largest automatic size (8 x 8) about 74.
 
+## Web API
+
+Set `DEMO_ACCESS_CODE` in `.env` (conversions stay switched off without it), then start the server:
+
+```bash
+uvicorn app.main:create_app --factory
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/convert` | Form upload: `file` (.txt, .docx, .pdf, up to 10 MB), optional `modules` + `lessons`, optional `provider`. Returns `{"jobId": ...}` (202). |
+| `GET /api/jobs/{jobId}` | `state` (queued, running, done, failed), `done` / `total` pieces, current `label`, `error` |
+| `GET /api/jobs/{jobId}/download` | The finished course JSON |
+| `GET /healthz` | `{"status": "ok"}` (no access code needed) |
+
+Every `/api` request needs the header `X-Access-Code`. A visitor may send their own key
+in `X-API-Key`; it is used for that job only and never logged or stored. One conversion
+runs at a time (a second one gets 429). Finished courses can be downloaded for one hour;
+jobs are kept in memory, so a server restart forgets them. Documents are read in a
+separate process that is stopped after 60 seconds.
+
 ## Original generator (course from a title, no input document)
 
 ```bash
