@@ -405,8 +405,10 @@ def check_card_matching(section):  # noqa: C901 — TODO(team): split; see PLAN.
         if not isinstance(term, str) or not isinstance(description, str):
             continue
 
-        if len(term.split()) > 4:
-            errors.append(f"cardmatching.matches[{number}] term '{term}' has more than 4 words")
+        if not is_code_term(term) and len(term.split()) > MAX_TERM_WORDS:
+            errors.append(
+                f"cardmatching.matches[{number}] term '{term}' has more than {MAX_TERM_WORDS} words"
+            )
 
         if term.strip().lower() == description.strip().lower():
             errors.append(f"cardmatching.matches[{number}] has identical cards")
@@ -430,58 +432,83 @@ def check_card_matching(section):  # noqa: C901 — TODO(team): split; see PLAN.
     return errors
 
 
+# Characters that mark a card-matching term as code, such as "n => n * 2" or
+# "const { a } = obj". The sample uses code terms like these, and splitting
+# them on spaces would count symbols as words.
+CODE_CHARACTERS = frozenset("(){}[];=<>+*/`?:")
+
+# Most words a plain-language term may have.
+MAX_TERM_WORDS = 4
+
+
+def is_code_term(term):
+    """Return True if the term is a code snippet rather than a plain-language name."""
+    return any(character in CODE_CHARACTERS for character in term)
+
+
 MERMAID_HEADER = re.compile(r"^\s*flowchart\s+(TD|TB|LR|BT|RL)\s*$", re.IGNORECASE)
+
+
+# Mermaid arrows used in the sample: solid (-->), dotted (-.->) and thick (==>).
+ARROW_SPLIT = re.compile(r"\s*(?:-->|-\.->|==>)\s*")
+
+# Arrows that carry a text label, rewritten to plain arrows before nodes are read.
+# Labels can hold spaces and brackets ("-- no (just side effects) -->"), and
+# "no (" would otherwise look like the definition of a node called "no".
+LABELLED_ARROWS = (
+    (re.compile(r"--\s.+?\s-->"), "-->"),  # A -- yes --> B
+    (re.compile(r"-\.\s.+?\s\.->"), "-.->"),  # A -. maybe .-> B
+    (re.compile(r"==\s.+?\s==>"), "==>"),  # A == always ==> B
+    (re.compile(r"(-->|-\.->|==>)\|[^|]*\|"), r"\1"),  # A -->|yes| B
+)
+
+NODE_DEFINITION = re.compile(r"(\w+)\s*[\[{(]")
+NODE_SHAPE = re.compile(r"\[.*?\]|\{.*?\}|\(.*?\)")
 
 
 def parse_mermaid(lines):
     """
     WHAT: Read the nodes and arrows of a Mermaid flowchart.
 
-    WHY:  Shared by the lesson flowchart and the hookline diagram, so both are
+    WHY:  Shared by the lesson flowchart and the hookline diagrams, so both are
           read in exactly the same way.
 
-    HOW:  Quoted label text is removed first, so words inside labels (such as
-          "var (carefully)") are not mistaken for nodes. The first line is the
-          header and is skipped.
+    HOW:  The first line is the header and is skipped. On each line, quoted
+          label text and arrow labels are removed first, so words inside them
+          are not mistaken for nodes. A chain such as A --> B --> C gives two
+          arrows: A to B and B to C.
 
     RETURNS:
-        (defined, edges): defined maps node id to "decision" or "step";
-        edges is a list of (source, label, target) tuples.
+        (nodes, edges): the set of node ids defined with a shape, and a list
+        of (source, target) pairs.
     """
-    defined = {}
+    nodes = set()
     edges = []
 
     for line in lines[1:]:
-        without_quotes = re.sub(r'"[^"]*"', '""', line)
+        text = re.sub(r'"[^"]*"', '""', line)
 
-        for node_id, bracket in re.findall(r"(\w+)\s*(\[|\{|\()", without_quotes):
-            defined.setdefault(node_id, "decision" if bracket == "{" else "step")
+        for pattern, replacement in LABELLED_ARROWS:
+            text = pattern.sub(replacement, text)
 
-        stripped = re.sub(r"\[.*?\]|\{.*?\}|\(.*?\)", "", without_quotes)
+        nodes.update(NODE_DEFINITION.findall(text))
 
-        # Form 1: A -- yes --> B   (or A --> B when there is no label)
-        for source, label, target in re.findall(
-            r"(\w+)\s*(?:--\s*((?:(?!-->).)+?)\s*)?-->\s*(\w+)", stripped
-        ):
-            edges.append((source, (label or "").strip().lower() or None, target))
+        chain = [part.strip() for part in ARROW_SPLIT.split(NODE_SHAPE.sub("", text))]
+        edges.extend(zip(chain, chain[1:], strict=False))
 
-        # Form 2: A -->|yes| B   (Mermaid's pipe-label form)
-        for source, label, target in re.findall(r"(\w+)\s*-->\|\s*([^|]+?)\s*\|\s*(\w+)", stripped):
-            edges.append((source, label.strip().lower() or None, target))
-
-    return defined, edges
+    return nodes, edges
 
 
-def check_mermaid_structure(lines, label):  # noqa: C901 — TODO(team): split, PLAN.md Step 3
+def check_mermaid_structure(lines, label):
     """
     WHAT: Check the structure shared by every Mermaid diagram in the course.
 
     RULES:
-        - The first line is a flowchart header (TD, LR, BT, or RL).
+        - The first line is a flowchart header (TD, TB, LR, BT, or RL).
         - Every node used in an arrow is defined with its label.
-        - Exactly one root: a node that no arrow points to.
-        - No node is disconnected from the rest of the chart.
-        Other nodes may have any number of arrows, in any direction.
+        - When there is more than one node, every node has at least one arrow.
+        Loops are allowed: the sample draws recursion and round trips (such as
+        stringify -> parse -> back to the object), which have no start node.
 
     RETURNS:
         A list of error strings. Empty means the diagram is valid.
@@ -489,41 +516,23 @@ def check_mermaid_structure(lines, label):  # noqa: C901 — TODO(team): split, 
     errors = []
 
     if not MERMAID_HEADER.match(lines[0]):
-        errors.append(f"{label} must start with 'flowchart TD' (or LR, BT, RL)")
+        errors.append(f"{label} must start with 'flowchart TD' (or TB, LR, BT, RL)")
 
-    defined, edges = parse_mermaid(lines)
+    nodes, edges = parse_mermaid(lines)
 
-    if not defined:
+    if not nodes:
         errors.append(f"{label} defines no nodes")
         return errors
 
-    for source, _, target in edges:
-        for node_id in (source, target):
-            if node_id not in defined:
-                errors.append(f"{label} uses node '{node_id}' but never defines it")
+    connected = {node_id for edge in edges for node_id in edge}
 
-    incoming = {node_id: 0 for node_id in defined}
-    outgoing = {node_id: 0 for node_id in defined}
+    for node_id in sorted(connected - nodes):
+        errors.append(f"{label} uses node '{node_id}' but never defines it")
 
-    for source, _, target in edges:
-        if source in outgoing:
-            outgoing[source] += 1
-        if target in incoming:
-            incoming[target] += 1
+    unconnected = sorted(nodes - connected)
 
-    roots = [node_id for node_id in defined if incoming[node_id] == 0]
-
-    if len(roots) != 1:
-        errors.append(
-            f"{label} must have exactly one root (a node nothing points to); found {len(roots)}"
-        )
-
-    disconnected = [
-        node_id for node_id in defined if incoming[node_id] == 0 and outgoing[node_id] == 0
-    ]
-
-    if disconnected and len(defined) > 1:
-        errors.append(f"{label} has disconnected nodes: " + ", ".join(disconnected))
+    if unconnected and len(nodes) > 1:
+        errors.append(f"{label} has disconnected nodes: " + ", ".join(unconnected))
 
     return errors
 
@@ -532,8 +541,8 @@ def check_flowchart(section):
     """
     WHAT: Check the lesson flowchart's Mermaid code.
 
-    WHY:  The schema only sees a string. The check confirms the chart has
-          exactly one root and no disconnected nodes.
+    WHY:  The schema only sees a string. The check confirms the chart is
+          valid Mermaid with every node connected by an arrow.
 
     RETURNS:
         A list of error strings. Empty means valid, or the section is missing

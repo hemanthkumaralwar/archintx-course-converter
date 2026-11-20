@@ -56,10 +56,11 @@ DIFFICULTY_LEVELS = ("beginner", "intermediate", "advanced")
 LESSONS_PER_MODULE = 8
 
 # Numbered points inside each lesson's "objective" text, written as (1), (2), ...
-OBJECTIVE_POINTS = 4
+# 3 because every lesson in samples/javascript-beginner.json (the team's ideal) has 3.
+OBJECTIVE_POINTS = 3
 
-# Lines of code allowed in the syntax example.
-SYNTAX_LINES_MIN = 2
+# Lines of code allowed in the syntax example. The sample uses 1 to 5 lines.
+SYNTAX_LINES_MIN = 1
 SYNTAX_LINES_MAX = 6
 
 # Exact item counts inside EACH lesson. Keys are paths inside a lesson.

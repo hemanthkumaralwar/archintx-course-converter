@@ -15,6 +15,8 @@ from .config import (
     LESSON_MINUTES_MAX,
     LESSON_MINUTES_MIN,
     OBJECTIVE_POINTS,
+    SYNTAX_LINES_MAX,
+    SYNTAX_LINES_MIN,
 )
 
 # How many earlier errors to send back. Long lists add cost without much gain.
@@ -77,10 +79,12 @@ Image format. Every image in this lesson is a Mermaid diagram: the
 "hooklineimage" object, and the "image" object inside each "hooklines" item.
 - "status": exactly "included".
 - "style": exactly "diagram".
-- "html": a Mermaid diagram in a fenced block, with exactly one root node. It starts with a line
+- "html": a Mermaid diagram in a fenced block. It starts with a line
   containing ```mermaid, then "flowchart TD", then the nodes and arrows, and
   ends with a line containing ```. Use short, concrete labels related to the
-  text it illustrates.
+  text it illustrates. Every node has at least one arrow. Side-by-side
+  mappings with several start nodes are allowed, for example
+  A["const"] --> X["Block scope"] and B["let"] --> Y["Reassignment OK"].
 - "prompt": exactly "" (empty).
 - "alt": one short sentence describing what the diagram shows.
 """
@@ -169,8 +173,8 @@ Card matching format (the "cardmatching" object):
   pairs: each pair is one TERM card and one DESCRIPTION card.
   - Cards are numbered "1", "2", "3", ... in order, and each pair uses two
     consecutive numbers, with the term first (for example "1" and "2").
-  - A term card is a short keyword or concept name of 1 to 4 words, taken from
-    the lesson.
+  - A term card is a short keyword or concept name of 1 to 4 words, or a short
+    code snippet such as `n => n * 2`, taken from the lesson.
   - A description card is one plain-English sentence that explains the term. It
     must not contain its own term as a word.
 - "matches": exactly the number of pairs given in the item counts. Each match
@@ -200,7 +204,8 @@ flowchart TD
   - The first line is "flowchart TD". Indent every arrow line with four spaces.
   - Define each node with its label the first time it appears: ["..."] for a
     step, and {"..."} for a decision.
-  - Exactly one root: one start node that no arrow points to.
+  - Start from a node that no arrow points to. Arrows back to an earlier node
+    (loops) are allowed. Every node has at least one arrow.
   - Every other node can have any number of arrows, in any direction.
   - Use {...} for a decision that asks a question, and [...] for a step.
   - Branch labels are short, written as: B -- yes --> D and B -- no --> C.
@@ -209,10 +214,11 @@ flowchart TD
 """
 
 
-SYNTAX_PARTS_RULES = """
+SYNTAX_PARTS_RULES = f"""
 Syntax and parts formats:
-- "syntax": "title" is "Syntax". "highlight.code" is 2 to 6 lines of real code
-  that uses this lesson's keyword or pattern. Use \\n between lines.
+- "syntax": "title" is "Syntax". "highlight.code" is
+  {SYNTAX_LINES_MIN} to {SYNTAX_LINES_MAX} lines of real code that uses this lesson's keyword or
+  pattern. Use \\n between lines.
 - "parts": exactly the number of parts given in the item counts. Each part has:
   - "label": "Step 1", "Step 2", and so on, in order.
   - "name": a distinct keyword or concept of 1 to 4 words from this lesson.
