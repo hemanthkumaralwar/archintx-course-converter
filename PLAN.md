@@ -438,6 +438,7 @@ finished only when its **Done when** check passes. Steps flagged
   3. Re-run the three sample files (about 30 calls) and record the before/after comparison.
 - **Depends on:** Step 13.
 - **Done when:** the re-run outputs are VALID; every lesson duration is a single value; the quiz check finds at least 7 of 10 scenario-based questions per lesson on average; `docs/TEST_RESULTS.md` has the field-by-field comparison with the sample and lists any gaps left.
+- **Paused 2026-11-20 — decision pending.** A first measurement (64 sample lessons vs 18 generated in Step 11) found the generated lessons already close to the sample on size, explanations, parts, quiz and example explanations, stories, takeaways and flowcharts. The sample's quizzes are short checks (about 3.8 of 10 scenario-style); ours have about 5.6. So the "7 of 10" target above would move the output *away* from the sample. Real gaps: durations written as a range ("25-30 minutes"), and code examples about one line shorter (3.2 vs 4.2 lines). To decide: **match the sample** (quizzes in the sample's style, single durations enforced by a check, 3–6 line examples, every measure within ±20% of the sample, checked by a new `tools/quality_report.py`) or **go beyond it** (keep the 7-of-10 scenario target).
 
 #### Step 16 — Documentation and demo [DEADLINE]
 - **Goal:** Final README, `docs/TECHNICAL.md` (architecture diagram, pipeline, schema rules, prompt design, limits, security), final `docs/TEST_RESULTS.md`, a local demo script, and a recorded walkthrough as a backup.
