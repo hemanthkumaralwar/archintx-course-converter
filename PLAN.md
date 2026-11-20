@@ -349,6 +349,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `converter/chunking.py` (new), `tests/test_chunking.py`.
 - **Depends on:** Step 4.
 - **Done when:** `pytest tests/test_chunking.py --cov=converter.chunking --cov-fail-under=85` passes, including a check that the joined text of all sections equals the joined text of all blocks (no text lost), that no section exceeds `max_chars`, and that section ids are stable for the same input.
+- **Done 2026-11-20.** 22 tests, 99% coverage. A section's text starts with its own heading lines, so "no text lost" compares all text with whitespace ignored (a split can move a line break). Headings in a row open one section. Default `max_chars` is 3,000 (about one printed page). Long paragraphs split at a line break, then a sentence end, then a space, then mid-word, and never strip the next line's indentation.
 
 #### Step 6a — Settings object and provider interface [SECURITY]
 - **Goal:** Replace import-time configuration with a `Settings` object loaded once, and put Gemini behind an `LLMProvider` interface chosen by a small factory.
