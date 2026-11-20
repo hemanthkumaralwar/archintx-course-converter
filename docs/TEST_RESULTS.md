@@ -71,3 +71,43 @@ The outline now follows the document's own chapters, like the `.txt` run.
   against the real model; that path is covered by offline tests only.
 - The `.docx` sample was not sent to the model. Its extracted sections are the
   same 7 as the `.txt` (checked offline).
+
+## Step 9 — One lesson written from its cited section (Gemini)
+
+**Date:** 2026-11-20 · **Model:** `gemini-3.1-flash-lite`
+**Lesson:** module 2, lesson 1, "Making Decisions with If Statements", from the Step 8
+`.txt` outline. It cites one section, **s5** ("Making Decisions with if", 971 characters).
+The module overview was given the module's sections s5–s7.
+**Saved lesson:** [`docs/examples/step9-lesson-if-statements.json`](examples/step9-lesson-if-statements.json)
+
+| Call | Time | Prompt size | Attempts |
+|---|---|---|---|
+| Course details | 2.9 s | 680 chars | 1 |
+| Module 2 overview (sections s5–s7) | 4.2 s | 7,821 chars | 1 |
+| Lesson 2.1 (section s5) | 14.6 s | 14,617 chars | 1 |
+
+**Done-when check:** the lesson passes every content check (0 problems) and the lesson
+schema (0 problems), with no rejected attempts and no repair calls. **Passed.**
+
+### Manual review against the source (section s5)
+
+| Lesson part | Taken from the source? |
+|---|---|
+| Explanation (6 points) | Yes: if runs a block when true, colon and four-space indentation, `elif` checked in order, `else` as the catch-all, the six comparison operators, `and` / `or` / `not`. All six points restate the section. |
+| Concepts (8) | Yes: all eight are terms the section uses (indentation, comparison operators, elif, else, logical operators...). |
+| Syntax and parts | Yes: the `if` / `elif` / `else` shape the section shows. |
+| Example 3 | Yes: the section's own temperature example (hot over 30, warm over 20, else something else), slightly shortened. |
+| Examples 1, 2, 4, 5 | Added, consistent with the source: pass mark, adult or minor, office hours with `and`, `!=` status check. |
+| Bug hunt | Yes: the section's "common beginner mistake", `=` instead of `==`. |
+| Quiz | Facts all match the source ("as many `elif` as you need", "only the first true block runs", `=` vs `==`). |
+| Analogy, story, use cases | Added (traffic light controller, etc.), as the grounding rule allows. |
+
+Nothing in the lesson contradicts the source, and nothing comes from another lesson's topic.
+
+### Quality issues found (not caught by automatic checks)
+
+1. **Quiz questions are mostly recall**, such as "Which operator checks if two values
+   are NOT equal?". The prompt's quality rules ask for scenario-based questions that
+   test application. To look at in Step 11 (prompt wording, or a check).
+2. **One ambiguous quiz answer:** "check if x is between 10 and 20" gives
+   `x > 10 and x < 20`, which excludes 10 and 20 without saying so.

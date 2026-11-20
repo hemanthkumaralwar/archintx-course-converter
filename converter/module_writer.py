@@ -96,7 +96,7 @@ Rules:
     )
 
 
-def write_overview(provider, request, index, plan_modules, details, schemas):
+def write_overview(provider, request, index, plan_modules, details, schemas, source_sections=None):
     """
     WHAT: Generate and validate the overview of module index (zero-based).
 
@@ -110,7 +110,9 @@ def write_overview(provider, request, index, plan_modules, details, schemas):
 
     def attempt(previous_errors, attempt_number):
         data = provider.generate_json(
-            prompt=build_overview_prompt(request, index, plan_modules, details, previous_errors),
+            prompt=build_overview_prompt(
+                request, index, plan_modules, details, previous_errors, source_sections
+            ),
             schema=schemas.overview_request,
             label=f"writing the overview for module {index + 1}",
         )
@@ -140,7 +142,15 @@ def write_overview(provider, request, index, plan_modules, details, schemas):
 
 
 def write_lesson(
-    provider, request, module_index, lesson_index, plan_modules, module_overview, details, schemas
+    provider,
+    request,
+    module_index,
+    lesson_index,
+    plan_modules,
+    module_overview,
+    details,
+    schemas,
+    source_sections=None,
 ):
     """
     WHAT: Generate and validate one lesson, identified by module and lesson position.
@@ -170,6 +180,7 @@ def write_lesson(
                 module_overview,
                 details,
                 previous_errors,
+                source_sections,
             ),
             schema=schemas.lesson_request,
             label=f"writing {label.lower()}",

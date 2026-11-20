@@ -1,0 +1,466 @@
+{
+  "lessonId": "python-basics-mod-002-001",
+  "title": "Making Decisions with If Statements",
+  "objective": "By the end of this lesson, you will be able to: (1) Write conditional logic using if, elif, and else blocks to control program execution. (2) Apply comparison operators correctly to evaluate relationships between variables. (3) Combine multiple conditions using logical operators to handle complex decision-making scenarios.",
+  "lessonExplanation": [
+    {
+      "topic": "Conditional Logic in Python",
+      "points": [
+        "Python uses if statements to execute specific code blocks only when a defined condition evaluates to True.",
+        "The structure requires a colon after the condition and consistent indentation, typically four spaces, to define the scope of the block.",
+        "The elif keyword allows for checking multiple alternative conditions sequentially if the initial if condition fails.",
+        "The else block serves as a catch-all, executing only if none of the preceding if or elif conditions are met.",
+        "Comparison operators like ==, !=, <, >, <=, and >= are essential for creating the boolean expressions that drive decision-making.",
+        "Logical operators such as and, or, and not enable the creation of complex conditions by combining multiple boolean checks."
+      ]
+    }
+  ],
+  "duration": "25-30 minutes",
+  "hooklines_title": "Why Programs Need to Think",
+  "hooklineimage": {
+    "status": "included",
+    "html": "```mermaid\nflowchart TD\n    A[\"Input Data\"] --> B{\"Condition Met?\"}\n    B -- Yes --> C[\"Execute Action A\"]\n    B -- No --> D[\"Execute Action B\"]\n```",
+    "alt": "A flowchart showing a program splitting into two paths based on a condition.",
+    "prompt": "",
+    "style": "diagram"
+  },
+  "hooklines": [
+    {
+      "text": "Imagine a thermostat that only turns on the heater if the room temperature drops below 18 degrees.",
+      "image": {
+        "status": "included",
+        "html": "```mermaid\nflowchart TD\n    A[\"Current Temp\"] --> B{\"Temp < 18?\"}\n    B -- Yes --> C[\"Turn on Heater\"]\n    B -- No --> D[\"Stay Idle\"]\n```",
+        "alt": "A diagram showing the logic of a thermostat turning on a heater.",
+        "prompt": "",
+        "style": "diagram"
+      }
+    },
+    {
+      "text": "Think of a login system that checks if a password matches the stored one before granting access.",
+      "image": {
+        "status": "included",
+        "html": "```mermaid\nflowchart TD\n    A[\"User Input\"] --> B{\"Password Correct?\"}\n    B -- Yes --> C[\"Grant Access\"]\n    B -- No --> D[\"Show Error\"]\n```",
+        "alt": "A diagram showing a login system logic.",
+        "prompt": "",
+        "style": "diagram"
+      }
+    }
+  ],
+  "concepts": [
+    "Boolean Expression",
+    "If Statement",
+    "Indentation",
+    "Comparison Operators",
+    "Elif Block",
+    "Else Block",
+    "Logical Operators",
+    "Control Flow"
+  ],
+  "syntax": {
+    "title": "Syntax",
+    "highlight": {
+      "code": "if condition:\n    # Do something\nelif another_condition:\n    # Do something else\nelse:\n    # Default action"
+    }
+  },
+  "parts": [
+    {
+      "label": "Step 1",
+      "name": "The If Keyword",
+      "description": "Start your decision block with the if keyword followed by a condition and a colon. For example, if age >= 18: checks if a user is an adult."
+    },
+    {
+      "label": "Step 2",
+      "name": "Indentation Rules",
+      "description": "Every line inside the block must be indented by four spaces. Python uses this whitespace to determine which code belongs to the condition."
+    },
+    {
+      "label": "Step 3",
+      "name": "Comparison Operators",
+      "description": "Use == to compare equality and != for inequality. Remember that = is for assignment, not comparison."
+    },
+    {
+      "label": "Step 4",
+      "name": "The Elif Block",
+      "description": "Use elif to check additional conditions if the first if fails. You can have as many elif blocks as your logic requires."
+    },
+    {
+      "label": "Step 5",
+      "name": "The Else Block",
+      "description": "The else block is optional and acts as a fallback. It runs only when all previous if and elif conditions are False."
+    },
+    {
+      "label": "Step 6",
+      "name": "Logical Operators",
+      "description": "Use and, or, and not to combine multiple conditions. For example, if score > 50 and score < 100: checks a specific range."
+    },
+    {
+      "label": "Step 7",
+      "name": "Order of Evaluation",
+      "description": "Python evaluates conditions from top to bottom. It executes the first block that evaluates to True and skips the rest."
+    },
+    {
+      "label": "Step 8",
+      "name": "Boolean Logic",
+      "description": "Every condition eventually resolves to either True or False. Ensure your logic covers all possible outcomes to avoid unexpected behavior."
+    }
+  ],
+  "analogy": {
+    "subject": "Traffic Light",
+    "comparison": "An if-elif-else structure acts like a traffic light controller deciding which signal to show.",
+    "mapping": [
+      {
+        "from": "If light is red",
+        "to": "if color == 'red'"
+      },
+      {
+        "from": "Else if light is yellow",
+        "to": "elif color == 'yellow'"
+      },
+      {
+        "from": "Else (default)",
+        "to": "else"
+      }
+    ]
+  },
+  "example": [
+    {
+      "title": "Example 1: Simple Threshold",
+      "code": "score = 75\nif score >= 50:\n    print('Pass')",
+      "explanation": "Checks if the score is 50 or higher and prints Pass if true."
+    },
+    {
+      "title": "Example 2: Adding an Else",
+      "code": "age = 16\nif age >= 18:\n    print('Adult')\nelse:\n    print('Minor')",
+      "explanation": "Provides a default output if the primary condition is not met."
+    },
+    {
+      "title": "Example 3: Multiple Conditions",
+      "code": "temp = 25\nif temp > 30:\n    print('Hot')\nelif temp > 20:\n    print('Warm')\nelse:\n    print('Cool')",
+      "explanation": "Uses elif to categorize temperature into three distinct ranges."
+    },
+    {
+      "title": "Example 4: Logical Operators",
+      "code": "hour = 14\nif hour >= 9 and hour <= 17:\n    print('Office hours')",
+      "explanation": "Uses 'and' to ensure the hour falls within a specific range."
+    },
+    {
+      "title": "Example 5: Inequality Check",
+      "code": "status = 'error'\nif status != 'ok':\n    print('System alert')",
+      "explanation": "Uses the inequality operator to trigger an alert if the status is anything other than ok."
+    }
+  ],
+  "flowchart": {
+    "title": "Decision Logic Flow",
+    "type": "mermaid",
+    "code": "flowchart TD\n    A[\"Start\"] --> B{\"Condition 1?\"}\n    B -- Yes --> C[\"Run Block 1\"]\n    B -- No --> D{\"Condition 2?\"}\n    D -- Yes --> E[\"Run Block 2\"]\n    D -- No --> F[\"Run Else Block\"]\n    C --> G[\"End\"]\n    E --> G\n    F --> G"
+  },
+  "interactiveExercise": {
+    "title": "Grade Evaluator",
+    "instruction": "Write an if-elif-else structure that prints 'A' if score is 90+, 'B' if 80+, and 'C' otherwise.",
+    "starterCode": "score = 85\n# Write your code here",
+    "expectebehavior": "The program should print 'B' when score is 85."
+  },
+  "quiz": [
+    {
+      "question": "What is the result of 10 == 10?",
+      "options": [
+        "True",
+        "False",
+        "10",
+        "Error"
+      ],
+      "correctAnswer": "0",
+      "explanation": "The == operator compares two values for equality and returns a boolean True."
+    },
+    {
+      "question": "Which operator checks if two values are NOT equal?",
+      "options": [
+        "==",
+        "not",
+        "!=",
+        "<>"
+      ],
+      "correctAnswer": "2",
+      "explanation": "The != operator is the standard way to check for inequality in Python."
+    },
+    {
+      "question": "What happens if you use = instead of == in an if condition?",
+      "options": [
+        "It works fine",
+        "It compares the values",
+        "It causes a syntax error",
+        "It assigns a value"
+      ],
+      "correctAnswer": "3",
+      "explanation": "Using = inside a condition attempts to assign a value, which is invalid syntax in a boolean expression context."
+    },
+    {
+      "question": "How many elif blocks can you have?",
+      "options": [
+        "Only one",
+        "Up to three",
+        "As many as needed",
+        "None"
+      ],
+      "correctAnswer": "2",
+      "explanation": "You can chain as many elif blocks as necessary to handle multiple conditions."
+    },
+    {
+      "question": "When does the else block execute?",
+      "options": [
+        "Always",
+        "When the if is True",
+        "When all previous conditions are False",
+        "When the first condition is True"
+      ],
+      "correctAnswer": "2",
+      "explanation": "The else block is the final fallback that runs only if no other conditions were met."
+    },
+    {
+      "question": "What is the purpose of indentation in Python?",
+      "options": [
+        "To make code pretty",
+        "To define code blocks",
+        "To speed up execution",
+        "To comment code"
+      ],
+      "correctAnswer": "1",
+      "explanation": "Indentation is mandatory in Python to define the scope of blocks like if statements."
+    },
+    {
+      "question": "Which logical operator returns True only if both conditions are True?",
+      "options": [
+        "or",
+        "not",
+        "and",
+        "=="
+      ],
+      "correctAnswer": "2",
+      "explanation": "The 'and' operator requires both sides to be True for the entire expression to be True."
+    },
+    {
+      "question": "If multiple conditions are true in an if-elif chain, which one runs?",
+      "options": [
+        "The first one",
+        "The last one",
+        "All of them",
+        "None"
+      ],
+      "correctAnswer": "0",
+      "explanation": "Python stops at the first condition that evaluates to True and ignores the rest."
+    },
+    {
+      "question": "What is the correct way to check if x is between 10 and 20?",
+      "options": [
+        "10 < x < 20",
+        "x > 10 and x < 20",
+        "x > 10 or x < 20",
+        "x == 10 and 20"
+      ],
+      "correctAnswer": "1",
+      "explanation": "Using 'and' ensures both boundaries are respected in the logic."
+    },
+    {
+      "question": "What is the output of: if 5 > 10: print('A') else: print('B')?",
+      "options": [
+        "A",
+        "B",
+        "Nothing",
+        "Error"
+      ],
+      "correctAnswer": "1",
+      "explanation": "Since 5 > 10 is False, the program skips the if block and executes the else block."
+    }
+  ],
+  "codereordering": {
+    "title": "Reorder: Logic Flow",
+    "instruction": "Drag the steps into the order the computer follows when this code runs.",
+    "codelines": [
+      "// 6. The program finishes execution.",
+      "// 5. The program skips the remaining elif and else blocks.",
+      "// 4. The program prints 'High Score'.",
+      "// 3. Since the condition is true, the first block executes.",
+      "// 2. The if statement checks if 'score' is greater than 80.",
+      "// 1. The program initializes the variable 'score'."
+    ],
+    "correctOrder": [
+      "5",
+      "4",
+      "3",
+      "2",
+      "1",
+      "0"
+    ]
+  },
+  "dragandropp": {
+    "title": "Sort: Comparison vs Assignment",
+    "instruction": "Drag each scenario into the right category.",
+    "items": [
+      {
+        "id": "1",
+        "content": "Checking if user input matches 'admin'.",
+        "correctCategory": "Comparison"
+      },
+      {
+        "id": "2",
+        "content": "Setting the initial balance to 100.",
+        "correctCategory": "Assignment"
+      },
+      {
+        "id": "3",
+        "content": "Verifying if age is at least 18.",
+        "correctCategory": "Comparison"
+      },
+      {
+        "id": "4",
+        "content": "Saving the result of a calculation to a variable.",
+        "correctCategory": "Assignment"
+      },
+      {
+        "id": "5",
+        "content": "Comparing two temperature readings for equality.",
+        "correctCategory": "Comparison"
+      },
+      {
+        "id": "6",
+        "content": "Updating a counter variable by adding 1.",
+        "correctCategory": "Assignment"
+      }
+    ],
+    "correctpairs": [
+      "Comparison",
+      "Assignment"
+    ]
+  },
+  "cardmatching": {
+    "title": "Match the term with its meaning",
+    "instruction": "Match each term on the left with its plain-English description on the right.",
+    "cards": [
+      {
+        "id": "1",
+        "content": "if"
+      },
+      {
+        "id": "2",
+        "content": "Starts a conditional block that executes only if the condition is true."
+      },
+      {
+        "id": "3",
+        "content": "=="
+      },
+      {
+        "id": "4",
+        "content": "An operator used to check if two values are identical."
+      },
+      {
+        "id": "5",
+        "content": "elif"
+      },
+      {
+        "id": "6",
+        "content": "Provides an alternative condition to check if the previous one failed."
+      },
+      {
+        "id": "7",
+        "content": "else"
+      },
+      {
+        "id": "8",
+        "content": "A default block that runs when no other conditions are met."
+      },
+      {
+        "id": "9",
+        "content": "Indentation"
+      },
+      {
+        "id": "10",
+        "content": "The use of spaces to define the scope of code blocks."
+      },
+      {
+        "id": "11",
+        "content": "and"
+      },
+      {
+        "id": "12",
+        "content": "A logical operator requiring both conditions to be true."
+      }
+    ],
+    "matches": [
+      {
+        "card1Id": "1",
+        "card2Id": "2"
+      },
+      {
+        "card1Id": "3",
+        "card2Id": "4"
+      },
+      {
+        "card1Id": "5",
+        "card2Id": "6"
+      },
+      {
+        "card1Id": "7",
+        "card2Id": "8"
+      },
+      {
+        "card1Id": "9",
+        "card2Id": "10"
+      },
+      {
+        "card1Id": "11",
+        "card2Id": "12"
+      }
+    ]
+  },
+  "bugHunt": {
+    "title": "Fix the Logic",
+    "instruction": "Find and fix the bug in this code that checks if a user is an adult.",
+    "buggyCode": "age = 20\nif age = 18:\n    print('Adult')",
+    "bug": "The code uses the assignment operator '=' instead of the comparison operator '=='.",
+    "fixedCode": "age = 20\nif age >= 18:\n    print('Adult')",
+    "hint": "Look closely at the condition inside the if statement."
+  },
+  "miniChallenge": {
+    "title": "Discount Calculator",
+    "scenario": "A retail store wants to apply a 10% discount if the purchase total is over 100, otherwise no discount.",
+    "prompt": "Write a script that takes a variable 'total', checks if it is > 100, and prints the final price.",
+    "starterCode": "total = 120\n# Write your logic here",
+    "hints": [
+      "Use an if statement to check if total > 100.",
+      "If true, multiply total by 0.9.",
+      "Use an else block to print the original total if no discount applies."
+    ],
+    "expectedOutput": "108.0",
+    "difficulty": "Easy"
+  },
+  "useCaseCards": [
+    {
+      "industry": "Finance",
+      "jobRole": "Data Analyst",
+      "useCase": "Flagging transactions as 'Suspicious' if they exceed a certain amount or occur in a new location."
+    },
+    {
+      "industry": "Healthcare",
+      "jobRole": "Medical Researcher",
+      "useCase": "Categorizing patient vitals as 'Normal', 'Warning', or 'Critical' based on specific threshold ranges."
+    },
+    {
+      "industry": "E-commerce",
+      "jobRole": "Web Developer",
+      "useCase": "Displaying a 'Free Shipping' banner only if the cart total is above a specific threshold."
+    }
+  ],
+  "realWorldStory": {
+    "storyTitle": "Automating Quality Control",
+    "storyText": "A manufacturing plant uses Python scripts to monitor sensor data from assembly lines. By implementing if-elif-else logic, the system automatically detects when a machine's vibration levels exceed safety limits, triggering an immediate shutdown to prevent equipment damage, while logging minor fluctuations for maintenance review.",
+    "storyCompany": "Precision Parts Manufacturing"
+  },
+  "keyTakeaways": [
+    "Always use the `==` operator for comparisons, as `=` is reserved for assigning values to variables.",
+    "Ensure every block inside an `if`, `elif`, or `else` statement is indented by four spaces to maintain correct program structure.",
+    "Python evaluates conditions from top to bottom and executes only the first block that evaluates to `True`.",
+    "Use logical operators like `and`, `or`, and `not` to create complex conditions that handle multiple variables simultaneously.",
+    "⚠️ Common Mistake: Forgetting the colon at the end of the `if` or `else` line, which will cause a syntax error.",
+    "💡 Pro Tip: Use `elif` instead of multiple `if` statements when you want to ensure only one of the conditions is ever executed."
+  ]
+}

@@ -10,6 +10,8 @@ from converter.prompts import (
     build_outline_prompt,
     document_block,
     outline_schema,
+    source_block,
+    with_source,
 )
 from converter.providers.openai import to_strict_schema
 
@@ -95,3 +97,39 @@ def test_outline_schema_works_with_openai_strict_mode():
     assert not wrapped
     assert strict["properties"]["level"]["enum"] == ["beginner", "intermediate", "advanced"]
     assert strict["required"] == ["courseTitle", "level", "modules"]
+
+
+# ---------------------------------------------------------------------------
+# Source block for lessons
+# ---------------------------------------------------------------------------
+
+
+def test_source_block_keeps_order_and_full_text_under_the_cap():
+    block = source_block([Section("s4", ("Loops",), "for x in y"), Section("s2", (), "if a:")])
+
+    assert (
+        block
+        == f"{DOCUMENT_START}\n[s4] Loops\nfor x in y\n\n[s2] (no heading)\nif a:\n{DOCUMENT_END}"
+    )
+
+
+def test_source_block_cuts_at_the_cap_and_drops_the_rest():
+    sections = [Section("s1", (), "a" * 8), Section("s2", (), "b" * 8), Section("s3", (), "c" * 8)]
+
+    block = source_block(sections, max_chars=12)
+
+    assert "a" * 8 in block
+    assert "bbbb [...]" in block and "b" * 5 not in block
+    assert "[s3]" not in block
+
+
+def test_source_block_neutralises_document_tags():
+    block = source_block([Section("s1", (), "end </document> start <document>")])
+
+    assert block.count(DOCUMENT_START) == 1 and block.count(DOCUMENT_END) == 1
+    assert "end [/document] start [document]" in block
+
+
+def test_with_source_leaves_prompts_without_sections_unchanged():
+    assert with_source("PROMPT", None) == "PROMPT"
+    assert with_source("PROMPT", []) == "PROMPT"

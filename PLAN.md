@@ -158,8 +158,14 @@ converter works in pieces like the old generator.
 
 The document is the source of truth. Explanations, concepts, examples and code should
 come from it. Activities the document does not contain (quizzes, card matching, bug hunt,
-etc.) are written by the LLM **based on that lesson's source text**. The prompt tells the
-model not to add facts that are not in the source for content fields.
+etc.) are written by the LLM **based on that lesson's source text**.
+
+*Changed in Step 9:* the plan first said the model must not add any fact that is not in
+the source. The lesson format needs fixed counts (8 concepts, 5 examples, 10 quiz
+questions...), which a short section (the sample's are about 900 characters) cannot fill,
+so the prompt now says: base content fields on the source and never contradict it; where
+the source is too short to fill a required list, add standard, widely accepted material
+on the same topic that agrees with the source; never add other lessons' topics.
 
 ### Size options
 
@@ -384,6 +390,7 @@ finished only when its **Done when** check passes. Steps flagged
 - **Components/files:** `converter/prompts.py`, `converter/module_writer.py`, `tests/test_module_writer.py`.
 - **Depends on:** Step 8.
 - **Done when:** `FakeProvider` tests show that a lesson prompt contains its cited sections and none of the others, and stays under a set size limit. One real lesson generated from `samples/inputs/` passes all content checks, and a manual review (noted in `docs/TEST_RESULTS.md`) confirms its concepts and examples come from the source.
+- **Done 2026-11-20.** `write_lesson` and `write_overview` take `source_sections` (the converter passes a lesson's cited sections, and for an overview all sections its module's lessons cite); the prompt adds `SOURCE_RULES` and the sections in the `<document>` block at the end, at most `MAX_SOURCE_CHARS` = 12,000 characters. Without sections (the title-based generator) prompts are unchanged; repair calls send no source. The grounding rule was relaxed (see §4). Real run: lesson 2.1 passed every check on the first attempt in 3 calls; review in `docs/TEST_RESULTS.md` found it faithful to the source, and found recall-style quiz questions, left for Step 11.
 
 #### Step 10 — Conversion pipeline, resume and CLI
 - **Goal:** `convert(path, options, provider, settings, progress)` runs extract → sections → outline → details → modules → lessons → validate. The checkpoint is keyed by the file's SHA-256 hash, IDs are set by code, and `totalDuration` is the sum of module durations. CLI: `python -m converter.cli INPUT [--modules N --lessons M | --auto] [--provider gemini|openai] [-o OUT]`.
