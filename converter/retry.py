@@ -9,10 +9,13 @@ WHY:  The model sometimes returns invalid JSON, breaks a rule, or a request
       behaviour.
 """
 
+import logging
 import time
 
 from .config import MAX_RETRIES, RETRY_DELAY_SECONDS
 from .exceptions import GenerationError, ValidationFailedError
+
+logger = logging.getLogger(__name__)
 
 # Only failures that a new attempt can fix are retried. Anything else (a bug
 # such as KeyError, or a ConfigurationError) is raised at once with its
@@ -25,7 +28,7 @@ def run_with_retries(
     attempt_fn,
     max_attempts=MAX_RETRIES,
     base_delay_seconds=RETRY_DELAY_SECONDS,
-    sleep=time.sleep,
+    sleep=None,
 ):
     """
     WHAT: Call attempt_fn until it succeeds or the attempts run out.
@@ -36,8 +39,8 @@ def run_with_retries(
           each attempt to ease rate limits.
 
     WHY:  The function receives the errors as an argument, not from shared
-          state, so each attempt starts clean. `sleep` is a parameter so tests
-          can run without waiting.
+          state, so each attempt starts clean. `sleep` defaults to time.sleep,
+          looked up at call time, so tests can pass or patch a no-wait version.
 
     RETURNS:
         Whatever attempt_fn returns on success.
@@ -49,6 +52,7 @@ def run_with_retries(
     if max_attempts < 1:
         raise ValueError(f"max_attempts must be at least 1 (got {max_attempts}).")
 
+    sleep = sleep or time.sleep
     previous_errors = []
 
     for attempt_number in range(1, max_attempts + 1):
@@ -56,8 +60,13 @@ def run_with_retries(
             return attempt_fn(previous_errors, attempt_number)
 
         except RETRYABLE_ERRORS as exc:
-            # TODO(team): use logging + progress callback instead — see PLAN.md §6.4 Step 6b
-            print(f"{label}: attempt {attempt_number}/{max_attempts} failed: {exc}")
+            logger.warning(
+                "%s: attempt %d/%d failed: %s",
+                label,
+                attempt_number,
+                max_attempts,
+                describe_failure(exc),
+            )
 
             if attempt_number == max_attempts:
                 raise GenerationError(
@@ -75,3 +84,19 @@ def run_with_retries(
 
     # Unreachable: the last attempt either returns or raises above.
     raise AssertionError("retry loop ended without returning or raising")  # pragma: no cover
+
+
+def describe_failure(error):
+    """
+    WHAT: Describe a failed attempt for the log.
+
+    WHY:  Validation messages quote the model's output, which can contain text
+          from the user's document, so only their number is logged. The full
+          messages are still sent back to the model and saved in the course's
+          errors/ folder. Other failures (API errors) contain no document text.
+    """
+    if isinstance(error, ValidationFailedError):
+        count = len(error.errors) or 1
+        return f"{count} validation problem(s); details are in the course's errors folder"
+
+    return str(error)

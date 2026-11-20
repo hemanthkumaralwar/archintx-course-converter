@@ -11,6 +11,7 @@ WHY:  Keeping this file small makes the program start in one obvious place.
       problems, and a full traceback only for unexpected bugs.
 """
 
+import logging
 import sys
 
 from .config import load_settings
@@ -18,6 +19,12 @@ from .exceptions import CourseGenerationError
 from .pipeline import run_pipeline
 from .providers import get_provider
 from .user_input import read_course_request
+
+
+def print_progress(event):
+    """Show one finished piece, such as "[3/19] Lesson 1.1: Variables (saved)"."""
+    status = "already saved" if event.reused else "saved"
+    print(f"[{event.done}/{event.total}] {event.label} ({status})")
 
 
 def main(argv=None):
@@ -32,11 +39,15 @@ def main(argv=None):
     RETURNS:
         An integer exit code.
     """
+    # Warnings only (such as a retried step); progress is printed separately.
+    logging.basicConfig(level=logging.WARNING, format="%(levelname)s: %(message)s")
+
     try:
         request = read_course_request(argv)
         # Settings are read once, here; a missing API key stops the run before any work.
         provider = get_provider(load_settings())
-        run_pipeline(request, provider)
+        output_file = run_pipeline(request, provider, print_progress)
+        print(f"\nDone. The course matches the schema: {output_file}")
         return 0
 
     except CourseGenerationError as exc:

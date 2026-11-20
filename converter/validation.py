@@ -6,13 +6,13 @@ WHAT: Checks generated data against a JSON Schema and raises a
 
 WHY:  Validation is needed in several places (course details, each module,
       and the final course). One shared helper keeps the error format the
-      same everywhere, so retry feedback to Gemini is consistent.
+      same everywhere, so retry feedback to the model is consistent.
 """
 
 from .exceptions import ValidationFailedError
 
 # How many errors appear in the on-screen message. All errors are still
-# kept in the exception so they can be saved and sent back to Gemini.
+# kept in the exception so they can be saved and sent back to the model.
 MAX_ERRORS_SHOWN = 20
 
 

@@ -89,7 +89,7 @@ def validate_plan(data, request):  # noqa: C901 — TODO(team): split, PLAN.md S
 
 def generate_plan(provider, request):
     """
-    WHAT: Ask Gemini for every module and lesson title, and return them once valid.
+    WHAT: Ask the model for every module and lesson title, and return them once valid.
 
     RETURNS:
         A list of module dicts, each with a title and its lesson titles.
@@ -111,7 +111,7 @@ def generate_plan(provider, request):
 
 def generate_course_details(provider, request, schemas):
     """
-    WHAT: Ask Gemini for the course-level fields. The module list is kept empty.
+    WHAT: Ask the model for the course-level fields. The module list is kept empty.
 
     RETURNS:
         A dict that matches the course schema, with its module list set to [].

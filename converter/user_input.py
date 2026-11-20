@@ -16,6 +16,7 @@ import argparse
 import math
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from .config import (
     DIFFICULTY_LEVELS,
@@ -56,18 +57,17 @@ class CourseRequest:
 
     WHY:  frozen=True prevents accidental changes after validation. The
           properties mean every part of the program gets the module count,
-          lesson count, and file paths from one source.
+          lesson count, and file paths from one source. Course size and the
+          output folder are fields, so tests can make a small course in a
+          temporary folder.
     """
 
     title: str
     difficulty: str
     duration_hours: float
     course_id_override: object = None  # Optional --course-id value (None = build from title).
-
-    @property
-    def lessons_per_module(self):
-        """Fixed number of lessons in every module (from config.py)."""
-        return LESSONS_PER_MODULE
+    lessons_per_module: int = LESSONS_PER_MODULE
+    output_root: Path = OUTPUT_ROOT
 
     @property
     def module_count(self):
@@ -118,7 +118,7 @@ class CourseRequest:
     @property
     def output_dir(self):
         """Folder that holds every file for this course."""
-        return OUTPUT_ROOT / self.slug
+        return self.output_root / self.slug
 
     @property
     def output_file(self):
@@ -146,10 +146,18 @@ class CourseRequest:
             "title": self.title,
             "difficulty": self.difficulty,
             "duration_hours": self.duration_hours,
+            "lessons_per_module": self.lessons_per_module,
         }
 
 
-def make_request(title, difficulty, duration, course_id=None):
+def make_request(
+    title,
+    difficulty,
+    duration,
+    course_id=None,
+    lessons_per_module=LESSONS_PER_MODULE,
+    output_root=OUTPUT_ROOT,
+):
     """
     WHAT: Validate raw input and return a CourseRequest.
 
@@ -190,11 +198,18 @@ def make_request(title, difficulty, duration, course_id=None):
     if not math.isfinite(hours) or hours <= 0:
         raise ConfigurationError("Duration must be a positive number of hours.")
 
+    if not isinstance(lessons_per_module, int) or lessons_per_module < 1:
+        raise ConfigurationError(
+            f"Lessons per module must be a whole number of at least 1 (got {lessons_per_module})."
+        )
+
     request = CourseRequest(
         title=clean_title,
         difficulty=clean_difficulty,
         duration_hours=hours,
         course_id_override=(str(course_id).strip() or None) if course_id else None,
+        lessons_per_module=lessons_per_module,
+        output_root=Path(output_root),
     )
 
     if not MIN_MODULES <= request.module_count <= MAX_MODULES:

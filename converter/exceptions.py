@@ -40,7 +40,7 @@ class SchemaError(CourseGenerationError):
 class ValidationFailedError(CourseGenerationError):
     """Generated content does not match the schema.
 
-    The `errors` list is sent back to Gemini on the next attempt, so the
+    The `errors` list is sent back to the model on the next attempt, so the
     model can correct its own mistakes.
     """
 
@@ -50,7 +50,7 @@ class ValidationFailedError(CourseGenerationError):
 
 
 class GenerationError(CourseGenerationError):
-    """Gemini could not produce usable output, even after retries."""
+    """The LLM could not produce usable output, even after retries."""
 
 
 class CheckpointError(CourseGenerationError):

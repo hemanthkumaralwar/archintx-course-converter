@@ -1,7 +1,7 @@
 """
 prompts.py
 
-WHAT: Every piece of text sent to Gemini, and the schema for the plan step.
+WHAT: Every piece of text sent to the LLM, and the schema for the plan step.
 
 WHY:  Prompts change more often than the logic around them. Keeping them in
       one file makes tuning quick. The quality rules are written once and

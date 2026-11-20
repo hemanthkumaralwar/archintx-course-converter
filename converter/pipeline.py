@@ -6,14 +6,19 @@ WHAT: The full workflow for one course:
       2. Plan: every module title and its lesson titles (or reuse the saved plan).
       3. Course details: the course-level fields (or reuse the saved output).
       4. For each module: write the overview, then write each lesson in order,
-         saving after every piece and printing each lesson under its module.
+         saving after every piece.
       5. Final check: validate the finished file against course_schema.json.
 
 WHY:  Each piece is saved as soon as it is valid. If the run stops, only the
       piece in progress is lost, and rerunning continues from the next lesson.
+      Progress is reported through a callback, not printed, so the command
+      line and the web page can each show it their own way. Log messages
+      never include course text (titles, lessons), only counts and steps.
 """
 
+import logging
 from copy import deepcopy
+from dataclasses import dataclass
 
 from .checkpoint import load_plan, save_plan
 from .config import (
@@ -29,6 +34,58 @@ from .module_writer import write_lesson, write_overview
 from .planner import generate_course_details, generate_plan
 from .schema_utils import build_schema_set
 from .validation import ensure_valid
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class Progress:
+    """
+    One finished piece of the course.
+
+    done:   pieces finished so far, including pieces reused from an earlier run.
+    total:  pieces in the whole course (plan, details, every overview and lesson).
+    label:  what the piece is, such as "Lesson 1.2: Declaring variables".
+    reused: True when the piece came from a saved earlier run.
+    """
+
+    done: int
+    total: int
+    label: str
+    reused: bool = False
+
+
+class ProgressCounter:
+    """Counts finished pieces and passes each one to the caller's callback."""
+
+    def __init__(self, total, callback):
+        self.total = total
+        self.done = 0
+        self._callback = callback
+
+    def report(self, label, reused=False):
+        self.done += 1
+        self._callback(Progress(self.done, self.total, label, reused))
+
+
+def total_pieces(request):
+    """Plan + course details + one overview per module + every lesson."""
+    return 2 + request.module_count * (1 + request.lessons_per_module)
+
+
+def _ignore_progress(_event):
+    """Default callback: progress reporting is optional."""
+
+
+@dataclass(frozen=True)
+class CourseContext:
+    """Everything that stays the same while the modules of one course are written."""
+
+    request: object
+    schemas: object
+    provider: object
+    plan_modules: list
+    details: dict
 
 
 def ensure_output_dirs(request):
@@ -47,7 +104,7 @@ def ensure_output_dirs(request):
         ) from exc
 
 
-def load_or_create_plan(request, provider):
+def load_or_create_plan(request, provider, progress):
     """
     WHAT: Return the planned modules, from the saved plan if it exists,
           otherwise by generating and saving a new plan.
@@ -57,15 +114,16 @@ def load_or_create_plan(request, provider):
     """
     if request.plan_file.exists():
         modules = load_plan(request.plan_file, request)
-        print(f"Reusing the saved plan from {request.plan_file}.")
+        progress.report("Course plan", reused=True)
         return modules
 
     modules = generate_plan(provider, request)
     save_plan(request.plan_file, request, modules)
+    progress.report("Course plan")
     return modules
 
 
-def load_or_create_output(request, schemas, provider):
+def load_or_create_output(request, schemas, provider, progress):
     """
     WHAT: Return the course object, from the saved output if it exists,
           otherwise by generating the course details and saving them.
@@ -81,7 +139,7 @@ def load_or_create_output(request, schemas, provider):
                 f"The output file {request.output_file} must contain a JSON object."
             )
 
-        print(f"Reusing the saved output from {request.output_file}.")
+        progress.report("Course details", reused=True)
         return output
 
     details = generate_course_details(provider, request, schemas)
@@ -104,6 +162,7 @@ def load_or_create_output(request, schemas, provider):
             parent[parts[-1]] = value
 
     save_json(request.output_file, details)
+    progress.report("Course details")
     return details
 
 
@@ -119,13 +178,9 @@ def course_details_from(output, array_path):
     return details
 
 
-def write_course(request, schemas, provider, plan_modules, output):
+def write_course(request, schemas, provider, plan_modules, output, progress):
     """
     WHAT: Write every missing module overview and lesson, in order.
-
-    HOW:  For each module, the overview is written if it is missing. Then
-          each lesson is written if it is missing. Each piece is saved
-          immediately. Lesson names are printed under the module name.
 
     WHY:  Working in this order means a run can stop at any point and resume
           from the exact lesson that was not finished.
@@ -139,56 +194,70 @@ def write_course(request, schemas, provider, plan_modules, output):
     if not isinstance(modules, list):
         raise DataPathError(f"'{schemas.array_path}' in the output must be an array.")
 
-    total_modules = len(plan_modules)
-
-    if len(modules) > total_modules:
+    if len(modules) > len(plan_modules):
         raise CheckpointError(
-            f"The output has {len(modules)} modules but the plan has {total_modules}. "
+            f"The output has {len(modules)} modules but the plan has {len(plan_modules)}. "
             f"Delete '{request.output_dir}' to start over."
         )
 
-    details = course_details_from(output, schemas.array_path)
+    context = CourseContext(
+        request, schemas, provider, plan_modules, course_details_from(output, schemas.array_path)
+    )
 
-    for m_index, plan_module in enumerate(plan_modules):
-        print(f"\nModule {m_index + 1}/{total_modules}: {plan_module['title']}")
+    for m_index in range(len(plan_modules)):
+        _write_module(context, m_index, modules, output, progress)
 
-        if m_index >= len(modules):
-            overview = write_overview(provider, request, m_index, plan_modules, details, schemas)
-            overview["moduleId"] = f"{request.course_id}-mod-{m_index + 1}"
-            overview[schemas.lesson_path] = []  # Lessons are added one at a time below.
-            modules.append(overview)
-            save_json(request.output_file, output)
 
-        module = modules[m_index]
-        lessons = module.get(schemas.lesson_path)
+def _write_module(context, m_index, modules, output, progress):
+    """
+    WHAT: Write module m_index: its overview if missing, then each missing lesson.
 
-        if not isinstance(lessons, list):
-            raise DataPathError(
-                f"Module {m_index + 1} in the output has no '{schemas.lesson_path}' list."
-            )
+    WHY:  Each piece is saved to the output file as soon as it is valid.
+    """
+    request, schemas = context.request, context.schemas
+    plan_module = context.plan_modules[m_index]
+    number = m_index + 1
+    overview_label = f"Module {number} overview: {plan_module['title']}"
 
-        for l_index, lesson_title in enumerate(plan_module["lessons"]):
-            label = f"  Lesson {m_index + 1}.{l_index + 1}: {lesson_title}"
+    if m_index < len(modules):
+        progress.report(overview_label, reused=True)
+    else:
+        overview = write_overview(
+            context.provider, request, m_index, context.plan_modules, context.details, schemas
+        )
+        overview["moduleId"] = f"{request.course_id}-mod-{number}"
+        overview[schemas.lesson_path] = []  # Lessons are added one at a time below.
+        modules.append(overview)
+        save_json(request.output_file, output)
+        progress.report(overview_label)
 
-            if l_index < len(lessons):
-                print(f"{label} (already saved)")
-                continue
+    module = modules[m_index]
+    lessons = module.get(schemas.lesson_path)
 
-            lesson = write_lesson(
-                provider,
-                request,
-                m_index,
-                l_index,
-                plan_modules,
-                course_overview_for_prompt(module, schemas.lesson_path),
-                details,
-                schemas,
-            )
+    if not isinstance(lessons, list):
+        raise DataPathError(f"Module {number} in the output has no '{schemas.lesson_path}' list.")
 
-            lesson["lessonId"] = f"{request.course_id}-mod-{m_index + 1}-lesson-{l_index + 1}"
-            lessons.append(lesson)
-            save_json(request.output_file, output)
-            print(f"{label} (saved)")
+    for l_index, lesson_title in enumerate(plan_module["lessons"]):
+        label = f"Lesson {number}.{l_index + 1}: {lesson_title}"
+
+        if l_index < len(lessons):
+            progress.report(label, reused=True)
+            continue
+
+        lesson = write_lesson(
+            context.provider,
+            request,
+            m_index,
+            l_index,
+            context.plan_modules,
+            course_overview_for_prompt(module, schemas.lesson_path),
+            context.details,
+            schemas,
+        )
+        lesson["lessonId"] = f"{request.course_id}-mod-{number}-lesson-{l_index + 1}"
+        lessons.append(lesson)
+        save_json(request.output_file, output)
+        progress.report(label)
 
 
 def course_overview_for_prompt(module, lesson_path):
@@ -233,19 +302,23 @@ def finish(request, schemas, plan_modules):
             )
 
     ensure_valid(schemas.course_validator, final, "Final course")
-
-    print("\nSUCCESS: All modules and lessons were generated.")
-    print("SUCCESS: Final JSON matches course_schema.json.")
-    print(f"Output: {request.output_file.resolve()}")
+    logger.info("Course complete and valid: %d modules", len(modules))
 
 
-def run_pipeline(request, provider):
+def run_pipeline(request, provider, progress_callback=None):
     """
     WHAT: Run every step for one course request.
 
     WHY:  This is the only function generate.py calls, so the whole workflow
           is visible in one place. The LLM provider is passed in, so tests can
           use a fake one and the entry point decides between Gemini and OpenAI.
+
+    PARAMETERS:
+        progress_callback: optional function called with a Progress after
+                           every finished (or reused) piece.
+
+    RETURNS:
+        The path of the finished course JSON file.
 
     RAISES:
         CourseGenerationError subclasses for any expected failure.
@@ -259,11 +332,15 @@ def run_pipeline(request, provider):
         LESSON_ARRAY_PATH,
         LESSON_ITEM_COUNTS,
     )
-    print(f"Module array found at: '{schemas.array_path}'")
-    print(
-        f"Lesson array found at: '{schemas.lesson_path}' ({request.lessons_per_module} per module)"
+    logger.info(
+        "Schema arrays: modules at '%s', lessons at '%s'", schemas.array_path, schemas.lesson_path
     )
-    print(f"Modules planned: {request.module_count} for {request.duration_hours:g} hours")
+    logger.info(
+        "Planning %d modules x %d lessons for %g hours",
+        request.module_count,
+        request.lessons_per_module,
+        request.duration_hours,
+    )
 
     # An output without its plan cannot be resumed safely.
     if request.output_file.exists() and not request.plan_file.exists():
@@ -271,8 +348,10 @@ def run_pipeline(request, provider):
             f"An output file exists without its plan. Delete '{request.output_dir}' to start over."
         )
 
-    plan_modules = load_or_create_plan(request, provider)
-    output = load_or_create_output(request, schemas, provider)
+    progress = ProgressCounter(total_pieces(request), progress_callback or _ignore_progress)
+    plan_modules = load_or_create_plan(request, provider, progress)
+    output = load_or_create_output(request, schemas, provider, progress)
 
-    write_course(request, schemas, provider, plan_modules, output)
+    write_course(request, schemas, provider, plan_modules, output, progress)
     finish(request, schemas, plan_modules)
+    return request.output_file

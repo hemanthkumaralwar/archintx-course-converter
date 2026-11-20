@@ -6,8 +6,9 @@ class FakeProvider:
     An LLM provider that returns prepared answers instead of calling an API.
 
     `answers` is a list; each call takes the next one. An answer that is an
-    exception is raised instead of returned. Every call is recorded in `calls`
-    as (prompt, schema, label), so tests can check what was sent.
+    exception (including KeyboardInterrupt) is raised instead of returned.
+    Every call is recorded in `calls` as (prompt, schema, label), so tests
+    can check what was sent.
     """
 
     def __init__(self, answers):
@@ -22,7 +23,7 @@ class FakeProvider:
 
         answer = self.answers.pop(0)
 
-        if isinstance(answer, Exception):
+        if isinstance(answer, BaseException):
             raise answer
 
         return answer

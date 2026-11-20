@@ -49,8 +49,9 @@ def load_plan(path, request):
 
     if data["request"] != request.as_dict():
         raise CheckpointError(
-            "The saved plan was made for a different title, difficulty, or "
-            f"duration. Delete the folder '{request.output_dir}' to start over."
+            "The saved plan was made for a different title, difficulty, duration "
+            "or number of lessons per module. "
+            f"Delete the folder '{request.output_dir}' to start over."
         )
 
     modules = data["modules"]

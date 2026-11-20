@@ -40,7 +40,7 @@ def _save_rejected(path, index_label, attempt_number, errors, generated, error_d
     )
 
 
-# How many times one failing section is sent back to Gemini for a fix.
+# How many times one failing section is sent back to the model for a fix.
 SECTION_REPAIR_ROUNDS = 2
 
 
@@ -58,7 +58,7 @@ def repair_and_check(lesson):
 
 def repair_section(provider, request, lesson, key, errors, schemas):
     """
-    WHAT: Ask Gemini to fix only one field of a lesson, given the errors for it.
+    WHAT: Ask the model to fix only one field of a lesson, given the errors for it.
 
     WHY:  Regenerating a whole lesson repeats the same mistake. A smaller request
           with the current field and its exact problems is much more likely to
@@ -183,7 +183,7 @@ def write_lesson(
 
         structure_errors = repair_and_check(data)
 
-        # If the errors all belong to one field, ask Gemini to fix only that field.
+        # If the errors all belong to one field, ask the model to fix only that field.
         for _ in range(SECTION_REPAIR_ROUNDS):
             if not structure_errors:
                 break
