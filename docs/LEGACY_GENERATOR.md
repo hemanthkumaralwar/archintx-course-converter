@@ -1,4 +1,12 @@
-# Course Generator
+# Course Generator (original project, kept for reference)
+
+> **Note (2026-11-20):** this is the README of the title-based generator the converter was
+> built from. It still works, but the files have moved. Use these commands instead of the
+> ones below: `python -m converter.generate --title ... --difficulty ... --duration ...`,
+> `python tools/generate_schema.py samples/javascript-beginner.json -o schema/course_schema.json`,
+> `python tools/validate_json.py <course>.json schema/course_schema.json`, and copy
+> `.env.example` (not `.env.example.env`). The objective now has 3 points, as in the team's
+> sample. For the document converter, see the main [README](../README.md).
 
 Generates a complete course as JSON using Google Gemini, following `course_schema.json`.
 It also includes two general-purpose tools: one that builds a JSON Schema from an

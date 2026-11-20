@@ -1,7 +1,18 @@
 # Test results
 
-Results of real runs against the LLM, step by step. Offline test-suite results
-(pytest, coverage) are added in Step 11.
+## Summary
+
+| What | Result |
+|---|---|
+| Offline test suite (`pytest`) | **452 passed**, 96 % line and branch coverage, no network used (after Step 13) |
+| Lint and security | `ruff` clean; `pip-audit` no known vulnerabilities |
+| Real conversions (Gemini, 2 × 3) | `.txt`, `.docx` and `.pdf` all **VALID** against `schema/course_schema.json` (Step 11) |
+| Web page (Step 13) | Sample converted in the browser with Gemini; downloaded course **VALID**; no console errors; works at 375 px |
+| Resume after a stop | Confirmed against the real API (Step 11, PDF run) |
+| Gemini free-tier calls used in testing | about 75 (spike, outlines, lessons, full runs, web page) |
+| Open | Output-quality step 15Q paused for a decision; follow-ups F1–F3 in PLAN.md §6.6 |
+
+The sections below are the real runs against the LLM, step by step, in the order they were done.
 
 ## Step 8 — Course outline from a document (Gemini)
 

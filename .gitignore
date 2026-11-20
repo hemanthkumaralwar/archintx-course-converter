@@ -21,3 +21,7 @@ coverage.xml
 
 # Local run configuration with a throwaway demo access code
 .claude/launch.json
+
+# Demo recordings (large; keep outside git)
+*.mp4
+*.mkv
