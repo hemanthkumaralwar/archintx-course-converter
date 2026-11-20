@@ -12,12 +12,12 @@ using Google Gemini (free tier) or, optionally, OpenAI.
 | Path | Contents |
 |---|---|
 | `converter/` | Python package: pipeline, prompts, content checks, validation, retries |
-| `converter/providers/` | LLM providers (`gemini.py` now, `openai.py` planned) |
+| `converter/providers/` | LLM providers: `gemini.py` (default, free tier) and `openai.py` (optional, paid) |
 | `app/` | Web app (planned) |
 | `schema/course_schema.json` | JSON Schema every output must match |
 | `samples/` | Reference output from the team, and sample input files |
 | `tools/` | `generate_schema.py` and `validate_json.py` |
-| `tests/` | Tests (planned) |
+| `tests/` | pytest tests; `tests/test_<module>.py` for each `converter/<module>.py` |
 | `docs/` | Documentation. `LEGACY_GENERATOR.md` describes the original generator |
 | `output/` | Results (git-ignored) |
 
@@ -31,6 +31,21 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt   # tests, linter, security audit (development only)
 cp .env.example .env         # then put your Gemini key in .env
 ```
+
+### Choosing the LLM: Gemini or OpenAI
+
+Gemini is the default and works on Google's free tier. To use OpenAI instead,
+change `.env` only (no code change):
+
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_openai_key
+OPENAI_MODEL=gpt-4o-mini     # any current model that supports JSON-schema output
+```
+
+Set `LLM_PROVIDER=gemini` to switch back. OpenAI is a paid API. Note that on
+Gemini's free tier Google may use what you send to improve its products, so
+do not upload confidential documents there.
 
 ## Checks (development)
 

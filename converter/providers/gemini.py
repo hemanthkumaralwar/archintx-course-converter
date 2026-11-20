@@ -13,8 +13,7 @@ from google import genai
 from google.genai import types
 
 from ..exceptions import ConfigurationError, GenerationError
-
-REDACTED = "[redacted]"
+from .base import redact
 
 
 class GeminiProvider:
@@ -58,7 +57,7 @@ class GeminiProvider:
             # The SDK can raise many exception types. Wrapping them gives the
             # retry logic one type to handle.
             raise GenerationError(
-                f"Gemini API call failed while {label}: {self._redact(exc)}"
+                f"Gemini API call failed while {label}: {redact(exc, self._api_key)}"
             ) from exc
 
         text = getattr(response, "text", None)
@@ -73,10 +72,6 @@ class GeminiProvider:
                 f"Gemini returned text that is not valid JSON while {label}: {exc.msg}"
             ) from exc
 
-    def _redact(self, error):
-        """Return the error text with the API key removed, in case the SDK included it."""
-        return str(error).replace(self._api_key, REDACTED)
-
 
 def _create_client(api_key):
     """
@@ -86,5 +81,6 @@ def _create_client(api_key):
     try:
         return genai.Client(api_key=api_key)
     except Exception as exc:
-        message = str(exc).replace(api_key, REDACTED)
-        raise ConfigurationError(f"Could not create the Gemini client: {message}") from exc
+        raise ConfigurationError(
+            f"Could not create the Gemini client: {redact(exc, api_key)}"
+        ) from exc

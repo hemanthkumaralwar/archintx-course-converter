@@ -122,6 +122,10 @@ DEFAULT_PROVIDER = "gemini"
 # The model tested in docs/SPIKE_GEMINI.md.
 DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite"
 
+# Matches .env.example. Not tested live (no OpenAI key at ₹0 budget); set
+# OPENAI_MODEL to any current model that supports JSON-schema output.
+DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -135,6 +139,8 @@ class Settings:
     llm_provider: str = DEFAULT_PROVIDER
     gemini_api_key: str = field(default="", repr=False)
     gemini_model: str = DEFAULT_GEMINI_MODEL
+    openai_api_key: str = field(default="", repr=False)
+    openai_model: str = DEFAULT_OPENAI_MODEL
     temperature: float = TEMPERATURE
 
 
@@ -163,6 +169,8 @@ def load_settings(environ=None, env_file=DEFAULT_ENV_FILE):
         llm_provider=read("LLM_PROVIDER").lower() or DEFAULT_PROVIDER,
         gemini_api_key=read("GEMINI_API_KEY"),
         gemini_model=read("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL,
+        openai_api_key=read("OPENAI_API_KEY"),
+        openai_model=read("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL,
     )
 
 

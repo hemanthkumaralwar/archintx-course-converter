@@ -1,15 +1,24 @@
 """
 base.py
 
-WHAT: The interface every LLM provider implements.
+WHAT: The interface every LLM provider implements, and redact(), which every
+      provider uses to keep API keys out of error messages.
 
 WHY:  The planner and lesson writer depend only on this one method, not on any
-      SDK, so Gemini, OpenAI (Step 7) and the tests' fake provider are
-      interchangeable. A Protocol is used instead of a base class because the
-      providers share no code; each only needs the same method.
+      SDK, so Gemini, OpenAI and the tests' fake provider are interchangeable.
+      A Protocol is used instead of a base class because the providers share
+      no behaviour; each only needs the same method.
 """
 
 from typing import Protocol, runtime_checkable
+
+REDACTED = "[redacted]"
+
+
+def redact(error, secret):
+    """Return the error's text with `secret` (an API key) replaced, in case an SDK included it."""
+    text = str(error)
+    return text.replace(secret, REDACTED) if secret else text
 
 
 # runtime_checkable lets tests confirm that each provider has the method.

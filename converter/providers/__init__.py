@@ -11,6 +11,7 @@ WHY:  Only this module knows which provider classes exist. The rest of the
 from ..exceptions import ConfigurationError
 from .base import LLMProvider
 from .gemini import GeminiProvider
+from .openai import OpenAIProvider
 
 
 def get_provider(settings, api_key=None) -> LLMProvider:
@@ -37,16 +38,28 @@ def get_provider(settings, api_key=None) -> LLMProvider:
     return factory(settings, api_key)
 
 
-def _gemini(settings, api_key):
-    key = (api_key or settings.gemini_api_key or "").strip()
+def _require_key(passed_key, configured_key, variable):
+    """Return the key to use (a passed-in key wins), or raise naming the variable."""
+    key = (passed_key or configured_key or "").strip()
 
     if not key:
-        raise ConfigurationError("GEMINI_API_KEY is missing. Add it to your .env file.")
+        raise ConfigurationError(f"{variable} is missing. Add it to your .env file.")
 
+    return key
+
+
+def _gemini(settings, api_key):
+    key = _require_key(api_key, settings.gemini_api_key, "GEMINI_API_KEY")
     return GeminiProvider(key, settings.gemini_model, settings.temperature)
 
 
-# One entry per LLM_PROVIDER value. Step 7 adds "openai".
+def _openai(settings, api_key):
+    key = _require_key(api_key, settings.openai_api_key, "OPENAI_API_KEY")
+    return OpenAIProvider(key, settings.openai_model, settings.temperature)
+
+
+# One entry per LLM_PROVIDER value.
 PROVIDER_FACTORIES = {
     "gemini": _gemini,
+    "openai": _openai,
 }
