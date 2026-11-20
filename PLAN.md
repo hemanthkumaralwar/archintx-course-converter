@@ -318,7 +318,7 @@ finished only when its **Done when** check passes. Steps flagged
 
 #### Step 1 — Gemini free-tier spike [BUDGET] [PERFORMANCE]
 - **Goal:** Prove that the configured model returns a valid lesson for the lesson schema, and measure time, retries and quota use before building on it.
-- **Components/files:** no new code. Run the existing generator (`python -m converter.generate --title "Spike" --difficulty beginner --duration 4`) and stop it after the first lessons. Write `docs/SPIKE_GEMINI.md`.
+- **Components/files:** no new code. Run the existing generator (`python -m converter.generate --title "Spike" --difficulty beginner --duration 8`; 4 hours gives 1 module, below the minimum of 2) and stop it after 3 saved lessons or 15 minutes. Write `docs/SPIKE_GEMINI.md`. **Done 2026-11-20 — see that file.**
 - **Depends on:** Step 0.
 - **Done when:** `docs/SPIKE_GEMINI.md` records the model name, seconds per lesson, attempts per lesson, the model's current free-tier limits (requests per minute and per day, from AI Studio), the estimated number of calls for a 2 × 3 and an 8 × 8 course, and a decision: keep this model or switch. At least one lesson is saved under `output/spike/`.
 
