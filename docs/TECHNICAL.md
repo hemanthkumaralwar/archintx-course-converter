@@ -12,7 +12,8 @@ network use is the call to the LLM API (Google Gemini by default, OpenAI optiona
 Contents: [1 Architecture](#1-architecture) · [2 Modules](#2-modules) · [3 Conversion step by step](#3-conversion-step-by-step) ·
 [4 Output rules](#4-output-rules) · [5 Prompt design](#5-prompt-design) · [6 LLM providers](#6-llm-providers) ·
 [7 Reliability](#7-reliability) · [8 Security](#8-security) · [9 Configuration](#9-configuration) ·
-[10 Testing](#10-testing) · [11 Limits and known issues](#11-limits-and-known-issues) · [12 Decision log](#12-decision-log)
+[10 Testing](#10-testing) · [11 Limits and known issues](#11-limits-and-known-issues) · [12 Decision log](#12-decision-log) ·
+[13 Web API](#13-web-api) · [14 Developer commands](#14-developer-commands)
 
 ---
 
@@ -229,3 +230,59 @@ The full reasoning is in [PLAN.md](../PLAN.md) (each step's "Done" note). Main d
 | Step 11 | Longer back-off after Gemini's "503 high demand" |
 | Step 12–13 | Local web app with access code, strict CSP, separate-process file reading |
 | 2026-11-20 | Local use only: CI and hosting skipped; only the LLM API is online |
+
+## 13. Web API
+
+Start the server with `uvicorn app.main:create_app --factory` (port 8000).
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/convert` | Form upload: `file` (.txt, .docx, .pdf, up to 10 MB), optional `modules`, `lessons` and `hours` (at most two of them), optional `provider`. Returns `{"jobId": ...}` (202). |
+| `GET /api/size` | Query `modules`, `lessons`, `hours` (all optional). The resolved size, lesson total, hours, AI calls and minutes; `null` where it depends on the document. No access code needed: it only does arithmetic. |
+| `GET /api/jobs/{jobId}` | `state` (queued, running, done, failed), `done` / `total` pieces, last `label`, `steps` (every finished piece: `label`, `reused`), `notice` ("trying again" message, or empty), `error` |
+| `GET /api/jobs/{jobId}/download` | The finished course JSON |
+| `GET /healthz` | `{"status": "ok"}` (no access code needed) |
+
+Every other `/api` request needs the header `X-Access-Code` (the `DEMO_ACCESS_CODE` in `.env`).
+A visitor may send their own key in `X-API-Key`; it is used for that job only and never logged
+or stored. One conversion runs at a time (a second one gets 429). Finished courses can be
+downloaded for one hour; jobs are kept in memory, so a server restart forgets them. Documents
+are read in a separate process that is stopped after 60 seconds. A failed web conversion starts
+over when run again; only the command line resumes.
+
+## 14. Developer commands
+
+```bash
+pip install -r requirements-dev.txt   # converter plus test and lint tools
+ruff check .                          # lint (PEP 8, unused code, likely bugs, complexity ≤ 10)
+ruff format --check .                 # formatting
+pytest --cov                          # tests with coverage
+pip-audit -r requirements.txt -r requirements-dev.txt   # known vulnerabilities
+```
+
+Command-line details: `python -m converter.cli --help`. Exit codes: `0` done, `1` an expected
+error (one-line message), `2` wrong arguments, `130` stopped with Ctrl+C. Work in progress is
+kept in `output/<file name>-<file hash>/` (`--output-dir` to change it); an edited file gets a
+new folder and starts fresh.
+
+Tools:
+
+```bash
+python tools/validate_json.py course.json schema/course_schema.json        # check a course against the schema
+python tools/generate_schema.py samples/javascript-beginner.json -o schema/course_schema.json   # rebuild the schema
+python tools/make_sample_inputs.py                                         # rebuild the sample .docx and .pdf
+python -m converter.generate --title "AI Engineering fundamentals" --difficulty beginner --duration 31   # original title-based generator
+```
+
+Project layout:
+
+| Path | Contents |
+|---|---|
+| `converter/` | Python package: reading files, sections, outline, writing lessons, checks, retries, CLI |
+| `converter/providers/` | LLM providers: `gemini.py` (default, free tier) and `openai.py` (optional, paid) |
+| `app/` | Web app: API (`main.py`), background jobs, upload page (`static/`) |
+| `schema/course_schema.json` | JSON Schema every output must match |
+| `samples/` | The team's reference course, and sample input files (`samples/inputs/`) |
+| `tools/` | `validate_json.py`, `generate_schema.py`, `make_sample_inputs.py` |
+| `tests/` | pytest tests; `tests/test_<module>.py` for each module |
+| `output/` | Work in progress (git-ignored) |
