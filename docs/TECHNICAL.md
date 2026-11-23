@@ -78,7 +78,7 @@ For `python -m converter.cli notes.pdf --modules 2 --lessons 3`:
 |---|---|---|---|
 | 1 | Read the file into blocks (headings with levels, paragraphs; tables as `cell \| cell` rows) | 0 | `extract_blocks()` |
 | 2 | Group blocks into sections at headings, at most 3,000 characters each | 0 | `split_sections()` |
-| 3 | Course size: as given, or one lesson per 3,000 characters (2–64 lessons, at most 8 per module) | 0 | `auto_course_size()` |
+| 3 | Course size: modules, lessons per module and hours, each chosen or automatic. Hours set the lesson total (30 minutes per lesson); otherwise one lesson per 3,000 characters (2–64 lessons, at most 8 per module). A chosen count is kept and the other fitted, rounding up | 0 | `resolve_course_size()` |
 | 4 | Outline: course title, level, module titles, lesson titles, and the section ids each lesson teaches | 1 | `generate_outline()` |
 | 5 | Course details (description and other course-level fields) | 1 | `generate_course_details()` |
 | 6 | For each module: an overview from the sections its lessons cite, then each lesson from **only its own cited sections** | 1 per overview and lesson | `write_course()` |
@@ -164,7 +164,7 @@ picks the provider from `LLM_PROVIDER` in `.env` (or `--provider` / the web form
 | Prompt injection | Document text is placed only inside `<document>` … `</document>` after all instructions, with a warning that nothing in it is an instruction; `<document>` tags written inside the document are neutralised |
 | API keys | Read from `.env` (git-ignored) or the environment once at start; hidden from `repr(Settings)`; removed from any SDK error text; a key pasted into the web page is used for that job only |
 | Logs | Never contain document text, prompts, model output or keys; validation failures log only how many problems were found |
-| Web app | Access code required on every `/api` route (constant-time compare; switched off when not set); upload size checked from `Content-Length` before the body is read; file names sanitised; one job at a time; temp files deleted after each job; error responses never include paths, tracebacks or echoed input |
+| Web app | Access code required on every `/api` route that can reach the LLM (`/api/size` is arithmetic only) (constant-time compare; switched off when not set); upload size checked from `Content-Length` before the body is read; file names sanitised; one job at a time; temp files deleted after each job; error responses never include paths, tracebacks or echoed input |
 | Web page | `Content-Security-Policy: default-src 'self'` with `frame-ancestors 'none'`; no inline script or style; model output shown with `textContent` only; no browser storage of secrets |
 | Dependencies | Pinned in `requirements*.txt`; `pip-audit` reports no known vulnerabilities (two were found and fixed in Step 0) |
 | Privacy | The document text is sent to the LLM API. On Gemini's free tier Google may use it to improve its products, so confidential documents should not be converted there (warning shown in the README and on the page) |

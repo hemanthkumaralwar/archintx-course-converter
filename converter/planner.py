@@ -18,7 +18,7 @@ import logging
 import math
 from dataclasses import dataclass
 
-from .config import MAX_MODULES
+from .config import MAX_MODULES, PLANNING_LESSON_MINUTES
 from .exceptions import ConfigurationError, ValidationFailedError
 from .json_utils import replace_array
 from .prompts import (
@@ -54,6 +54,44 @@ class CourseSize:
     modules: int
     lessons_per_module: int
 
+    @property
+    def pieces(self):
+        """Pieces written for this size: outline, details, one overview per module, every lesson."""
+        return 2 + self.modules * (1 + self.lessons_per_module)
+
+
+@dataclass(frozen=True)
+class SizeRequest:
+    """
+    What a user chose for the course size. None means "automatic".
+
+    modules:            number of modules.
+    lessons_per_module: lessons in each module.
+    hours:              course duration in whole hours; each lesson is planned
+                        at PLANNING_LESSON_MINUTES, so hours set the lesson count.
+    """
+
+    modules: int = None
+    lessons_per_module: int = None
+    hours: int = None
+
+
+# The longest duration a user can ask for: the largest automatic course.
+MAX_COURSE_HOURS = MAX_AUTO_LESSONS * PLANNING_LESSON_MINUTES // 60
+
+
+def auto_lesson_count(sections):
+    """Lessons for a document: one per CHARS_PER_LESSON characters, kept in the automatic range."""
+    characters = sum(len(section.text) for section in sections)
+    lessons = math.ceil(characters / CHARS_PER_LESSON)
+    return min(max(lessons, MIN_AUTO_LESSONS), MAX_AUTO_LESSONS)
+
+
+def spread_lessons(lessons):
+    """`lessons` lessons in as few modules as the 8-lesson limit allows, spread evenly."""
+    modules = math.ceil(lessons / MAX_LESSONS_PER_MODULE)
+    return CourseSize(modules, math.ceil(lessons / modules))
+
 
 def auto_course_size(sections):
     """
@@ -65,11 +103,85 @@ def auto_course_size(sections):
 
     EXAMPLE: 50,000 characters -> 17 lessons -> 3 modules of 6 lessons.
     """
-    characters = sum(len(section.text) for section in sections)
-    lessons = math.ceil(characters / CHARS_PER_LESSON)
-    lessons = min(max(lessons, MIN_AUTO_LESSONS), MAX_AUTO_LESSONS)
-    modules = math.ceil(lessons / MAX_LESSONS_PER_MODULE)
-    return CourseSize(modules, math.ceil(lessons / modules))
+    return spread_lessons(auto_lesson_count(sections))
+
+
+def hours_to_lessons(hours):
+    """Lessons that fill `hours`: 3 hours at 30-minute lessons -> 6 lessons."""
+    return max(1, round(hours * 60 / PLANNING_LESSON_MINUTES))
+
+
+def check_size_request(request):
+    """
+    WHAT: Reject a SizeRequest with a value out of range, or with all three set.
+
+    WHY:  Modules, lessons and duration are linked (lessons x lesson length =
+          duration), so a user may set any two at most. With both counts set,
+          the duration follows from them and cannot also be chosen.
+
+    RAISES:
+        ConfigurationError: with a message for the user.
+    """
+    limits = (
+        ("modules", request.modules, MAX_MODULES),
+        ("lessons per module", request.lessons_per_module, MAX_LESSONS_PER_MODULE),
+        ("course hours", request.hours, MAX_COURSE_HOURS),
+    )
+
+    for name, value, maximum in limits:
+        if value is not None and (not isinstance(value, int) or not 1 <= value <= maximum):
+            raise ConfigurationError(
+                f"The number of {name} must be from 1 to {maximum} (got {value})."
+            )
+
+    if None not in (request.modules, request.lessons_per_module, request.hours):
+        raise ConfigurationError(
+            "Choose the course duration or both counts, not all three: "
+            "with modules and lessons chosen, the duration follows from them."
+        )
+
+
+def resolve_course_size(request, sections=None):
+    """
+    WHAT: The CourseSize for a user's choices, filling each automatic value.
+
+    HOW:  - nothing chosen:       auto_course_size (from the document's length).
+          - both counts chosen:   exactly those.
+          - otherwise the lesson total comes from the hours if chosen, else
+            from the document's length; a chosen count is kept and the other
+            is fitted to the total (rounded up, so the course is never shorter).
+
+    PARAMETERS:
+        request:  None, a CourseSize (used as it is) or a SizeRequest.
+        sections: the document's Sections. May be None, in which case a size
+                  that needs the document's length returns None.
+
+    EXAMPLE: SizeRequest(modules=2, hours=3) -> 6 lessons -> CourseSize(2, 3).
+    """
+    if isinstance(request, CourseSize):
+        return request
+
+    request = request or SizeRequest()
+    check_size_request(request)
+    modules, lessons = request.modules, request.lessons_per_module
+
+    if modules is not None and lessons is not None:
+        return CourseSize(modules, lessons)
+
+    if request.hours is not None:
+        total = hours_to_lessons(request.hours)
+    elif sections is None:
+        return None
+    else:
+        total = auto_lesson_count(sections)
+
+    if modules is not None:
+        return CourseSize(modules, min(math.ceil(total / modules), MAX_LESSONS_PER_MODULE))
+
+    if lessons is not None:
+        return CourseSize(min(math.ceil(total / lessons), MAX_MODULES), lessons)
+
+    return spread_lessons(total)
 
 
 def check_course_size(size):

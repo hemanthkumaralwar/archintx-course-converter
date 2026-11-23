@@ -63,13 +63,13 @@ command again: the finished parts are kept and it continues.
 ## Convert a document
 
 ```bash
-python -m converter.cli INPUT [--modules N --lessons M] [--provider gemini|openai] [-o FILE] [--output-dir DIR]
+python -m converter.cli INPUT [--modules N] [--lessons M] [--hours H] [--provider gemini|openai] [-o FILE] [--output-dir DIR]
 ```
 
 | Option | Meaning |
 |---|---|
 | `INPUT` | A `.txt`, `.docx` or `.pdf` file (up to 10 MB, 200 pages; scanned PDFs are not supported) |
-| `--modules N --lessons M` | Course size. Leave both out to size the course from the document's length (one lesson per ~3,000 characters, up to 8 x 8) |
+| `--modules N`, `--lessons M`, `--hours H` | Course size, each optional. Leave all out to size the course from the document's length (one lesson per ~3,000 characters, up to 8 x 8). `--hours` sets the lesson count at about 30 minutes per lesson (1–32 hours); a count left out is fitted to the hours, or to the document's length. Give at most two of the three: with both counts, the duration follows from them |
 | `--provider gemini\|openai` | Overrides `LLM_PROVIDER` in `.env` |
 | `-o FILE` | Also save the finished course JSON to `FILE` |
 | `--output-dir DIR` | Where work in progress is kept (default `output/`) |
@@ -109,16 +109,29 @@ without it), then start the local server:
 uvicorn app.main:create_app --factory
 ```
 
-Open <http://localhost:8000>, choose a file (or press **Use the sample document**), pick the
-size, enter the access code, and press **Convert**. The page shows progress, a preview of the
-course JSON and a **Download JSON** button. It works on phone-sized screens.
+Open <http://localhost:8000>, choose or drop a file (or press **Use the sample document**),
+set the course size, enter the access code, and press **Convert**.
+
+- **Course size:** modules, lessons per module and course duration (hours) each have an
+  **Automatic / Choose** switch. With both counts chosen the duration is worked out and
+  locked; with a duration chosen, any count left on Automatic is fitted to it. The page asks
+  the server (`GET /api/size`) for the result, so it always shows the same size the
+  conversion will use, with the estimated AI calls and time.
+- **Converting:** a step list (every finished part), a progress bar, the time left, and a
+  "trying again" notice when the AI service is busy. If it fails, **Try again** reruns it
+  with the same file and settings.
+- **Course ready:** the course outline, a lesson view with Overview, Quiz, Exercises and JSON
+  tabs, **Download JSON** and **Copy**.
+
+It works on phone-sized screens.
 
 ### API
 
 | Endpoint | Purpose |
 |---|---|
-| `POST /api/convert` | Form upload: `file` (.txt, .docx, .pdf, up to 10 MB), optional `modules` + `lessons`, optional `provider`. Returns `{"jobId": ...}` (202). |
-| `GET /api/jobs/{jobId}` | `state` (queued, running, done, failed), `done` / `total` pieces, current `label`, `error` |
+| `POST /api/convert` | Form upload: `file` (.txt, .docx, .pdf, up to 10 MB), optional `modules`, `lessons` and `hours` (at most two of them), optional `provider`. Returns `{"jobId": ...}` (202). |
+| `GET /api/size` | Query `modules`, `lessons`, `hours` (all optional). The resolved size, lesson total, hours, AI calls and minutes; `null` where it depends on the document. No access code needed: it only does arithmetic. |
+| `GET /api/jobs/{jobId}` | `state` (queued, running, done, failed), `done` / `total` pieces, last `label`, `steps` (every finished piece: `label`, `reused`), `notice` ("trying again" message, or empty), `error` |
 | `GET /api/jobs/{jobId}/download` | The finished course JSON |
 | `GET /healthz` | `{"status": "ok"}` (no access code needed) |
 

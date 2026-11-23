@@ -105,3 +105,18 @@ def test_secret_fields_are_password_fields():
 
 def test_page_warns_about_confidential_documents():
     assert "Do not upload confidential documents" in html()
+
+
+def test_course_size_has_three_automatic_or_choose_fields():
+    page = html()
+
+    for field in ("modules", "lessons", "hours"):
+        assert f'data-field="{field}"' in page
+
+    assert page.count('data-mode="auto"') == 3
+    assert page.count('data-mode="custom"') == 3
+    assert "How course size is decided" in page
+
+
+def test_script_asks_the_server_for_the_size():
+    assert "/api/size" in script()

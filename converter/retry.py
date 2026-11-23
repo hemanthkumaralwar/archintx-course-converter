@@ -10,12 +10,50 @@ WHY:  The model sometimes returns invalid JSON, breaks a rule, or a request
 """
 
 import logging
+import threading
 import time
+from dataclasses import dataclass
 
 from .config import MAX_RETRIES, RETRY_DELAY_SECONDS
 from .exceptions import GenerationError, ValidationFailedError
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class RetryNotice:
+    """
+    One failed attempt that will be tried again.
+
+    attempt:        the attempt that failed (1 = the first).
+    max_attempts:   attempts allowed in all.
+    wait_seconds:   pause before the next attempt (0 after an answer that failed the checks).
+    service_failed: True when the AI service failed (such as "503 high demand"),
+                    False when its answer did not pass the checks.
+    """
+
+    attempt: int
+    max_attempts: int
+    wait_seconds: float
+    service_failed: bool
+
+
+# Each thread may register one function to hear about retries. The web app's
+# job thread uses it to show "trying again" on the page; nothing else changes.
+_listener = threading.local()
+
+
+def set_retry_listener(callback):
+    """Call `callback(RetryNotice)` for every retry on this thread; None stops it."""
+    _listener.callback = callback
+
+
+def _notify(notice):
+    callback = getattr(_listener, "callback", None)
+
+    if callback is not None:
+        callback(notice)
+
 
 # Only failures that a new attempt can fix are retried. Anything else (a bug
 # such as KeyError, or a ConfigurationError) is raised at once with its
@@ -39,6 +77,8 @@ def run_with_retries(
           (GenerationError, such as Gemini's "503 high demand" or a 429 rate
           limit) the wait doubles each time: base, 2 x base, ... A validation
           failure is retried at once, because waiting cannot fix the answer.
+          Every retry is also passed, as a RetryNotice, to the function
+          registered with set_retry_listener on this thread, if any.
 
     WHY:  The function receives the errors as an argument, not from shared
           state, so each attempt starts clean. `sleep` defaults to time.sleep,
@@ -82,8 +122,12 @@ def run_with_retries(
             else:
                 previous_errors = [str(exc)]
 
-            if not isinstance(exc, ValidationFailedError):
-                sleep(base_delay_seconds * 2 ** (attempt_number - 1))
+            service_failed = not isinstance(exc, ValidationFailedError)
+            wait = base_delay_seconds * 2 ** (attempt_number - 1) if service_failed else 0
+            _notify(RetryNotice(attempt_number, max_attempts, wait, service_failed))
+
+            if service_failed:
+                sleep(wait)
 
     # Unreachable: the last attempt either returns or raises above.
     raise AssertionError("retry loop ended without returning or raising")  # pragma: no cover

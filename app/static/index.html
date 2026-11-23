@@ -8,70 +8,290 @@
     <script src="/static/app.js" defer></script>
   </head>
   <body>
-    <main>
-      <h1>Course Converter</h1>
-      <p class="lead">
-        Turn a <strong>.txt</strong>, <strong>.docx</strong> or <strong>.pdf</strong> file into
-        course JSON with modules, lessons, quizzes and exercises.
-      </p>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h7v14H4z"/><path d="M13 5h7v6h-7z"/><path d="M13 13h7v6h-7z"/></svg>
+          </span>
+          <span>
+            <span class="brand-name">Course Converter</span>
+            <span class="brand-sub">Archintx · runs on this computer</span>
+          </span>
+        </div>
+        <span class="pill" id="server-state"><span class="dot dot-ok" id="server-dot"></span><span id="server-text">Server ready</span></span>
+      </div>
+    </header>
 
-      <p class="warning" role="note">
-        Do not upload confidential documents. On Gemini's free tier, Google may use what
-        is sent to improve its products.
-      </p>
+    <main class="wrap">
+      <!-- 1. Set up -->
+      <section id="view-setup" aria-labelledby="setup-title">
+        <h1 id="setup-title">Turn a document into a course</h1>
+        <p class="lead">
+          Upload a .txt, .docx or .pdf file. You get course JSON with modules, lessons, quizzes and
+          exercises, checked against the course schema.
+        </p>
 
-      <form id="convert-form" novalidate>
-        <fieldset>
-          <legend>Document</legend>
-          <label for="file">File (.txt, .docx or .pdf, up to 10 MB)</label>
-          <input id="file" name="file" type="file" accept=".txt,.docx,.pdf">
-          <button id="use-sample" type="button" class="secondary">Use the sample document</button>
-          <p id="file-note" class="note" aria-live="polite"></p>
-        </fieldset>
+        <div class="columns">
+          <form id="convert-form" class="main-col stack" novalidate>
+            <section class="card">
+              <h2 class="step-title"><span class="step-num">1</span>Document</h2>
 
-        <fieldset>
-          <legend>Course size</legend>
-          <label class="choice">
-            <input type="radio" name="size" value="auto" checked>
-            Automatic, from the document's length
-          </label>
-          <label class="choice">
-            <input type="radio" name="size" value="custom">
-            Choose
-          </label>
-          <div id="custom-size" class="row" hidden>
-            <label>Modules <input id="modules" type="number" min="1" max="30" value="2"></label>
-            <label>Lessons per module <input id="lessons" type="number" min="1" max="8" value="3"></label>
-          </div>
-        </fieldset>
+              <div id="drop-zone" class="drop-zone">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                <p class="drop-title">Drop a file here</p>
+                <p class="muted small">.txt, .docx or .pdf · up to 10 MB and 200 pages · scanned PDFs are not supported</p>
+                <div class="button-row center">
+                  <label class="button primary file-button">Browse files
+                    <input id="file" name="file" type="file" accept=".txt,.docx,.pdf" class="visually-hidden">
+                  </label>
+                  <button id="use-sample" type="button" class="button">Use the sample document</button>
+                </div>
+              </div>
 
-        <fieldset>
-          <legend>Access</legend>
-          <label for="access-code">Access code</label>
-          <input id="access-code" type="password" autocomplete="off" required>
-          <label for="provider">AI service</label>
-          <select id="provider">
-            <option value="gemini">Gemini (default)</option>
-            <option value="openai">OpenAI</option>
-          </select>
-          <label for="api-key">Your own API key (optional)</label>
-          <input id="api-key" type="password" autocomplete="off">
-          <p class="note">Used for this conversion only. It is not stored.</p>
-        </fieldset>
+              <div id="file-card" class="file-card" hidden>
+                <span id="file-type" class="file-type">TXT</span>
+                <span class="grow">
+                  <span id="file-name" class="file-name"></span>
+                  <span id="file-meta" class="muted small block"></span>
+                </span>
+                <button id="remove-file" type="button" class="button">Remove</button>
+              </div>
+            </section>
 
-        <button id="convert" type="submit">Convert</button>
-      </form>
+            <section class="card">
+              <h2 class="step-title"><span class="step-num">2</span>Course size</h2>
+              <div class="size-grid">
+                <div class="size-field" data-field="modules">
+                  <span class="field-label" id="lbl-modules">Modules</span>
+                  <div class="segmented" role="group" aria-labelledby="lbl-modules">
+                    <button type="button" data-mode="auto" aria-pressed="true">Automatic</button>
+                    <button type="button" data-mode="custom" aria-pressed="false">Choose</button>
+                  </div>
+                  <div class="stepper" hidden>
+                    <button type="button" data-step="-1" aria-label="Fewer modules">−</button>
+                    <output id="modules" aria-live="polite">2</output>
+                    <button type="button" data-step="1" aria-label="More modules">+</button>
+                  </div>
+                  <p class="auto-text muted small"></p>
+                </div>
 
-      <section id="status" aria-live="polite" hidden>
-        <h2>Progress</h2>
-        <progress id="progress" value="0" max="1"></progress>
-        <p id="status-text"></p>
+                <div class="size-field" data-field="lessons">
+                  <span class="field-label" id="lbl-lessons">Lessons per module</span>
+                  <div class="segmented" role="group" aria-labelledby="lbl-lessons">
+                    <button type="button" data-mode="auto" aria-pressed="true">Automatic</button>
+                    <button type="button" data-mode="custom" aria-pressed="false">Choose</button>
+                  </div>
+                  <div class="stepper" hidden>
+                    <button type="button" data-step="-1" aria-label="Fewer lessons per module">−</button>
+                    <output id="lessons" aria-live="polite">3</output>
+                    <button type="button" data-step="1" aria-label="More lessons per module">+</button>
+                  </div>
+                  <p class="auto-text muted small"></p>
+                </div>
+
+                <div class="size-field" data-field="hours">
+                  <span class="field-label" id="lbl-hours">Course duration</span>
+                  <div class="segmented" role="group" aria-labelledby="lbl-hours">
+                    <button type="button" data-mode="auto" aria-pressed="true">Automatic</button>
+                    <button type="button" data-mode="custom" aria-pressed="false">Choose</button>
+                  </div>
+                  <div class="stepper" hidden>
+                    <button type="button" data-step="-1" aria-label="Fewer hours">−</button>
+                    <output id="hours" aria-live="polite">3</output>
+                    <button type="button" data-step="1" aria-label="More hours">+</button>
+                  </div>
+                  <p class="auto-text muted small"></p>
+                </div>
+              </div>
+              <div class="size-result">
+                <span class="muted">Result:</span>
+                <span id="size-chips" class="chips"></span>
+              </div>
+            </section>
+
+            <section class="card">
+              <h2 class="step-title"><span class="step-num">3</span>Access</h2>
+              <div class="field-row">
+                <div class="field">
+                  <label for="access-code" class="field-label">Access code</label>
+                  <input id="access-code" type="password" autocomplete="off" required placeholder="DEMO_ACCESS_CODE from the server's .env">
+                </div>
+                <div class="field">
+                  <span class="field-label" id="lbl-provider">AI service</span>
+                  <div class="segmented" id="provider" role="group" aria-labelledby="lbl-provider">
+                    <button type="button" data-provider="gemini" aria-pressed="true">Gemini · free tier</button>
+                    <button type="button" data-provider="openai" aria-pressed="false">OpenAI · paid</button>
+                  </div>
+                </div>
+              </div>
+              <button id="toggle-key" type="button" class="link-button" aria-expanded="false" aria-controls="key-field">
+                <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                Use my own API key (optional)
+              </button>
+              <div id="key-field" class="field" hidden>
+                <label for="api-key" class="field-label">API key</label>
+                <input id="api-key" type="password" autocomplete="off">
+                <span class="muted small">Used for this conversion only. Not stored, not logged.</span>
+              </div>
+            </section>
+
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+
+            <div class="submit-bar">
+              <button id="convert" type="submit" class="button primary large">Convert</button>
+              <span id="convert-hint" class="muted"></span>
+            </div>
+          </form>
+
+          <aside class="side-col stack">
+            <section class="notice notice-warn" role="note">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg>
+              <div>
+                <h2 class="notice-title">Not for confidential files</h2>
+                <p>Do not upload confidential documents. The text is sent to the AI service, and on
+                  Gemini's free tier Google may use it to improve its products.</p>
+              </div>
+            </section>
+
+            <section class="card">
+              <h2 class="card-title">Each lesson includes</h2>
+              <ul class="tags">
+                <li>Explanation</li><li>Concepts</li><li>Syntax</li><li>Code example</li>
+                <li>Flowchart</li><li>Quiz</li><li>Code reordering</li><li>Drag and drop</li>
+                <li>Card matching</li><li>Bug hunt</li><li>Mini challenge</li><li>Key takeaways</li>
+              </ul>
+            </section>
+
+            <section class="card stack-sm" id="help">
+              <h2 class="card-title">Good to know</h2>
+              <p class="tip">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <span>A 2 × 3 course takes about 2 minutes to convert. The largest size takes much longer.</span>
+              </p>
+              <div class="rules">
+                <h3>How course size is decided</h3>
+                <p>Each lesson is about 30 minutes, so modules, lessons and duration are linked. They never conflict:</p>
+                <ol>
+                  <li><strong>All automatic:</strong> sized from the document's length (one lesson per ~3,000 characters, up to 8 × 8).</li>
+                  <li><strong>Modules and lessons chosen:</strong> the duration is worked out for you and can't be set.</li>
+                  <li><strong>Duration chosen:</strong> any count left on Automatic is fitted to the hours you chose.</li>
+                  <li><strong>Limits:</strong> up to 30 modules, 8 lessons per module and 32 hours. If the hours don't divide evenly, the course comes out slightly longer.</li>
+                </ol>
+              </div>
+              <p class="tip">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>
+                <span>If the AI service is busy, each step is tried again automatically. If a conversion still fails, start it again; the command line can also continue a stopped run.</span>
+              </p>
+              <p class="tip">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>
+                <span>Every course is checked against the schema before you can download it.</span>
+              </p>
+            </section>
+          </aside>
+        </div>
       </section>
 
-      <section id="result" hidden>
-        <h2>Course</h2>
-        <button id="download" type="button">Download JSON</button>
-        <pre id="preview"></pre>
+      <!-- 2. Converting -->
+      <section id="view-progress" hidden aria-labelledby="progress-title">
+        <div class="columns">
+          <div class="main-col stack">
+            <section class="card" aria-live="polite">
+              <div class="progress-head">
+                <div>
+                  <p id="progress-meta" class="muted small"></p>
+                  <h1 id="progress-title" class="progress-title">Starting…</h1>
+                </div>
+                <div class="counter">
+                  <span id="progress-count" class="counter-num">0</span><span class="counter-total"> / <span id="progress-total">–</span></span>
+                  <span class="muted small block">parts done · <span id="elapsed">0 s</span></span>
+                </div>
+              </div>
+              <div class="bar" role="progressbar" id="progress-bar" aria-label="Conversion progress" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0">
+                <div class="bar-fill" id="bar-fill"></div>
+              </div>
+              <p id="progress-hint" class="muted small">Keep this page open while it runs.</p>
+            </section>
+
+            <section id="retry-notice" class="notice notice-warn" hidden>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>
+              <p id="retry-text" role="status"></p>
+            </section>
+
+            <section id="failure" class="notice notice-error" hidden>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>
+              <div class="grow">
+                <h2 class="notice-title">The conversion stopped</h2>
+                <p id="failure-text" role="alert"></p>
+                <div class="button-row">
+                  <button id="retry-job" type="button" class="button primary">Try again</button>
+                  <button id="back-to-setup" type="button" class="button">Change settings</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card flush">
+              <h2 class="card-title padded">Steps</h2>
+              <ol id="steps" class="steps"></ol>
+            </section>
+          </div>
+
+          <aside class="side-col stack">
+            <section class="card">
+              <h2 class="card-title">This conversion</h2>
+              <dl id="job-summary" class="summary"></dl>
+            </section>
+            <section class="card">
+              <h2 class="card-title">While you wait</h2>
+              <p class="small">Each part is written and checked before the next starts, so the step list only moves forward. If the AI service is busy, the step is tried again automatically.</p>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <!-- 3. Course ready -->
+      <section id="view-result" hidden aria-labelledby="course-title">
+        <section class="card success-bar">
+          <span class="success-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg>
+          </span>
+          <div class="grow">
+            <h1 id="course-title" class="course-title"></h1>
+            <p id="course-stats" class="small"></p>
+          </div>
+          <div class="button-row">
+            <button id="download" type="button" class="button primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+              Download JSON
+            </button>
+            <button id="copy" type="button" class="button">Copy</button>
+            <button id="convert-another" type="button" class="button">Convert another</button>
+          </div>
+        </section>
+        <p id="copy-status" class="muted small" role="status"></p>
+
+        <div class="columns">
+          <nav id="outline" class="card outline side-col" aria-label="Course outline"></nav>
+
+          <section class="card flush main-col lesson">
+            <div class="lesson-head">
+              <p id="lesson-meta" class="muted small"></p>
+              <h2 id="lesson-title" class="lesson-title"></h2>
+              <div class="tabs" role="tablist" aria-label="Lesson view">
+                <button type="button" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+                <button type="button" role="tab" id="tab-quiz" aria-controls="panel-quiz" aria-selected="false" tabindex="-1">Quiz</button>
+                <button type="button" role="tab" id="tab-exercises" aria-controls="panel-exercises" aria-selected="false" tabindex="-1">Exercises</button>
+                <button type="button" role="tab" id="tab-json" aria-controls="panel-json" aria-selected="false" tabindex="-1">JSON</button>
+              </div>
+            </div>
+            <div id="panel-overview" class="panel" role="tabpanel" aria-labelledby="tab-overview"></div>
+            <div id="panel-quiz" class="panel" role="tabpanel" aria-labelledby="tab-quiz" hidden></div>
+            <div id="panel-exercises" class="panel" role="tabpanel" aria-labelledby="tab-exercises" hidden></div>
+            <div id="panel-json" class="panel" role="tabpanel" aria-labelledby="tab-json" hidden>
+              <pre id="lesson-json" class="code"></pre>
+            </div>
+          </section>
+        </div>
       </section>
     </main>
   </body>

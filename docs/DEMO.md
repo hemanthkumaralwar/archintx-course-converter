@@ -73,9 +73,12 @@ uvicorn app.main:create_app --factory
 
 Open <http://localhost:8000>:
 1. Point at the warning about confidential documents.
-2. Press **Use the sample document**, choose **2** modules and **3** lessons.
+2. Press **Use the sample document**. Under **Course size**, set Modules to **Choose 2** and
+   Lessons per module to **Choose 3**: Course duration locks at 3 h. Switch Lessons back to
+   Automatic and choose a **3 h** duration instead: the page fits 3 lessons per module.
 3. Enter a **wrong** access code and press **Convert**: "The access code is missing or wrong."
-4. Enter the right code and convert. Show the progress bar, then the preview and **Download JSON**.
+4. Enter the right code and convert. Show the step list and progress bar, then the course
+   outline, a lesson's Quiz and Exercises tabs, and **Download JSON**.
 5. Optional: narrow the window to phone width; the page still fits.
 
 Stop the server with **Ctrl+C**.

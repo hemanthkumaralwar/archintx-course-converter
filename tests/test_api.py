@@ -19,6 +19,7 @@ from converter.config import Settings
 from converter.convert import convert
 from converter.exceptions import ConfigurationError, GenerationError
 from converter.extractors import extract_blocks
+from converter.planner import SizeRequest
 from converter.validation import collect_errors
 from tests.fakes import FakeProvider
 from tests.sample_course import SAMPLE_INPUT, SCHEMAS, conversion_answers
@@ -103,14 +104,19 @@ def test_upload_progress_and_download(work_root):
     assert len(job_id) == 32  # a random uuid4
 
     status = wait_for(client, job_id)
+    steps = status.pop("steps")
     assert status == {
         "jobId": job_id,
         "state": "done",
         "done": 10,
         "total": 10,
         "label": "Lesson 2.3: Putting It Together",
+        "notice": "",
         "error": "",
     }
+    assert len(steps) == 10
+    assert steps[0] == {"label": "Course outline", "reused": False}
+    assert steps[-1] == {"label": "Lesson 2.3: Putting It Together", "reused": False}
 
     download = client.get(f"/api/jobs/{job_id}/download", headers={"X-Access-Code": CODE})
     assert download.status_code == 200
@@ -257,8 +263,13 @@ def test_second_job_while_one_is_running_is_refused(work_root):
 @pytest.mark.parametrize(
     ("fields", "message"),
     [
-        ({"lessons": None}, "Give both the number of modules and lessons, or neither."),
         ({"modules": 99}, "The number of modules must be from 1 to 30 (got 99)."),
+        ({"hours": 33}, "The number of course hours must be from 1 to 32 (got 33)."),
+        (
+            {"hours": 3},
+            "Choose the course duration or both counts, not all three: "
+            "with modules and lessons chosen, the duration follows from them.",
+        ),
         ({"provider": "claude"}, "Unknown provider. Use gemini or openai."),
         ({"modules": "two"}, "The request is missing the file or has an invalid option."),
     ],
@@ -318,6 +329,98 @@ def test_automatic_size_when_no_size_is_sent(work_root):
     wait_for(client, upload(client, modules=None, lessons=None).json()["jobId"])
 
     assert seen["size"] is None
+
+
+def test_one_count_and_hours_reach_the_conversion(work_root):
+    seen = {}
+
+    def recording_convert(path, provider, options, progress):
+        seen["size"] = options.size
+        raise GenerationError("stop")
+
+    client, _ = make_client(work_root, convert_fn=recording_convert)
+    wait_for(client, upload(client, modules=2, lessons=None, hours=3).json()["jobId"])
+
+    assert seen["size"] == SizeRequest(modules=2, lessons_per_module=None, hours=3)
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        (
+            "modules=2&lessons=3",
+            {
+                "modules": 2,
+                "lessons": 3,
+                "totalLessons": 6,
+                "hours": 3.0,
+                "apiCalls": 10,
+                "minutes": 2,
+            },
+        ),
+        (
+            "modules=2&hours=3",
+            {
+                "modules": 2,
+                "lessons": 3,
+                "totalLessons": 6,
+                "hours": 3.0,
+                "apiCalls": 10,
+                "minutes": 2,
+            },
+        ),
+        (
+            "hours=4",
+            {
+                "modules": 1,
+                "lessons": 8,
+                "totalLessons": 8,
+                "hours": 4.0,
+                "apiCalls": 11,
+                "minutes": 2,
+            },
+        ),
+        (
+            "lessons=4",
+            {
+                "modules": None,
+                "lessons": 4,
+                "totalLessons": None,
+                "hours": None,
+                "apiCalls": None,
+                "minutes": None,
+            },
+        ),
+        (
+            "",
+            {
+                "modules": None,
+                "lessons": None,
+                "totalLessons": None,
+                "hours": None,
+                "apiCalls": None,
+                "minutes": None,
+            },
+        ),
+    ],
+)
+def test_size_preview_needs_no_access_code(work_root, query, expected):
+    client, factory = make_client(work_root)
+
+    response = client.get(f"/api/size?{query}")
+
+    assert response.status_code == 200
+    assert response.json() == expected
+    assert factory.calls == []  # arithmetic only: no AI provider is made
+
+
+def test_size_preview_rejects_all_three(work_root):
+    client, _ = make_client(work_root)
+
+    response = client.get("/api/size?modules=2&lessons=3&hours=3")
+
+    assert response.status_code == 400
+    assert "not all three" in response.json()["error"]
 
 
 # ---------------------------------------------------------------------------

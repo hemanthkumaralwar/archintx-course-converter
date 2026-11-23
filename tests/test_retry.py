@@ -3,7 +3,7 @@
 import pytest
 
 from converter.exceptions import ConfigurationError, GenerationError, ValidationFailedError
-from converter.retry import run_with_retries
+from converter.retry import RetryNotice, run_with_retries, set_retry_listener
 
 
 class Recorder:
@@ -106,3 +106,23 @@ def test_single_attempt_allowed(waits):
 def test_zero_attempts_rejected(waits):
     with pytest.raises(ValueError, match="at least 1"):
         run(Recorder(), waits, max_attempts=0)
+
+
+def test_retries_are_reported_to_this_threads_listener(waits):
+    heard = []
+    set_retry_listener(heard.append)
+    try:
+        run(Recorder(GenerationError("503"), ValidationFailedError("bad", ["x"])), waits)
+    finally:
+        set_retry_listener(None)
+
+    assert heard == [
+        RetryNotice(attempt=1, max_attempts=3, wait_seconds=2, service_failed=True),
+        RetryNotice(attempt=2, max_attempts=3, wait_seconds=0, service_failed=False),
+    ]
+
+
+def test_no_listener_is_fine(waits):
+    set_retry_listener(None)
+
+    assert run(Recorder(GenerationError("503")), waits) == "ok"

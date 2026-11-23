@@ -8,6 +8,7 @@ import pytest
 from converter import cli
 from converter.exceptions import ConfigurationError
 from converter.json_utils import load_json
+from converter.planner import SizeRequest
 from tests.fakes import FakeProvider
 from tests.sample_course import SAMPLE_INPUT, conversion_answers
 
@@ -105,12 +106,12 @@ def test_missing_api_key_exits_1(document, tmp_path, monkeypatch, capsys):
     "argv",
     [
         [],
-        ["a.txt", "--modules", "2"],
-        ["a.txt", "--lessons", "3"],
+        ["a.txt", "--modules", "2", "--lessons", "3", "--hours", "3"],
+        ["a.txt", "--hours", "40"],
         ["a.txt", "--modules", "two", "--lessons", "3"],
         ["a.txt", "--provider", "claude"],
     ],
-    ids=["no-input", "modules-only", "lessons-only", "not-a-number", "unknown-provider"],
+    ids=["no-input", "all-three-sizes", "too-many-hours", "not-a-number", "unknown-provider"],
 )
 def test_bad_arguments_exit_2(argv):
     with pytest.raises(SystemExit) as stop:
@@ -138,3 +139,25 @@ def test_automatic_size_when_no_size_is_given(document, fake_llm, monkeypatch):
 
     assert cli.main([str(document)]) == 1
     assert seen["size"] is None
+
+
+@pytest.mark.parametrize(
+    ("argv", "expected"),
+    [
+        (["--modules", "2"], SizeRequest(modules=2)),
+        (["--hours", "3", "--lessons", "3"], SizeRequest(lessons_per_module=3, hours=3)),
+        (["--modules", "2", "--lessons", "3"], SizeRequest(2, 3)),
+    ],
+)
+def test_size_choices_reach_the_conversion(document, fake_llm, monkeypatch, argv, expected):
+    seen = {}
+
+    def fake_convert(path, provider, options, progress):
+        seen["size"] = options.size
+        raise ConfigurationError("stop here")
+
+    fake_llm(FakeProvider([]))
+    monkeypatch.setattr(cli, "convert", fake_convert)
+
+    assert cli.main([str(document), *argv]) == 1
+    assert seen["size"] == expected

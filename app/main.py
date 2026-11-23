@@ -5,14 +5,17 @@ WHAT: The web API for the converter:
         POST /api/convert                 upload a file and options; starts a job
         GET  /api/jobs/{job_id}           the job's state and progress
         GET  /api/jobs/{job_id}/download the finished course JSON
+        GET  /api/size                    the course size for the page's size choices
         GET  /healthz                     liveness check (no access code needed)
         GET  /                            the upload page (app/static/)
         GET  /sample/python-basics.txt    the sample document, for a quick try
 
       Start it with:  uvicorn app.main:create_app --factory
 
-WHY:  Every /api call needs the access code (X-Access-Code header), so
-      strangers cannot use up the Gemini quota. Uploads are size-checked from
+WHY:  Every /api call that can reach the LLM needs the access code
+      (X-Access-Code header), so strangers cannot use up the Gemini quota.
+      /api/size only does arithmetic, so the page can use it before the
+      code is typed. Uploads are size-checked from
       Content-Length before the body is read. Error responses are short and
       never include paths, keys or tracebacks.
 """
@@ -31,11 +34,11 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from converter.config import PROJECT_ROOT, load_settings
+from converter.config import PLANNING_LESSON_MINUTES, PROJECT_ROOT, load_settings
 from converter.convert import ConversionOptions, convert, safe_slug
 from converter.exceptions import ConfigurationError
 from converter.extractors import DEFAULT_LIMITS, READERS
-from converter.planner import CourseSize, check_course_size
+from converter.planner import SizeRequest, check_size_request, resolve_course_size
 from converter.providers import PROVIDER_FACTORIES, get_provider
 
 from .extraction import extract_with_time_limit
@@ -45,6 +48,10 @@ logger = logging.getLogger(__name__)
 
 # Room for the multipart form around the file (field names, boundaries, options).
 FORM_OVERHEAD_BYTES = 64 * 1024
+
+# Rough time for one AI call, for the page's estimate only (2 x 3 course:
+# 10 calls in about 2 minutes on Gemini's free tier).
+SECONDS_PER_CALL_ESTIMATE = 12
 MAX_REQUEST_BYTES = DEFAULT_LIMITS.max_file_bytes + FORM_OVERHEAD_BYTES
 
 DEFAULT_WORK_ROOT = Path(tempfile.gettempdir()) / "archintx-jobs"
@@ -103,6 +110,12 @@ def create_app(
     def health():
         return {"status": "ok"}
 
+    @app.get("/api/size")
+    def course_size(
+        modules: int | None = None, lessons: int | None = None, hours: int | None = None
+    ):
+        return size_preview(requested_size(modules, lessons, hours))
+
     access = [Depends(access_check(settings))]
     _add_conversion_routes(app, settings, provider_factory, runner, access)
     _add_job_routes(app, runner, access)
@@ -135,11 +148,12 @@ def _add_conversion_routes(app, settings, provider_factory, runner, access):
         file: Annotated[UploadFile, File()],
         modules: Annotated[int | None, Form()] = None,
         lessons: Annotated[int | None, Form()] = None,
+        hours: Annotated[int | None, Form()] = None,
         provider: Annotated[str | None, Form()] = None,
         x_api_key: Annotated[str, Header()] = "",
     ):
         file_name = upload_name(file.filename)
-        size = requested_size(modules, lessons)
+        size = requested_size(modules, lessons, hours)
         llm = make_provider(settings, provider_factory, provider, x_api_key)
         data = await file.read(DEFAULT_LIMITS.max_file_bytes + 1)
 
@@ -164,6 +178,8 @@ def _add_job_routes(app, runner, access):
             "done": job.done,
             "total": job.total,
             "label": job.label,
+            "steps": job.steps,
+            "notice": job.notice,
             "error": job.error,
         }
 
@@ -219,22 +235,56 @@ def upload_name(filename):
     return safe_slug(path.stem, fallback="document") + suffix
 
 
-def requested_size(modules, lessons):
-    """The CourseSize asked for, or None for automatic size."""
-    if modules is None and lessons is None:
+def requested_size(modules, lessons, hours):
+    """
+    WHAT: The SizeRequest for the page's choices, or None when all are automatic.
+
+    RAISES:
+        HTTPException(400): a value out of range, or all three chosen.
+    """
+    if modules is None and lessons is None and hours is None:
         return None
 
-    if modules is None or lessons is None:
-        raise HTTPException(400, "Give both the number of modules and lessons, or neither.")
-
-    size = CourseSize(modules, lessons)
+    request = SizeRequest(modules, lessons, hours)
 
     try:
-        check_course_size(size)
+        check_size_request(request)
     except ConfigurationError as exc:
         raise HTTPException(400, str(exc)) from exc
 
-    return size
+    return request
+
+
+def size_preview(request):
+    """
+    WHAT: What the page shows for a size request before any document is read.
+
+    HOW:  Values that depend on the document's length are None; a chosen
+          count is always returned as chosen.
+    """
+    size = resolve_course_size(request)
+    request = request or SizeRequest()
+
+    if size is None:
+        return {
+            "modules": request.modules,
+            "lessons": request.lessons_per_module,
+            "totalLessons": None,
+            "hours": None,
+            "apiCalls": None,
+            "minutes": None,
+        }
+
+    total = size.modules * size.lessons_per_module
+    calls = size.pieces  # one AI call per piece when nothing is retried
+    return {
+        "modules": size.modules,
+        "lessons": size.lessons_per_module,
+        "totalLessons": total,
+        "hours": total * PLANNING_LESSON_MINUTES / 60,
+        "apiCalls": calls,
+        "minutes": max(1, round(calls * SECONDS_PER_CALL_ESTIMATE / 60)),
+    }
 
 
 def make_provider(settings, provider_factory, provider_name, api_key):

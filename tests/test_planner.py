@@ -7,12 +7,16 @@ import pytest
 from converter.chunking import Section
 from converter.exceptions import ConfigurationError, ValidationFailedError
 from converter.planner import (
+    MAX_COURSE_HOURS,
     MAX_LESSONS_PER_MODULE,
     CourseSize,
+    SizeRequest,
     auto_course_size,
     check_course_size,
+    check_size_request,
     generate_course_details,
     generate_outline,
+    resolve_course_size,
     validate_outline,
     validate_plan,
 )
@@ -143,6 +147,75 @@ def test_requested_size_out_of_range(size):
 
 def test_requested_size_in_range():
     check_course_size(CourseSize(30, 8))
+
+
+# ---------------------------------------------------------------------------
+# Size choices: modules, lessons per module and hours, each optional
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("request_", "expected"),
+    [
+        (SizeRequest(2, 3), CourseSize(2, 3)),  # both counts: exactly those
+        (SizeRequest(hours=3), CourseSize(1, 6)),  # 6 lessons, fewest modules
+        (SizeRequest(hours=5), CourseSize(2, 5)),  # 10 lessons spread over 2 modules
+        (SizeRequest(modules=2, hours=3), CourseSize(2, 3)),
+        (SizeRequest(modules=4, hours=3), CourseSize(4, 2)),  # rounded up: never shorter
+        (SizeRequest(lessons_per_module=4, hours=3), CourseSize(2, 4)),
+        (SizeRequest(modules=1, hours=32), CourseSize(1, 8)),  # capped at 8 lessons
+        (SizeRequest(hours=MAX_COURSE_HOURS), CourseSize(8, 8)),
+    ],
+)
+def test_size_from_choices_without_the_document(request_, expected):
+    assert resolve_course_size(request_) == expected
+    assert resolve_course_size(request_, sections_of(100)) == expected  # document not used
+
+
+@pytest.mark.parametrize(
+    ("request_", "expected"),
+    [
+        (None, CourseSize(3, 6)),  # 17 lessons from 50,000 characters
+        (SizeRequest(), CourseSize(3, 6)),
+        (SizeRequest(modules=2), CourseSize(2, 8)),  # 17 / 2 = 9, capped at 8
+        (SizeRequest(modules=6), CourseSize(6, 3)),
+        (SizeRequest(lessons_per_module=4), CourseSize(5, 4)),
+    ],
+)
+def test_size_from_the_document_fills_what_is_automatic(request_, expected):
+    assert resolve_course_size(request_, sections_of(50_000)) == expected
+
+
+def test_size_that_needs_the_document_is_unknown_without_it():
+    assert resolve_course_size(SizeRequest(modules=2)) is None
+    assert resolve_course_size(None) is None
+
+
+def test_course_size_is_used_as_it_is():
+    assert resolve_course_size(CourseSize(30, 8), sections_of(100)) == CourseSize(30, 8)
+
+
+def test_size_choices_cannot_all_be_set():
+    with pytest.raises(ConfigurationError, match="not all three"):
+        check_size_request(SizeRequest(2, 3, 3))
+
+
+@pytest.mark.parametrize(
+    ("request_", "message"),
+    [
+        (SizeRequest(hours=0), "course hours must be from 1 to 32"),
+        (SizeRequest(hours=33), "course hours must be from 1 to 32"),
+        (SizeRequest(modules=31), "modules must be from 1 to 30"),
+        (SizeRequest(lessons_per_module=9), "lessons per module must be from 1 to 8"),
+    ],
+)
+def test_size_choices_out_of_range(request_, message):
+    with pytest.raises(ConfigurationError, match=message):
+        resolve_course_size(request_)
+
+
+def test_pieces_count_every_ai_step():
+    assert CourseSize(2, 3).pieces == 10  # outline, details, 2 overviews, 6 lessons
 
 
 # ---------------------------------------------------------------------------

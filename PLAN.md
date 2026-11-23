@@ -447,6 +447,13 @@ finished only when its **Done when** check passes. Steps flagged
 - **Done when:** someone who has not worked on the project follows the README on a clean machine and runs the CLI and the test suite in under 15 minutes, and every item in section 8 (Submission checklist) is ticked.
 - **Done 2026-11-20, except the items that need the user.** Written: `docs/TECHNICAL.md`, `docs/DEMO.md`, a README quick start and documentation map, a summary at the top of `docs/TEST_RESULTS.md`, and a note on `docs/LEGACY_GENERATOR.md`. Clean-machine check (fresh clone, Python 3.12, README steps only): installs, 452 tests pass, conversion VALID; about 15 minutes on this slow machine without a Gemini "503 high demand" stop, 17 minutes with the stop and the documented resume (`docs/TEST_RESULTS.md`). Not done by me: the recorded backup walkthrough, reviewer access to the private repository, and the final quality numbers that wait for Step 15Q.
 
+#### Step 17 — Upload page redesign and flexible course size
+- **Goal:** Build the UI/UX design (set up, converting, course ready, phone) into the web page, and let users choose modules, lessons per module and course duration (hours) each on their own.
+- **Components/files:** `converter/planner.py` (`SizeRequest`, `resolve_course_size`), `converter/retry.py` (retry listener), `converter/cli.py` (`--hours`), `app/main.py` (`hours`, `GET /api/size`, `steps` and `notice` in job status), `app/jobs.py`, `app/static/*`, tests, README, `docs/TECHNICAL.md`, `docs/DEMO.md`.
+- **Depends on:** Step 13.
+- **Decisions:** each lesson is planned at 30 minutes, so hours set the lesson total. At most two of modules, lessons and hours can be chosen; with both counts chosen, the duration follows from them (the page locks it, the API refuses all three). Counts fitted to hours round up, so a course is never shorter than asked. The page asks the server for the size (`/api/size`, no access code: arithmetic only), so the rules are in Python once. Retry notices are built from counts only, never the failure text. Web conversions still start over after a failure (each job's folder is temporary); only the CLI resumes.
+- **Done 2026-11-23:** see the git log for this step.
+
 ### 6.5 Summary
 
 | Step | Name | Depends on | Flags |
@@ -470,6 +477,7 @@ finished only when its **Done when** check passes. Steps flagged
 | ~~15~~ | ~~Deploy live demo~~ (skipped: local use only) | — | |
 | 15Q | Output quality against the team's sample | 13 | BUDGET |
 | 16 | Documentation and local demo | 15Q | DEADLINE |
+| 17 | Upload page redesign, flexible course size | 13 | |
 
 Steps 1, 2 and 4 depend only on Step 0 and can run in any order. Step 7 could be done whenever convenient after its dependency.
 

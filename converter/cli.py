@@ -6,8 +6,10 @@ WHAT: Command-line entry point of the converter:
         python -m converter.cli notes.pdf
         python -m converter.cli notes.docx --modules 2 --lessons 3 --provider gemini -o course.json
 
-      Without --modules and --lessons, the course size is chosen from the
-      document's length.
+        python -m converter.cli notes.txt --hours 3 --modules 2
+
+      Modules, lessons per module and --hours are each optional; any left out
+      is filled in from the others or from the document's length.
 
 EXIT CODES:
     0    success
@@ -23,9 +25,9 @@ import sys
 
 from .config import load_settings
 from .convert import ConversionOptions, convert
-from .exceptions import CourseGenerationError
+from .exceptions import ConfigurationError, CourseGenerationError
 from .json_utils import load_json, save_json
-from .planner import CourseSize
+from .planner import SizeRequest, check_size_request
 from .providers import PROVIDER_FACTORIES, get_provider
 
 
@@ -47,8 +49,14 @@ def parse_arguments(argv=None):
         description="Convert a .txt, .docx or .pdf file into course JSON.",
     )
     parser.add_argument("input", help="the .txt, .docx or .pdf file to convert")
-    parser.add_argument("--modules", type=int, help="number of modules (use with --lessons)")
-    parser.add_argument("--lessons", type=int, help="lessons per module (use with --modules)")
+    parser.add_argument("--modules", type=int, help="number of modules (default: automatic)")
+    parser.add_argument("--lessons", type=int, help="lessons per module (default: automatic)")
+    parser.add_argument(
+        "--hours",
+        type=int,
+        help="course duration in hours, about 2 lessons per hour; not with both "
+        "--modules and --lessons (default: automatic)",
+    )
     parser.add_argument(
         "--provider",
         choices=sorted(PROVIDER_FACTORIES),
@@ -58,16 +66,17 @@ def parse_arguments(argv=None):
     parser.add_argument("--output-dir", help="folder for work in progress (default: output/)")
     args = parser.parse_args(argv)
 
-    if (args.modules is None) != (args.lessons is None):
-        parser.error(
-            "--modules and --lessons must be given together (or neither, for automatic size)"
-        )
+    try:
+        check_size_request(SizeRequest(args.modules, args.lessons, args.hours))
+    except ConfigurationError as exc:
+        parser.error(str(exc))
 
     return args
 
 
 def options_from(args):
-    size = CourseSize(args.modules, args.lessons) if args.modules is not None else None
+    choices = (args.modules, args.lessons, args.hours)
+    size = None if choices == (None, None, None) else SizeRequest(*choices)
     options = ConversionOptions(size=size)
 
     if args.output_dir:

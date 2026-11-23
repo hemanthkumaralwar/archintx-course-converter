@@ -25,6 +25,7 @@ from pathlib import Path
 
 from converter.exceptions import CourseGenerationError, ExtractionError, GenerationError
 from converter.json_utils import load_json
+from converter.retry import set_retry_listener
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,13 @@ GENERIC_FAILURE = (
 
 @dataclass
 class Job:
-    """One conversion. `result` is the finished course JSON once state is "done"."""
+    """
+    One conversion. `result` is the finished course JSON once state is "done".
+
+    steps:  every finished piece so far, in order: {"label", "reused"}. The
+            page shows them as a list, so none is missed between two polls.
+    notice: a "trying again" message while a step is being retried, else "".
+    """
 
     id: str
     file_name: str
@@ -53,9 +60,29 @@ class Job:
     done: int = 0
     total: int = 0
     label: str = ""
+    steps: list = dataclasses.field(default_factory=list)
+    notice: str = ""
     error: str = ""
     result: dict = None
     finished_at: float = None
+
+
+def retry_message(notice):
+    """
+    WHAT: The page's "trying again" message for one retry.
+
+    WHY:  Built from counts only. The failure's own text is not shown: a
+          validation message can quote the model's answer.
+    """
+    attempt = f"try {notice.attempt} of {notice.max_attempts}"
+
+    if notice.service_failed:
+        return (
+            f"The AI service is busy or did not answer ({attempt}). "
+            f"Trying again in {round(notice.wait_seconds)} s. Nothing is lost."
+        )
+
+    return f"The AI's answer did not pass the checks ({attempt}). Asking again."
 
 
 def public_message(error, job_id):
@@ -110,11 +137,18 @@ class JobRunner:
         """Return a copy of the job (safe to read while it runs), or None."""
         with self._lock:
             job = self._jobs.get(job_id)
-            return dataclasses.replace(job) if job else None
+            return dataclasses.replace(job, steps=list(job.steps)) if job else None
 
     def _run(self, job, data, provider, options):
         self._update(job, state="running")
-        outcome = self._convert_in_temp_folder(job, data, provider, options)
+        set_retry_listener(lambda notice: self._update(job, notice=retry_message(notice)))
+
+        try:
+            outcome = self._convert_in_temp_folder(job, data, provider, options)
+        finally:
+            set_retry_listener(None)
+
+        outcome["notice"] = ""
 
         # The final state is set only now, after the temp folder is gone, so
         # "done" or "failed" always means the job is completely finished.
@@ -152,7 +186,10 @@ class JobRunner:
 
     def _progress(self, job):
         def report(event):
-            self._update(job, done=event.done, total=event.total, label=event.label)
+            with self._lock:
+                job.done, job.total, job.label = event.done, event.total, event.label
+                job.steps.append({"label": event.label, "reused": event.reused})
+                job.notice = ""  # the retried step has finished
 
         return report
 

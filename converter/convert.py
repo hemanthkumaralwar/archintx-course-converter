@@ -45,7 +45,7 @@ from .pipeline import (
     set_course_field,
     write_course,
 )
-from .planner import auto_course_size, check_course_size, generate_outline
+from .planner import check_course_size, generate_outline, resolve_course_size
 from .schema_utils import build_schema_set
 from .user_input import CourseRequest, slugify
 
@@ -65,7 +65,8 @@ DURATION = re.compile(r"(\d+(?:\.\d+)?)\s*(hours?|hrs?|minutes?|mins?)\b", re.IG
 @dataclass(frozen=True)
 class ConversionOptions:
     """
-    size:        modules and lessons per module, or None to choose from the document's length.
+    size:        None (all automatic), a planner.CourseSize, or a planner.SizeRequest
+                 with any of modules, lessons per module and hours chosen.
     output_root: folder that holds one subfolder per converted document.
     """
 
@@ -94,7 +95,7 @@ def convert(path, provider, options=None, progress_callback=None, extract=extrac
     validate_config()
     path = Path(path)
     sections = split_sections(extract(path))
-    size = options.size or auto_course_size(sections)
+    size = resolve_course_size(options.size, sections)
     check_course_size(size)
 
     digest = file_sha256(path)
@@ -102,8 +103,7 @@ def convert(path, provider, options=None, progress_callback=None, extract=extrac
     schemas = build_schema_set(
         load_json(SCHEMA_FILE), ARRAY_PATH, LESSON_ARRAY_PATH, LESSON_ITEM_COUNTS
     )
-    total = 2 + size.modules * (1 + size.lessons_per_module)  # outline, details, overviews, lessons
-    progress = ProgressCounter(total, progress_callback or (lambda event: None))
+    progress = ProgressCounter(size.pieces, progress_callback or (lambda event: None))
     logger.info(
         "Converting %s: %d sections, %d modules x %d lessons",
         path.name,
