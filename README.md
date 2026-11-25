@@ -7,6 +7,30 @@ It runs on your own computer. Only the AI part goes online (Google Gemini, free)
 
 > **Privacy:** your document's text is sent to the AI service. Do not use confidential files.
 
+## What it looks like
+
+**1. Choose a file and the course size** (each size setting can be Automatic or chosen)
+
+![Set-up screen: document, course size and access code](docs/images/1-set-up.png)
+
+**2. Watch it convert** (busy moments at Gemini are retried automatically)
+
+![Converting screen: progress bar, step list and a "trying again" notice](docs/images/2-converting.png)
+
+**3. Read the course and download the JSON**
+
+![Course screen: outline, lesson quiz and Download JSON button](docs/images/3-course-ready.png)
+
+<img src="docs/images/4-phone.png" alt="The set-up screen on a phone" width="260" align="right">
+
+**4. It also works on a phone.**
+
+These screenshots replay a real Gemini conversion of the sample file
+([docs/examples/python-basics-txt.json](docs/examples/python-basics-txt.json)),
+sped up: a real run takes about 2 minutes.
+
+<br clear="right">
+
 The commands below are for **Windows** (PowerShell). On **macOS or Linux**, use the
 commands marked "Mac/Linux".
 
